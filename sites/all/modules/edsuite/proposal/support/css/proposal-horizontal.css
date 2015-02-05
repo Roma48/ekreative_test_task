@@ -1,0 +1,88 @@
+div.section {
+    clear: both;
+}
+
+div#proposal-navigation-container {
+    height: 30px;
+    margin-bottom: 3px;
+}
+
+ul#proposal-navigation {
+    margin: 0;
+}
+
+/* Horizontal menu styles */
+
+ul.horizontal, ul.horizontal * {
+	margin:			0;
+	padding:		0;
+	list-style:		none;
+}
+ul.horizontal {
+	line-height:	1.0;
+}
+ul.horizontal ul {
+	position:		absolute;
+	top:			-999em;
+	width:			10em; /* left offset of submenus need to match (see below) */
+}
+ul.horizontal ul li {
+	width:			100%;
+}
+ul.horizontal li:hover {
+	visibility:		inherit; /* fixes IE7 'sticky bug' */
+}
+ul.horizontal li {
+	float:			left;
+	position:		relative;
+}
+ul.horizontal a {
+	display:		block;
+	position:		relative;
+}
+ul.horizontal li:hover ul,
+ul.horizontal li.sfHover ul {
+	left:			0;
+	top:			2.5em; /* match top ul list item height */
+	z-index:		99;
+}
+ul.horizontal li:hover li ul,
+ul.horizontal li.sfHover li ul {
+	top:			-999em;
+}
+ul.horizontal li li:hover ul,
+ul.horizontal li li.sfHover ul {
+	left:			10em; /* match ul width */
+	top:			0;
+}
+ul.horizontal li li:hover li ul,
+ul.horizontal li li.sfHover li ul {
+	top:			-999em;
+}
+ul.horizontal li li li:hover ul,
+ul.horizontal li li li.sfHover ul {
+	left:			10em; /* match ul width */
+	top:			0;
+}
+
+/*** SKIN ***/
+ul.horizontal {
+	float:			left;
+	margin-bottom:	1em;
+}
+ul.horizontal a {
+	padding: 		.75em 1em;
+	text-decoration:none;
+}
+ul.horizontal li {
+	padding: 0 !important;
+	margin: 0 !important;
+}
+ul.horizontal li:hover, ul.horizontal li.sfHover,
+ul.horizontal a:focus, ul.horizontal a:hover, ul.horizontal a:active {
+	outline:		0;
+}
+ul.horizontal li li:hover, ul.horizontal li li.sfHover,
+ul.horizontal li li a:focus, ul.horizontal li li a:hover, ul.horizontal li li a:active {
+	outline:		0;
+}

@@ -1,0 +1,22 @@
+name = "Node Embed Edsuite"
+description = "Module providing an embed node widget"
+package = EDSuite
+core = 7.x
+dependencies[] = views
+
+files[] = ckeditor/ckeditor_node_embed.view.inc
+files[] = ckeditor/ck_nodeembed.js
+files[] = ckeditor/ck_nodeembed.css
+
+files[] = plugins/node_embed.inc
+files[] = plugins/images/icon.gif
+files[] = plugins/js/node_embed.js
+files[] = plugins/node_embed/node_embed.css
+
+files[] = theme/html--ckeditor-node-embed.tpl.php
+files[] = theme/page--ckeditor-node-embed.tpl.php
+
+files[] = views/views_handler_node_embed_add_area.inc
+
+version = "7.x-1.1"
+core = "7.x"

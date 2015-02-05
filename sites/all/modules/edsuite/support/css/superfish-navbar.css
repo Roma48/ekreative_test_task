@@ -1,0 +1,49 @@
+/*** adding the class sf-navbar in addition to sf-menu creates an all-horizontal nav-bar menu ***/
+div#dashboard ul.links li {
+	position:		static;
+}
+div#dashboard ul.links a {
+	border-top:		none;
+}
+div#dashboard ul.links li ul {
+	width:			100%; /*IE6 soils itself without this*/
+	background: #2198D0 url('../images/dashboard-submenu-bg.jpg');
+}
+div#dashboard ul.links li li {
+	position:		relative;
+}
+div#dashboard ul.links ul li {
+	width:			auto;
+	float:			left;
+}
+div#dashboard ul.links a, div#dashboard ul.links a:visited {
+	border:			none;
+}
+div#dashboard ul.links li.current {
+}
+div#dashboard ul.links li:hover,
+div#dashboard ul.links li.sfHover,
+div#dashboard ul.links li li.current,
+div#dashboard ul.links a:focus, div#dashboard ul.links a:hover, div#dashboard ul.links a:active {
+	background: url('../images/dashboard-selected-bg.jpg');
+}
+div#dashboard ul.links ul li:hover,
+div#dashboard ul.links ul li.sfHover,
+div#dashboard ul.links ul li:hover li,
+div#dashboard ul.links ul li.sfHover li,
+div#dashboard ul.links ul a:focus, div#dashboard ul.links ul a:hover, div#dashboard ul.links ul a:active {
+    background: none;
+}
+div#dashboard ul.links .current ul,
+div#dashboard ul.links ul li:hover ul,
+div#dashboard ul.links ul li.sfHover ul {
+	left:			0;
+	top:			47px; /* match top ul list item height */
+}
+div#dashboard ul.links .current ul ul {
+	top: 			-999em;
+}
+
+div#dashboard ul.links li li.current > a {
+	font-weight:	bold;
+}

@@ -1,0 +1,12 @@
+<?php
+
+
+function eds_export_table_install()
+{
+    $query = db_insert('role_permission')->fields(array('rid', 'permission', 'module'));
+    $query->values(array('rid' => 1, 'permission' => 'export table', 'module' => 'eds_export_table'));
+    $query->values(array('rid' => 2, 'permission' => 'export table', 'module' => 'eds_export_table'));
+//    $query->values(array('rid' => 3, 'permission' => 'export table', 'module' => 'eds_export_table'));
+    $query->execute();
+
+}

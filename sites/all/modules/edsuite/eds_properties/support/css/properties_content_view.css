@@ -1,0 +1,13 @@
+table#properties th {
+    text-align: center;
+}
+
+table#properties td.actions {
+    white-space: nowrap;
+}
+
+table#properties td.actions,
+table#properties td.price,
+table#properties td.sq_footage {
+    text-align: center;
+}

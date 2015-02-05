@@ -1,0 +1,354 @@
+<?php
+
+require_once('proposal_install_fields.inc.php');
+require_once('proposal_install_instances.inc.php');
+
+
+
+
+function proposal_enable() {
+    proposal_install();
+}
+
+function proposal_disable() {
+    proposal_uninstall();
+}
+
+function proposal_uninstall() {
+    /*
+    $name = 'proposal';
+    if (node_type_load($name)){
+        
+        $result = db_query('SELECT nid FROM {node} n WHERE n.type = :type', array(':type' => $name));
+        $nids   = array();
+        foreach($result as $row)
+        {
+            $nids[] = $row->nid;
+        }
+        node_delete_multiple($nids);
+
+
+        $RES1 = db_query("UPDATE {node_type} SET `custom` = 1, `locked` = 0, `module` = 'node' WHERE `type` = '".$name."'");
+
+        $fields = _proposal_installed_fields();
+        foreach ($fields as $n => $i) {
+            field_delete_field($n);
+        }
+        $ins = _proposal_installed_instances();
+        foreach ($ins as $n => $i) {
+            field_delete_instance($n);
+        }
+        node_type_delete($name);
+        menu_rebuild();
+
+        drupal_flush_all_caches();
+    }*/
+}
+function proposal_install()
+{
+    //proposal_uninstall();
+
+    $name = 'proposal';
+
+    $proposal = array(
+        'type' => $name,
+        'name' => t('Proposal'),
+        'base' => 'node_content',
+        'title_label' => t('Company Prospect'),
+        'description' => t(
+            'A proposal is a set of data locked via a user-defined code, tied to a lead.'
+        ),
+        'custom' => 1,
+        'modified' => 1,
+        'locked' => 0,
+    );
+    if (!node_type_load($name)){
+        $content_type = node_type_set_defaults($proposal);
+
+        node_type_save($content_type);
+
+        variable_set('node_options_' . $name, array(0 => 'status'));
+        variable_set('node_submitted_' . $name, 0);
+        variable_set('comment_' . $name, '1');
+
+
+        foreach (_proposal_installed_fields() as $field) {
+            field_create_field($field);
+        }
+
+        foreach (_proposal_installed_instances() as $instance) {
+            $instance['entity_type'] = 'node';
+            $instance['bundle'] = $proposal['type'];
+            field_create_instance($instance);
+        }
+    } 
+
+//    $t1 = array(
+//        'label' => 'Colors',
+//        'weight' => '11',
+//        'children' => array(
+//            'field_headers',
+//            'field_links',
+//            'field_menu_foreground',
+//            'field_menu_background',
+//            'field_menu_hover_background',
+//            'field_menu_hover_foreground',
+//        ),
+//        'format_type' => 'fieldset',
+//        'format_settings' => array(
+//            'formatter' => 'collapsible',
+//            'instance_settings' => array(
+//                'description' => '',
+//                'classes' => '',
+//                'required_fields' => 1,
+//            ),
+//        ),
+//    );
+    $t2 = array(
+        'label' => 'Section',
+        'weight' => '0',
+        'children' => array(
+            'field_make_this_a_sub_section',
+            'field_section_title',
+            'field_section_body',
+            'group_proposal_sidebar',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t3 = array(
+        'label' => 'Sidebar',
+        'weight' => '4',
+        'children' => array(
+            'field_sidebar_title',
+            'field_sidebar_body',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'label' => 'Sidebar',
+            'instance_settings' => array(
+                'required_fields' => 1,
+                'classes' => '',
+                'description' => '',
+            ),
+            'formatter' => 'collapsed',
+        ),
+    );
+
+//    $res = db_select('field_group')
+//        ->fields('field_group', array('id'))
+//        ->condition('identifier', 'group_colors|node|proposal|form')
+//        ->execute()
+//        ->rowCount();
+//    if (!$res)
+//    db_insert('field_group')
+//        ->fields(
+//        array(
+//            'identifier' => 'group_colors|node|proposal|form',
+//            'group_name' => 'group_colors',
+//            'entity_type' => 'node',
+//            'bundle' => 'proposal',
+//            'mode' => 'form',
+//            'parent_name' => '',
+//            'data' => serialize($t1),
+//        )
+//    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_proposal_section|field_collection_item|field_proposal_sections|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_proposal_section|field_collection_item|field_proposal_sections|form',
+            'group_name' => 'group_proposal_section',
+            'entity_type' => 'field_collection_item',
+            'bundle' => 'field_proposal_sections',
+            'mode' => 'form',
+            'parent_name' => '',
+            'data' => serialize($t2),
+        )
+    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_proposal_sidebar|field_collection_item|field_proposal_sections|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_proposal_sidebar|field_collection_item|field_proposal_sections|form',
+            'group_name' => 'group_proposal_sidebar',
+            'entity_type' => 'field_collection_item',
+            'bundle' => 'field_proposal_sections',
+            'mode' => 'form',
+            'parent_name' => 'group_proposal_section',
+            'data' => serialize($t3),
+        )
+    )->execute();
+
+
+//    collections
+    if (!field_info_field('field_make_this_a_sub_section')){
+        foreach (_proposal_installed_fields_collection() as $field) {
+            field_create_field($field);
+        }
+
+        foreach (_proposal_installed_instances_collection() as $instance) {
+            $instance['entity_type'] = 'field_collection_item';
+            $instance['bundle'] = 'field_proposal_sections';
+            field_create_instance($instance);
+        }
+    }
+
+
+//    lead manager
+    $name = 'lead_manager';
+
+    $lead_manager = array(
+        'type' => $name,
+        'name' => t('Lead manager'),
+        'base' => 'node_content',
+        'title_label' => t('Last Name (Title)'),
+        'description' => t(
+            'Lead managers for proposal system'
+        ),
+        'custom' => 1,
+        'modified' => 1,
+        'locked' => 0,
+    );
+    if (!node_type_load($name)){
+        $content_type = node_type_set_defaults($lead_manager);
+        node_type_save($content_type);
+        variable_set('node_options_' . $name, array(0 => 'status'));
+        variable_set('node_submitted_' . $name, 0);
+        variable_set('comment_' . $name, '1');
+    } else {
+        $content_type = node_type_load($name);
+        $content_type->title_label=$lead_manager['title_label'];
+        node_type_save($content_type);
+        //var_dump($content_type); exit;
+    }
+
+    foreach (_lead_manager_installed_fields() as $field) {
+        $field_name= $field['field_name'];;
+        if ($instance_info = field_info_field($field_name))
+        {
+            field_update_field($field);
+        } else{
+            field_create_field($field);
+        }
+    }
+
+    foreach (_lead_manager_installed_instances() as $instance) {
+        $instance['entity_type'] = 'node';
+        $instance['bundle'] = $lead_manager['type'];
+
+        $entity_type = $instance['entity_type'];
+        $field_name =  $instance['field_name'];
+        $bundle_name = $instance['bundle'];
+        
+        if ($instance_info = field_info_instance($entity_type, $field_name, $bundle_name))
+        {
+            field_update_instance($instance);
+        } else{
+            field_create_instance($instance);
+        }
+    }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    $res = db_select('block')
+        ->fields('block', array('bid'))
+        ->condition('delta', 'propsal_secure')
+        ->condition('status', 1)
+        ->execute()
+        ->rowCount();
+    if (!$res) {
+        $blocks = array(
+            array(
+                'title' => 'Propsal Secure',
+                'module' => 'proposal',
+                'delta' => 'propsal_secure',
+                'theme' => 'edsuite_generic',
+                'status' => 1,
+                'weight' => 0,
+                'region' => 'content',
+                'visibility' => 1,
+                'pages' => "proposal/login/*",
+                'cache' => -1,
+
+            ),
+            array(
+                'title' => 'Propsal Secure',
+                'module' => 'proposal',
+                'delta' => 'propsal_secure',
+                'theme' => 'edsuite_devices',
+                'status' => 1,
+                'weight' => 0,
+                'region' => 'content',
+                'visibility' => 1,
+                'pages' => "proposal/login/*",
+                'cache' => -1,
+
+            ),
+            array(
+                'title' => '<none>',
+                'module' => 'proposal',
+                'delta' => 'propsal_login',
+                'theme' => 'edsuite_generic',
+                'status' => 1,
+                'weight' => 0,
+                'region' => 'header',
+                'visibility' => 0,
+                'pages' => "",
+                'cache' => -1,
+
+            ),
+            array(
+                'title' => '<none>',
+                'module' => 'proposal',
+                'delta' => 'propsal_login',
+                'theme' => 'edsuite_devices',
+                'status' => 1,
+                'weight' => 0,
+                'region' => 'header',
+                'visibility' => 0,
+                'pages' => "",
+                'cache' => -1,
+
+            ),
+        );
+        $query = db_insert('block')->fields(array('title', 'module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'cache'));
+        foreach ($blocks as $block) {
+            $query->values($block);
+        }
+        $query->execute();
+    }
+
+}

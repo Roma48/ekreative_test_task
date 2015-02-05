@@ -1,0 +1,7 @@
+; $Id$
+name = EDSuite Properties Search
+description = Adjusts EDSuite Properties Search feature
+package = EDSuite
+version = "5.x"
+core = 7.x
+dependencies[] = edsuite

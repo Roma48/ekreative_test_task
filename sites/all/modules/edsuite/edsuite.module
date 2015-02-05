@@ -1,0 +1,632 @@
+<?php
+/**
+ * edsuite.module - Master module with base functionality for all other modules
+ */
+
+require_once("edsuite_dashboard.inc"); /* Load up the dashboard code */
+/**
+ * URL filter. Automatically converts text web addresses (URLs, e-mail addresses,
+ * ftp links, etc.) into hyperlinks.
+ */
+function _edsuite_filter_url($text, $format) {
+  // Pass length to regexp callback
+  _filter_url_trim(NULL, variable_get('filter_url_length_'. $format, 72));
+
+  $text   = ' '. $text .' ';
+
+  // Match absolute URLs.
+  $text = preg_replace_callback("`(&nbsp;|<td>|<p>|<li>|<br\s*/?>|[ \n\r\t\(])((http://|https://|ftp://|mailto:|smb://|afp://|file://|gopher://|news://|ssl://|sslv2://|sslv3://|tls://|tcp://|udp://)([a-zA-Z0-9@:%_+*~#?&=.,/;-]*[a-zA-Z0-9@:%_+*~#&=/;-]))([.,?!]*?)(?=(&nbsp;|</td>|</p>|</li>|<br\s*/?>|[ \n\r\t\)]))`i", '_filter_url_parse_full_links', $text);
+
+  // Match e-mail addresses.
+  $text = preg_replace("`(&nbsp;|<td>|<p>|<li>|<br\s*/?>|[ \n\r\t\(])([A-Za-z0-9._-]+@[A-Za-z0-9._+-]+\.[A-Za-z]{2,4})([.,?!]*?)(?=(&nbsp;|</td>|</p>|</li>|<br\s*/?>|[ \n\r\t\)]))`i", '\1<a href="mailto:\2">\2</a>\3', $text);
+
+  // Match www domains/addresses.
+  $text = preg_replace_callback("`(&nbsp;|<td>|<p>|<li>|[ \n\r\t\(])(www\.[a-zA-Z0-9@:%_+*~#?&=.,/;-]*[a-zA-Z0-9@:%_+~#\&=/;-])([.,?!]*?)(?=(&nbsp;|</td>|</p>|</li>|<br\s*/?>|[ \n\r\t\)]))`i", '_filter_url_parse_partial_links', $text);
+  $text = substr($text, 1, -1);
+
+  return $text;
+}
+
+function edsuite_admin() {
+    return system_admin_menu_block_page();
+}
+
+/**
+* Define the settings form.
+* It displays all the existing node types on the page 
+* to select those nodes which the link (add/remove) has to be added to.
+*/
+function edsuite_admin_settings()
+{
+
+//    require_once DRUPAL_ROOT . '/includes/utility.inc';
+//
+//    dsm(drupal_var_export($view));
+//    $body_instance_book = field_read_instance('node', 'body', 'book');
+//    $body_instance_book['display'] = array(
+//        'default' => array(
+//            'label' => 'hidden',
+//            'type' => 'text_default',
+//            'settings' => array(),
+//            'module' => 'text',
+//            'weight' => 0,
+//        ),
+//        'teaser' => array(
+//            'label' => 'hidden',
+//            'type' => 'hidden',
+//            'weight' => '0',
+//            'settings' => array(),
+//        ),
+//        'related_list' => array(
+//            'label' => 'hidden',
+//            'type' => 'text_default',
+//            'weight' => '0',
+//            'settings' => array(),
+//            'module' => 'text',
+//        ),
+//        'preview_list' => array(
+//            'label' => 'above',
+//            'type' => 'hidden',
+//            'weight' => '0',
+//            'settings' => array(),
+//        ),
+//        'book_report' => array(
+//            'label' => 'hidden',
+//            'type' => 'hidden',
+//            'weight' => '0',
+//            'settings' => array(),
+//        ),
+//    );
+//    field_update_instance($body_instance_book);
+
+    //echo '<pre>'; print_r(menu_get_names()); exit;
+    
+    $print_logo = variable_get('eds_print_logo', path_to_theme() . "images/logo_custom_report.jpg");
+
+    $form['eds_print_logo'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Path to Logo for PDF printing'),
+        '#description'   => t('This file will be used as the logo in all PDF exports.  JPEGs are best.'),
+        '#default_value' => $print_logo,
+        '#size'          => 60,
+        '#maxlength'     => 256
+    );
+
+    $form['eds_print_logo_file'] = array(
+        '#type'          => 'file',
+        '#title'         => t('Logo for PDF printing'),
+        '#description'   => t('This file will be used as the logo in all PDF exports.  JPEGs are best.'),
+    );
+    
+    $menus = array("" => "") + menu_get_names();//menu_tree_page_data('navigation');
+    $form['eds_dashboard_use_menu'] = array(
+        '#type'          => 'select',
+        '#title'         => t('Drupal Menu to use for Dashboard'),
+        '#description'   => t('If you wish to override the default Dashboard menu, choose one here.'),
+        '#options'       => $menus,
+        '#default_value' => variable_get('eds_dashboard_use_menu', ""),
+    );
+
+    $form['eds_dashboard_import'] = array(
+        '#type'          => 'fieldset',
+        '#title'         => t('Import Dashboard Menu'),
+        '#description'   => t('If you would like to override the Dashboard menu with custom changes use this option to import the default structure into a menu name of your choice.'),
+        '#collapsible'   => TRUE,
+        '#collapsed'     => TRUE
+    );
+    $form['eds_dashboard_import']['eds_dashboard_menu_name'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Menu Name'),
+        '#size'          => 60,
+        '#maxlength'     => 256
+    );
+
+    $form['submit'] = array(
+        '#type'  => 'submit', 
+        '#value' => t('Save configuration') 
+    );
+    $form['#attributes'] = array('enctype' => 'multipart/form-data');
+
+    return $form;
+}
+
+/**
+ * Save settings in the variable
+ */
+function edsuite_admin_settings_submit($form_id, $form_values)
+{
+    variable_set('eds_dashboard_use_menu', $form_values['values']['eds_dashboard_use_menu']);
+
+    $file = file_save_upload('eds_print_logo_file', array(
+        'file_validate_is_image' => array(),
+        'file_validate_extensions' => array('png gif jpg jpeg'),
+    ));    
+    
+    if ($file) {
+        if ($file = file_move($file, 'public://')) { 
+
+            variable_set('eds_print_logo', file_create_url($file->uri));
+            $form_state['values']['file'] = $file;
+        } else {
+            form_set_error('eds_print_logo_file', t('There was an error in uploading your file.  Please try again.'));
+        }
+    }    
+    
+    if ($form_values['values']['eds_dashboard_menu_name'] != '') {
+        edsuite_import_dashboard($form_values['values']['eds_dashboard_menu_name']);
+    }
+
+    drupal_set_message(t('The configuration options have been saved.'));
+}
+
+/**
+* Implements hook_block_info().
+*/
+function edsuite_block_info() {
+    $blocks['edsuite_dashboard'] = array('info' => t('EDSuite Dashboard'),
+        'weight' => 0, 
+        'enabled' => 0, 
+    );
+    return $blocks;
+}
+
+/**
+* Implements hook_block_view().
+*
+*/
+function edsuite_block_view($delta = '') {
+    
+    switch($delta) {
+        case 'edsuite_dashboard':
+            $block = array(
+                'subject' => t(''),
+                'content' => edsuite_dashboard(),
+            );
+            break;
+    }      
+    
+    return $block;
+}
+
+/**
+ * Implementation of hook_block().
+ */
+function edsuite_block($op = 'list', $delta = 0, $edit = array())
+{
+    if ($op == 'list') {
+        $blocks[0] = array('info' => t('EDSuite Dashboard'),
+            'weight' => 0, 
+            'enabled' => 0, 
+        );
+        return $blocks;
+    } elseif ($op == 'view') {
+        $block = array(
+            'subject' => t(''),
+            'content' => edsuite_dashboard(),
+        );
+        return $block;
+    }
+}
+
+/**
+ * An implementation of hook_comment
+ *   - Adds any missing "http://" to the URL portion of a comment
+ */
+function edsuite_comment(&$comment, $op)
+{
+    if ($op == 'validate' || $op == 'insert' || $op == 'update') {
+        /* The comment validation is strict (requiring http[s]://); this adds the 'http://' in case it's missing so it will validate */
+        if ($comment['homepage'] && !valid_url($comment['homepage'], TRUE) && valid_url($comment['homepage'], FALSE)) {
+            $comment['homepage'] = "http://" . $comment['homepage'];
+            
+            /* The insert/update stuff happens AFTER the SQL, so if we want to make a persistent change we need to save the changes it. */
+            if ($op == 'insert' || $op == 'update') {
+                db_query("UPDATE {comments} SET  homepage = '%s' WHERE cid = %d", $comment['homepage'], $comment['cid']);
+            }
+            
+        }
+    }
+}
+
+/**
+ * Provide a list of additional form element-types.
+ */
+function edsuite_element_info()
+{
+    $types['slider'] = array(
+
+        '#input' => TRUE,
+        '#tree' => TRUE,
+//        '#process' => array('mymodule_element_process_callback'),
+//        '#element_validate' => array('mymodule_element_validate'),
+        '#theme' => array('slider'),
+        '#theme_wrappers' => array('form_element'),
+
+        '#min_value'   => 0,
+        '#max_value'   => 100, 
+        '#fractions'   => 10, 
+        '#default_min' => 0, 
+        '#default_max' => 100
+        );
+    $types['min_max'] = array(
+        '#input'       => TRUE,
+        '#theme' => array('min_max'),
+        '#min_value'   => 0, 
+        '#max_value'   => 100, 
+        '#fractions'   => 10, 
+        '#width'       => 185, 
+        '#default_min' => 0, 
+        '#default_max' => 100
+        );
+        
+    return $types;
+}
+
+/**
+ * Implementaion of hook_filter().
+ */
+function edsuite_filter($op, $delta = 0, $format = -1, $text = '')
+{
+    switch ($op) {
+        case 'list':
+            return array(0 => t('Improved URL Filter (EDSuite)'));
+        
+        case 'description':
+            switch ($delta) {
+                case 0:
+                    return t('Turns web and e-mail addresses into clickable links.');
+                default:
+                    return;
+            }
+        
+        case 'process':
+            switch ($delta) {
+                case 0:
+                    return _edsuite_filter_url($text, $format);
+                    
+                default:
+                    return;
+            }
+        
+        default:
+            return $text;
+    }
+}
+
+function edsuite_form_alter($form_id, &$form)
+{
+    if ($form_id == 'gmap_admin_settings') {
+        $form['gmap_default']['map']['#prefix'] = '<div id="eds-gmap-wrapper" style="height: 500px">';
+        $form['gmap_default']['map']['#suffix'] = '</div>';
+    }
+}
+
+/**
+ * Load the necissary files to support (jquery) tooltips
+ */
+function edsuite_load_tooltips()
+{
+    static $already_added = FALSE;
+    if ($already_added) {
+      return; // Don't add the javascript and CSS multiple times.
+    }
+    $already_added = TRUE;
+
+    drupal_add_js(drupal_get_path('module', 'edsuite') .'/js/tooltip.combined.pack.js');
+    drupal_add_css(drupal_get_path('module', 'edsuite') . '/support/css/jquery.tooltip.css');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function edsuite_menu() 
+{
+
+    $items = array();
+
+    $items['admin/edsuite'] = array(
+        'title' => t('EDSuite 3.0 Tools'),
+        'page callback' => 'system_admin_menu_block_page',
+        'position' => 'right',
+        'description' => t('Manage the EDSuite 3.0 tools'),
+        'weight' => -5,
+        'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),
+        'file' => 'system.admin.inc',
+        'file path' => drupal_get_path('module', 'system'),
+    );
+    $items['admin/edsuite/settings'] = array(
+        'title'              => t('EDSuite 3.0 settings'),
+        'page callback'           => 'drupal_get_form',
+        'page arguments' => array('edsuite_admin_settings'),
+        'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),
+        'description'        => t('Set the print logo.')
+    );
+    $items['node/%node/proposal-send-email'] = array(
+        'title'              => t('Proposal'),
+        'page callback'           => 'drupal_get_form',
+        'page arguments' => array('edsuite_send_proposal_email_form',1),
+        'access callback'    => true,
+    );
+    
+    
+    $items['node/%/property-export-csv'] = array(
+        'title'              => t('Property export csv'),
+        'page callback'           => 'eds_properties_export_csv',
+        'page arguments' => array(1),
+        'access callback'    => true,
+    );    
+    
+    $items['report/property-export-csv-all'] = array(
+        'title'              => t('Property export csv'),
+        'page callback'           => 'eds_properties_export_csv_all',
+        'access callback'    => true,
+    );     
+
+	return $items;
+}
+
+function edsuite_recursive_remove_directory($directory)
+{
+    if (substr($directory,-1) == '/') {
+        $directory = substr($directory,0,-1);
+    }
+    if (!file_exists($directory) || !is_dir($directory)) {
+        return FALSE;
+    } elseif (is_readable($directory)) {
+        $handle = opendir($directory);
+        while (FALSE !== ($item = readdir($handle))) {
+            if ($item != '.' && $item != '..') {
+                $path = $directory.'/'.$item;
+                if (is_dir($path)) {
+                    edsuite_recursive_remove_directory($path);
+                } else {
+                    unlink($path);
+                }
+            }
+        }
+        closedir($handle);
+            if (!rmdir($directory)) {
+                return FALSE;
+            }
+    }
+    return TRUE;
+}
+
+/**
+ *  Main Function to export a view as CSV
+ */
+function edsuite_views_bonus_export_csv($view, $nodes)
+{
+    if (!user_access('export views')) {
+        return;
+    }
+
+    $fields = _views_get_fields();
+$output = '';
+    foreach ($view->field as $field) {
+        /* Skip the created column */
+        if($field['field'] == 'created') {
+            continue;
+        }
+
+        $line = array();
+        
+        if ($fields[$field['id']]['visible'] !== false) {
+            $label = $field['label'] ? $field['label'] : $fields[$field['fullname']]['name'];
+            preg_match("/^\w+:\s([\w\s-:]*\w)/", $label, $matches);
+            $line[] = $matches[1];
+        }
+
+        foreach ($nodes as $node) {
+            $value = views_theme_field('views_handle_field', $field['queryname'], $fields, $field, $node, $view);
+            $value = preg_replace('/<.*?>/', '', $value); // strip html tags
+            $value = str_replace(array("\r", "\n", ','), ' ', $value); // strip line breaks and commas
+            $value = str_replace('"', '""', $value); // escape " characters
+            $value = decode_entities($value);
+            $line[] = '"' . $value . '"';
+        }
+
+        $output .= implode(',', $line) . "\r\n";
+    }
+
+    drupal_set_header('Content-Type: text/x-comma-separated-values');
+    drupal_set_header('Content-Disposition: attachment; filename="view-'. $view->name .'.csv"');
+    print $output;
+    module_invoke_all('exit');
+    exit;
+}
+
+function edsuite_theme($existing, $type, $theme, $path) {
+    $themes = array (
+        'ajax_busy' => array(
+            'template' => 'templates/ajax_busy',
+            'arguments' => array('content' => ''),
+        ),
+        'eds_number' => array(
+            'template' => 'templates/eds_number',
+            'arguments' => array('value' => NULL),
+        ),
+        'eds_price' => array(
+            'template' => 'templates/eds_price',
+            'arguments' => array('value' => NULL),
+        ),
+        'min_max' => array(
+            'template' => 'templates/min_max',
+            'arguments' => array('element' => NULL),
+        ),
+        'reset' => array(
+            'template' => 'templates/reset',
+            'arguments' => array('element' => NULL),
+        ),
+        'slider' => array(
+            'template' => 'templates/slider',
+//            'arguments' => array('element' => NULL),
+            'render element' => 'element',
+        ),
+        'edsuite_dashboard' => array(
+            'template' => 'templates/edsuite_dashboard',
+            'arguments' => array('user' => NULL, 'image' => NULL, 'menu' => NULL),
+        ),
+        'edsuite_dashboard_menu_item' => array(
+            'template' => 'templates/edsuite_dashboard_menu_item',
+            'arguments' => array('item' => array()),
+        ),
+        'edsuite_dashboard_menu_tree' => array(
+            'template' => 'templates/edsuite_dashboard_menu_tree',
+            'arguments' => array('menu' => array()),
+        ),
+    );
+    return $themes;
+}
+
+function edsuite_mail($key, &$message, $params) {
+    switch($key) {
+        case 'proposal-send-mail':
+            $message['subject'] = $params['subject'];
+            $message['body'][] = $params['body'];
+            if (isset($params['headers']) && is_array($params['headers'])) {
+                $message['headers'] += $params['headers'];
+            }
+            break;
+    }
+}
+
+function edsuite_send_proposal_email_form($form, &$form_state, $node){
+
+    $form['from'] = array(
+        '#title'         => t('From'),
+        '#type'          => 'textfield',
+        '#size'          => 30,
+        '#default_value' => variable_get('site_mail', ''),
+    );
+    $form['bcc'] = array(
+        '#title'         => t('Bcc'),
+        '#type'          => 'textfield',
+        '#size'          => 30,
+        '#default_value' => variable_get('site_mail', ''),
+    );
+    $form['subject'] = array(
+        '#title'         => t('Subject'),
+        '#type'          => 'textfield',
+        '#size'          => 30,
+        '#default_value' => 'Proposal Notification',
+    );
+    $form['email_body'] = array(
+        '#title'         => t('Email Body'),
+        '#type'          => 'textarea',
+        '#description'   => t('Make sure you insert all tokens: [[name]], [[url]], [[password]]'),
+        '#default_value' => 'Dear [[name]], We have prepared a proposal for you. To access it go to [[url]] and type your password: [[password]]',
+    );
+
+    $form['proposal_id'] = array(
+        '#type'          => 'hidden',
+        '#value' => $node->nid,
+    );
+
+
+    $form['submit'] = array(
+        '#type'  => 'submit',
+        '#value' => t('Send!')
+    );
+
+    return $form;
+
+}
+
+function edsuite_send_proposal_email_form_submit($form_id, $form_values)
+{
+    $from = $form_values['values']['from'];
+    $bcc = $form_values['values']['bcc'];
+    $subject = $form_values['values']['subject'];
+    $email_body = $form_values['values']['email_body'];
+    $nid = $form_values['values']['proposal_id'];
+    $node = node_load($nid);
+    global $base_url;
+    $code = field_get_items('node', $node, 'field_code');
+    $password = field_get_items('node', $node, 'field_password');
+    $managers = field_get_items('node', $node, 'field_managers');
+    $send = false;
+    foreach($managers as $value){
+        $manager_node = node_load($value['nid']);
+        $name = $manager_node->title;
+        $manager_emails = field_get_items('node', $manager_node, 'field_manager_email_address');
+        $to = '';
+        foreach($manager_emails as $value_email){
+            $to .= $value_email['email']. ', ';
+        }
+        $to = trim(trim($to), ',');
+        $body = preg_replace('/\[\[name\]\]/', $name, $email_body);
+        $body = preg_replace('/\[\[url\]\]/', $base_url . '/proposal/code/'.$code[0]['value'], $body);
+        $body = preg_replace('/\[\[password\]\]/', $password[0]['value'], $body);
+        $params = array(
+            'subject' => $subject,
+            'body' => $body,
+            'headers' => array(
+                'Bcc' => $bcc,
+            )
+        );
+        $ret = drupal_mail(
+            'edsuite','proposal-send-mail',
+            $to,
+            language_default(),
+            $params,
+            $from,
+            true
+        );
+        if ($ret['result']){
+            $send = true;
+        }
+    }
+
+    if ($send) {
+        drupal_set_message('Email has been sent!');
+    } else {
+        drupal_set_message("Error! Email hasn't been sent!");
+    }
+    if (isset($_GET['destination']))
+        drupal_goto($_GET['destination']);
+    else drupal_goto('admin/content');
+    exit;
+}
+
+
+function edsuite_views_api() {
+    return array(
+        'api' => 3,
+        'path' => drupal_get_path('module', 'edsuite') .'/views',
+    );
+}
+
+function edsuite_admin_paths() {
+        $paths = array(
+            'node/*/proposal-send-email' => TRUE,
+            'node/*/property-export-csv' => TRUE,
+        );
+        
+        return $paths;
+}
+
+/* checking access */
+function edsuite_node_access($node, $op, $account) {
+  switch ($op) {
+    case 'view':
+    case 'update':
+    case 'delete':
+        if($account->uid == 0 && $node->type == 'lead_manager')
+            return NODE_ACCESS_DENY;
+        break;
+  }
+}
+
+/* hopk for admin panel */
+function edsuite_init() {
+
+
+    $path = drupal_get_path('module', 'edsuite');
+
+    drupal_add_css($path . '/support/css/admin.css', array('group' => CSS_SYSTEM));
+    drupal_add_js($path . '/js/admin.js');
+
+}

@@ -1,0 +1,64 @@
+<?php
+/**
+ * eds_directory.module
+ * $Id$
+ */
+
+// Machine name for our custom node
+define('NODE_MACHINE_NAME', 'eds_directory');
+define('NODE_NAME', 'EDS Directory');
+
+/**
+ * Implements hook_node_info() to provide our eds_directory type.
+ */
+function eds_directory_node_info() {
+	return array(
+		NODE_MACHINE_NAME => array(
+			'name' => t(NODE_NAME),
+			'base' => NODE_MACHINE_NAME,
+			'description' => t('Use this content type to create a directory entry.'),
+			'has_title' => TRUE,
+			'title_label' => t('Title')
+		)
+	);
+}
+
+/**
+ * Implement hook_form() with the standard default form.
+ */
+function eds_directory_form($node, $form_state) {
+	return node_content_form($node, $form_state);
+}
+
+/** 
+ * Implements hook_views_api(). 
+ */
+function eds_directory_views_api() {
+	return array(
+		'api' => 3, 
+		'path' => drupal_get_path('module', NODE_MACHINE_NAME).'/views', 
+		'template path' => drupal_get_path('module', NODE_MACHINE_NAME).'/views/templates'
+	);
+}
+
+/** 
+ * Implements hook_theme(). 
+ */
+function eds_directory_theme() { 
+	$path = drupal_get_path('module', NODE_MACHINE_NAME) . '/templates';
+	return array(
+		'node__eds_directory' => array(
+			'path' => $path, 
+			'template' => 'node--eds-directory'
+		), 
+	); 
+}
+
+/** 
+ * Implements hook_init(). 
+ */
+function eds_directory_init() {
+	drupal_add_css(drupal_get_path('module', NODE_MACHINE_NAME) . '/support/css/eds_directory.css', array('media' => 'all'));
+	drupal_add_css(drupal_get_path('module', NODE_MACHINE_NAME) . '/support/css/eds_directory_print.css', array('media' => 'print'));
+	drupal_add_js(drupal_get_path('module', NODE_MACHINE_NAME) . '/support/js/eds_directory.js');
+}

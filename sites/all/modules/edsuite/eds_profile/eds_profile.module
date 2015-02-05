@@ -1,0 +1,465 @@
+<?php
+/**
+ * eds_profile.module - Community Profile module; a set of modifications, changes, and overrides to the book module.
+ * $Id$
+ */
+
+include_once('eds_profile_block.inc');
+
+
+function eds_profile_entity_info_alter(&$entity_info) {
+    $entity_info['node']['view modes']['related_list'] = array(
+        'label' => t('Related list'),
+        'custom settings' => TRUE,
+    );
+    $entity_info['node']['view modes']['preview_list'] = array(
+        'label' => t('Preview list'),
+        'custom settings' => TRUE,
+    );
+    $entity_info['node']['view modes']['book_report'] = array(
+        'label' => t('Book Report'),
+        'custom settings' => TRUE,
+    );
+}
+/**
+ * Implementation of hook_node_view()
+ *
+ */
+function eds_profile_node_view($node, $view_mode, $langcode)
+{
+    if ($node->type == "book") {
+        if ($view_mode == 'full') {
+//            echo '<pre>';
+//            var_dump('rrr');
+//            echo '</pre>';
+//            exit;
+            unset($node->content['book_navigation']);
+
+            $node->book_children = array(
+                '#value' => theme('eds_profile_book_children', array('node' => $node)),
+                '#weight' => 100
+            );
+        }
+    }
+}
+function eds_profile_get_children_cat(array &$tree, $parentid, array $arr, $level = 0) {
+    foreach ($arr as $row) {
+        if ($row['parent_id'] == $parentid) {
+            $row['level'] = $level;
+            if (isset($tree[$parentid]))
+                $tree[$parentid]['has_children'] = true;
+
+            $tree[$row['id']] = $row;
+            $level = eds_profile_get_children_cat($tree, $row['id'], $arr, ++$level);
+        }
+    }
+    return (--$level);
+}
+
+function eds_profile_form_alter(&$form, &$form_state, $form_id){
+    if ($form_id == 'book_node_form'){
+
+        //Get current list
+        $options_list = $form['field_parent']['und']['#options'];
+        //Select list of pages
+        $query = db_select('node');
+        $query->leftJoin('field_data_field_parent', 'parent', 'parent.entity_id = node.nid');
+        $query->fields('node', array('nid', 'title'));
+        $query->fields('parent', array('field_parent_value'));
+        $query->condition('node.type', 'book');
+        $results = $query->execute()->fetchAllAssoc('nid');
+        $new_list = array();
+        foreach ($results as $key => $value) {
+            $new_list[$value->nid] = array('id' => $value->nid, 'parent_id' => $value->field_parent_value, 'name' => $value->title);
+        }
+        $out_array = array();
+
+        eds_profile_get_children_cat($out_array, 0, $new_list);
+        $result_list = array();
+        $tmp_str = '';
+        $delim = '--';
+        foreach ($out_array as $key => $value) {
+            if ($value['level']) {
+                $tmp_str = '';
+                for ($i = 1; $i <= $value['level']; $i++) {
+                    $tmp_str .= $delim;
+                }
+
+            }
+            foreach ($results as $value_list) {
+                if ($value_list->nid == $key) {
+                    $value_list->name = $tmp_str. ' ' . $value['name'];
+                    $result_list[$value_list->nid] = $value_list->name;
+                }
+            }
+        }
+
+        $res_list = array('top-level') + $result_list;
+        $diff = array_diff($res_list, $options_list);
+        if (!empty($diff)){
+
+            $field = field_read_field('field_parent');
+            $field['settings']['allowed_values'] = $res_list;
+            field_update_field($field);
+        }
+
+        $form['field_parent']['und']['#options'] = $res_list;
+    }
+}
+
+
+/**
+ * Implementation of hook_views_default_views()
+ */
+function eds_profile_views_default_views()
+{
+    $view = new stdClass();
+    $view->name = 'book_home';
+    $view->description = 'Display books in the home page';
+    $view->access = array ();
+    $view->view_args_php = '';
+    $view->page = FALSE;
+    $view->page_title = '';
+    $view->page_header = '';
+    $view->page_header_format = '3';
+    $view->page_footer = '';
+    $view->page_footer_format = '3';
+    $view->page_empty = '';
+    $view->page_empty_format = '3';
+    $view->page_type = 'node';
+    $view->url = '';
+    $view->use_pager = TRUE;
+    $view->nodes_per_page = '10';
+    $view->block = TRUE;
+    $view->block_title = 'Community Profile';
+    $view->block_header = '';
+    $view->block_header_format = '3';
+    $view->block_footer = '';
+    $view->block_footer_format = '3';
+    $view->block_empty = '';
+    $view->block_empty_format = '3';
+    $view->block_type = 'list';
+    $view->nodes_per_block = '9';
+    $view->block_more = FALSE;
+    $view->block_use_page_header = FALSE;
+    $view->block_use_page_footer = FALSE;
+    $view->block_use_page_empty = FALSE;
+    $view->sort = array (
+        array (
+          'tablename' => 'node',
+          'field' => 'created',
+          'sortorder' => 'DESC',
+          'options' => 'normal',
+        ),
+    );
+    $view->argument = array (
+    );
+    $view->field = array (
+        array (
+          'tablename' => 'node_data_field_header_image',
+          'field' => 'field_header_image_fid',
+          'label' => '',
+          'handler' => 'content_views_field_handler_group',
+          'options' => 'book_header_image',
+        ),
+        array (
+          'tablename' => 'node',
+          'field' => 'title',
+          'label' => '',
+          'handler' => 'views_handler_field_nodelink',
+          'options' => 'nolink',
+        ),
+        array (
+          'tablename' => 'node',
+          'field' => 'body',
+          'label' => '',
+          'handler' => 'views_handler_field_teaser',
+        ),
+    );
+    $view->filter = array (
+        array (
+          'tablename' => 'node',
+          'field' => 'status',
+          'operator' => '=',
+          'options' => '',
+          'value' => '1',
+        ),
+        array (
+          'tablename' => 'node',
+          'field' => 'promote',
+          'operator' => '=',
+          'options' => '',
+          'value' => '1',
+        ),
+        array (
+          'tablename' => 'node',
+          'field' => 'type',
+          'operator' => 'OR',
+          'options' => '',
+          'value' => array (
+            0 => 'book',
+          ),
+        ),
+    );
+    $view->exposed_filter = array ();
+    $view->requires = array(node, node_data_field_header_image);
+    $views[$view->name] = $view;
+
+    $view = new stdClass();
+    $view->name = 'xml_book_home';
+    $view->description = 'Display books in the home page';
+    $view->access = array ();
+    $view->view_args_php = '';
+    $view->page = TRUE;
+    $view->page_title = '';
+    $view->page_header = '';
+    $view->page_header_format = '3';
+    $view->page_footer = '';
+    $view->page_footer_format = '3';
+    $view->page_empty = '';
+    $view->page_empty_format = '3';
+    $view->page_type = 'list';
+    $view->url = 'book_home';
+    $view->use_pager = FALSE;
+    $view->nodes_per_page = '9';
+    $view->sort = array (
+      array (
+        'tablename' => 'node',
+        'field' => 'created',
+        'sortorder' => 'DESC',
+        'options' => 'normal',
+      ),
+    );
+    $view->argument = array ();
+    $view->field = array (
+      array (
+        'tablename' => 'node_data_field_header_image',
+        'field' => 'field_header_image_fid',
+        'label' => '',
+        'handler' => 'content_views_field_handler_ungroup',
+        'options' => 'book_header_image',
+      ),
+      array (
+        'tablename' => 'node',
+        'field' => 'title',
+        'label' => '',
+        'handler' => 'views_handler_field_nodelink',
+        'options' => 'nolink',
+      ),
+      array (
+        'tablename' => 'node',
+        'field' => 'body',
+        'label' => '',
+        'handler' => 'views_handler_field_teaser',
+      ),
+    );
+    $view->filter = array (
+      array (
+        'tablename' => 'node',
+        'field' => 'status',
+        'operator' => '=',
+        'options' => '',
+        'value' => '1',
+      ),
+      array (
+        'tablename' => 'node',
+        'field' => 'promote',
+        'operator' => '=',
+        'options' => '',
+        'value' => '1',
+      ),
+      array (
+        'tablename' => 'node',
+        'field' => 'type',
+        'operator' => 'OR',
+        'options' => '',
+        'value' => array (
+            0 => 'book',
+        ),
+      ),
+    );
+    $view->exposed_filter = array ();
+    $view->requires = array(node, node_data_field_header_image);
+    $views[$view->name] = $view;
+
+    $view = new stdClass();
+    $view->name = 'whats_happening';
+    $view->description = 'Most recently added news and newsletters preview in front page';
+    $view->access = array (
+        0 => '1',
+        1 => '2',
+    );
+    $view->view_args_php = '';
+    $view->page = FALSE;
+    $view->page_title = '';
+    $view->page_header = '';
+    $view->page_header_format = '3';
+    $view->page_footer = '';
+    $view->page_footer_format = '3';
+    $view->page_empty = '';
+    $view->page_empty_format = '3';
+    $view->page_type = 'node';
+    $view->url = '';
+    $view->use_pager = TRUE;
+    $view->nodes_per_page = '10';
+    $view->block = TRUE;
+    $view->block_title = 'What\'s Happening?';
+    $view->block_header = '';
+    $view->block_header_format = '3';
+    $view->block_footer = '';
+    $view->block_footer_format = '3';
+    $view->block_empty = '';
+    $view->block_empty_format = '3';
+    $view->block_type = 'list';
+    $view->nodes_per_block = '2';
+    $view->block_more = FALSE;
+    $view->block_use_page_header = FALSE;
+    $view->block_use_page_footer = FALSE;
+    $view->block_use_page_empty = FALSE;
+    $view->sort = array (
+        array (
+          'tablename' => 'node',
+          'field' => 'created',
+          'sortorder' => 'DESC',
+          'options' => 'normal',
+        ),
+    );
+    $view->argument = array ();
+    $view->field = array (
+        array (
+          'tablename' => 'node',
+          'field' => 'title',
+          'label' => '',
+          'handler' => 'views_handler_field_nodelink',
+          'options' => 'link',
+        ),
+        array (
+          'tablename' => 'profile_full_name',
+          'field' => 'value',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'node',
+          'field' => 'created',
+          'label' => '',
+          'handler' => 'views_handler_field_date_custom',
+          'options' => 'U',
+        ),
+        array (
+          'tablename' => 'node',
+          'field' => 'body',
+          'label' => '',
+          'handler' => 'views_handler_field_teaser',
+        ),
+    );
+    $view->filter = array (
+        array (
+          'tablename' => 'node',
+          'field' => 'status',
+          'operator' => '=',
+          'options' => '',
+          'value' => '1',
+        ),
+        array (
+          'tablename' => 'node',
+          'field' => 'type',
+          'operator' => 'OR',
+          'options' => '',
+          'value' => array (
+            0 => 'story',
+          ),
+        ),
+        array (
+          'tablename' => 'term_node',
+          'field' => 'tid',
+          'operator' => 'AND',
+          'options' => '',
+          'value' => array (
+            0 => '6',
+          ),
+        ),
+        array (
+          'tablename' => 'node',
+          'field' => 'promote',
+          'operator' => '=',
+          'options' => '',
+          'value' => '1',
+        ),
+    );
+    $view->exposed_filter = array ();
+    $view->requires = array(node, profile_full_name, term_node);
+    $views[$view->name] = $view;
+    
+    return $views;
+}
+
+function eds_profile_theme($existing, $type, $theme, $path) {
+    $themes = array (
+        'eds_profile_block' => array(
+            'template' => 'templates/eds_profile_block',
+            'render element' => 'form',
+        ),
+        'eds_profile_display_block_node' => array(
+            'template' => 'templates/eds_profile_display_block_node',
+            'arguments' => array('node' => NULL),
+        ),
+        'eds_profile_book_children' => array(
+            'template' => 'templates/eds_profile_book_children',
+            'arguments' => array('node' => NULL),
+        ),
+    );
+    return $themes;
+}
+
+/**
+ * Returns an HTML children list
+ */
+function eds_profile_book_children($parent = 0) 
+{
+    $children_list = eds_profile_book_children_list($parent);
+    	
+    $output = '';
+
+    foreach ($children_list as $nid) {
+        /**
+         * Set this global here so it can be used later on in the rendering/filtering process.
+         * Filters have no notion of "current node" so we must initialize & unset this after
+         * it is used.
+         * 
+         * See eds_export_table_filter() usage.
+         */
+        $GLOBALS['eds_profile_nid'] = $nid;
+
+  	    $node = node_load($nid);
+
+
+        $tmp_node_view = node_view($node, 'related_list');
+  	    $output .= render($tmp_node_view);
+    }
+    
+    return $output;
+}
+
+/**
+ * Returns first level of children nid list 
+ */
+function eds_profile_book_children_list($parent) 
+{
+
+    $query = db_select('field_data_field_parent', 'parent');
+    $query->fields('parent', array('entity_id'));
+    $query->condition('parent.field_parent_value', $parent);
+    $results = $query->execute()->fetchAllAssoc('entity_id');
+    $list = array();
+    foreach($results as $value){
+        $list[] = $value->entity_id;
+    }
+    
+
+
+    return $list;
+}
+
+function eds_profile_book_all_children_list($nid){
+
+}

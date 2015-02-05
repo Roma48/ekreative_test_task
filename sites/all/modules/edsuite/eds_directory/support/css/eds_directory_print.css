@@ -1,0 +1,13 @@
+/**
+ * eds_directory_print.css
+ */
+
+.view-eds-directory .view-filters, 
+.view-eds-directory .view-header, 
+.view-eds-directory table.summary {
+	display: none;
+}
+
+.view-eds-directory .node .content {
+	display: block;
+}

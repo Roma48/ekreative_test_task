@@ -1,0 +1,72 @@
+<?php
+
+require_once('eds_profile_install_fields.inc.php');
+require_once('eds_profile_install_instances.inc.php');
+
+function eds_profile_install()
+{
+    $name = 'book';
+    variable_set('comment_' . $name, '1');
+
+    $eds_profile = array(
+        'type' => $name,
+        'name' => t('Book page'),
+        'base' => 'node_content',
+        'title_label' => t('Title'),
+        'description' => t(
+            '<em>Books</em> have a built-in hierarchical navigation. Use for handbooks or tutorials.'
+        ),
+        'custom' => 1,
+        'modified' => 1,
+        'locked' => 0,
+    );
+
+        foreach (_eds_profile_installed_fields() as $field) {
+            field_create_field($field);
+        }
+
+        foreach (_eds_profile_installed_instances() as $instance) {
+            $instance['entity_type'] = 'node';
+            $instance['bundle'] = $eds_profile['type'];
+            field_create_instance($instance);
+        }
+
+    $body_instance_book = field_read_instance('node', 'body', 'book');
+    $body_instance_book['display'] = array(
+        'default' => array(
+            'label' => 'hidden',
+            'type' => 'text_default',
+            'settings' => array(),
+            'module' => 'text',
+            'weight' => 0,
+        ),
+        'teaser' => array(
+            'label' => 'hidden',
+            'type' => 'hidden',
+            'weight' => '0',
+            'settings' => array(),
+        ),
+        'related_list' => array(
+            'label' => 'hidden',
+            'type' => 'text_default',
+            'weight' => '0',
+            'settings' => array(),
+            'module' => 'text',
+        ),
+        'preview_list' => array(
+            'label' => 'above',
+            'type' => 'hidden',
+            'weight' => '0',
+            'settings' => array(),
+        ),
+        'book_report' => array(
+            'label' => 'hidden',
+            'type' => 'text_default',
+            'weight' => '0',
+            'settings' => array(),
+            'module' => 'text',
+        ),
+    );
+    field_update_instance($body_instance_book);
+
+}

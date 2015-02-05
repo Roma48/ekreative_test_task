@@ -1,0 +1,2933 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the standard installation profile.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ *
+ * @see system_install()
+ */
+function edsuite_prof_install() {
+    $full_html_format = array(
+        'format' => 'full_html',
+        'name' => 'Full HTML',
+        'weight' => 0,
+        'filters' => array(
+            // URL filter.
+            'filter_url' => array(
+                'weight' => 0,
+                'status' => 1,
+            ),
+            // Line break filter.
+            'filter_autop' => array(
+                'weight' => 1,
+                'status' => 0,
+            ),
+        ),
+    );
+    $full_html_format = (object) $full_html_format;
+    filter_format_save($full_html_format);    
+    
+    
+    // Add text formats.
+    $filtered_html_format = array(
+        'format' => 'filtered_html',
+        'name' => 'Filtered HTML',
+        'weight' => 1,
+        'filters' => array(
+            // URL filter.
+            'filter_url' => array(
+                'weight' => 0,
+                'status' => 1,
+            ),
+            // HTML filter.
+            'filter_html' => array(
+                'weight' => 1,
+                'status' => 1,
+            ),
+            // Line break filter.
+            'filter_autop' => array(
+                'weight' => 2,
+                'status' => 1,
+            ),
+            // HTML corrector filter.
+            'filter_htmlcorrector' => array(
+                'weight' => 10,
+                'status' => 1,
+            ),
+        ),
+    );
+    $filtered_html_format = (object) $filtered_html_format;
+    filter_format_save($filtered_html_format);
+
+    // Enable some standard blocks.
+    $default_theme = 'edsuite_generic';
+    $mobile_theme = 'edsuite_devices';
+    $admin_theme = 'seven';
+
+
+    // Insert default pre-defined node types into the database. For a complete
+    // list of available node type attributes, refer to the node type API
+    // documentation at: http://api.drupal.org/api/HEAD/function/hook_node_info.
+    $types = array(
+        array(
+            'type' => 'page',
+            'name' => st('Basic page'),
+            'base' => 'node_content',
+            'description' => st("Use <em>basic pages</em> for your static content, such as an 'About us' page."),
+            'custom' => 1,
+            'modified' => 1,
+            'locked' => 0,
+        ),
+        array(
+            'type' => 'map',
+            'name' => st('Map'),
+            'base' => 'node_content',
+            'description' => st('Use <em>Map</em> to add a Custom Map or Google Map'),
+            'custom' => 1,
+            'modified' => 1,
+            'locked' => 0,
+        ),
+    );
+
+    foreach ($types as $type) {
+        $type = node_type_set_defaults($type);
+        node_type_save($type);
+        node_add_body_field($type);
+    }
+
+    // Insert default pre-defined RDF mapping into the database.
+    $rdf_mappings = array(
+        array(
+            'type' => 'node',
+            'bundle' => 'page',
+            'mapping' => array(
+                'rdftype' => array('foaf:Document'),
+            ),
+        ),
+        array(
+            'type' => 'node',
+            'bundle' => 'news',
+            'mapping' => array(
+                'field_image' => array(
+                    'predicates' => array('og:image', 'rdfs:seeAlso'),
+                    'type' => 'rel',
+                ),
+                'field_tags' => array(
+                    'predicates' => array('dc:subject'),
+                    'type' => 'rel',
+                ),
+            ),
+        ),
+        array(
+            'type' => 'node',
+            'bundle' => 'blog',
+            'mapping' => array(
+                'field_image' => array(
+                    'predicates' => array('og:image', 'rdfs:seeAlso'),
+                    'type' => 'rel',
+                ),
+                'field_tags' => array(
+                    'predicates' => array('dc:subject'),
+                    'type' => 'rel',
+                ),
+            ),
+        ),
+        array(
+            'type' => 'node',
+            'bundle' => 'map',
+            'mapping' => array(
+                'rdftype' => array('foaf:Document'),
+            ),
+		)
+    );
+    foreach ($rdf_mappings as $rdf_mapping) {
+        rdf_mapping_save($rdf_mapping);
+    }
+
+    // Set Page Variables
+    variable_set('node_submitted_page', 0);
+    variable_set('node_options_page', array('status'));
+    variable_set('comment_page', COMMENT_NODE_HIDDEN);
+       
+    // Enable user picture support and set the default to a square thumbnail option.
+    variable_set('user_pictures', '1');
+    variable_set('user_picture_dimensions', '1024x1024');
+    variable_set('user_picture_file_size', '800');
+    variable_set('user_picture_style', 'thumbnail');
+
+    // Allow visitor account creation with administrative approval.
+    variable_set('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
+
+    // Create a default vocabulary named "Tags", enabled for the 'news' content type.
+    $description = st('Use tags to group articles on similar topics into categories.');
+    $help = st('Enter a comma-separated list of words to describe your content.');
+    $vocabulary = (object) array(
+        'name' => st('Tags'),
+        'description' => $description,
+        'machine_name' => 'tags',
+        'help' => $help,
+
+    );
+    taxonomy_vocabulary_save($vocabulary);
+	
+    // Enable default permissions for system roles.
+    $filtered_html_permission = filter_permission_name($filtered_html_format);
+    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content', 'access comments', $filtered_html_permission));
+    user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content', 'access comments', 'post comments', 'skip comment approval', $filtered_html_permission));
+
+    // Create a default role for site administrators, with all available permissions assigned.
+    $admin_role = new stdClass();
+    $admin_role->name = 'administrator';
+    $admin_role->weight = 2;
+    user_role_save($admin_role);
+    user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
+    // Set this as the administrator role.
+    variable_set('user_admin_role', $admin_role->rid);
+
+    // Assign user 1 the "administrator" role.
+    db_insert('users_roles')
+        ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
+        ->execute();
+
+    // Create a Home link in the main menu.
+    $item = array(
+        'link_title' => st('Home'),
+        'link_path' => '<front>',
+        'menu_name' => 'main-menu',
+    );
+    menu_link_save($item);
+
+    // Update the menu router information.
+    menu_rebuild();
+
+    // Enable the admin theme.
+    db_update('system')
+        ->fields(array('status' => 1))
+        ->condition('type', 'theme')
+        ->condition('name', 'seven')
+        ->execute();
+    variable_set('admin_theme', 'seven');
+    variable_set('node_admin_theme', '1');
+
+    $enable = array(
+        'theme_default' => 'edsuite_generic',
+        'admin_theme' => 'seven',
+//        'mobile_theme' => 'edsuite_devices'
+        //'zen'
+    );
+    theme_enable($enable);
+
+    foreach ($enable as $var => $theme) {
+        if (!is_numeric($var)) {
+            variable_set($var, $theme);
+        }
+    }
+
+    // Disable the default Bartik theme
+    theme_disable(array('bartik'));
+
+    $modules_list = array(
+        'eds_properties',
+        'eds_demographics',
+        'eds_export_table',
+        'eds_profile',
+        'eds_report',
+        'proposal',
+        'node_embed_edsuite',
+		'wysiwyg_ckeditor_ckfinder_bridge'
+    );
+    
+    module_enable($modules_list);
+
+//    filters in text formats
+    db_update('filter')
+        ->fields(array('status' => 1))
+        ->condition(
+        db_or()
+            ->condition('name', 'media_filter')
+            ->condition('name', 'node_embed')
+    )
+        ->execute();
+
+//    wysiwyg
+    $t1 = array(
+        'default' => 1,
+        'user_choose' => 0,
+        'show_toggle' => 1,
+        'theme' => 'advanced',
+        'language' => 'en',
+        'buttons' => array(
+            'default' => array(
+                'Bold' => 1,
+                'Italic' => 1,
+                'Underline' => 1,
+                'Undo' => 1,
+                'Redo' => 1,
+                'Cut' => 1,
+                'Copy' => 1,
+                'Paste' => 1,
+                'SpellChecker' => 1,
+            ),
+        ),
+        'toolbar_loc' => 'top',
+        'toolbar_align' => 'left',
+        'path_loc' => 'bottom',
+        'resizing' => 1,
+        'verify_html' => 1,
+        'preformatted' => 0,
+        'convert_fonts_to_spans' => 1,
+        'remove_linebreaks' => 1,
+        'apply_source_formatting' => 0,
+        'paste_auto_cleanup_on_paste' => 0,
+        'block_formats' => 'p,address,pre,h2,h3,h4,h5,h6,div',
+        'css_setting' => 'none',
+        'css_path' => '',
+        'css_classes' => '',
+    );
+    db_insert('wysiwyg')
+        ->fields(
+        array(
+            'format' => 'filtered_html',
+            'editor' => 'ckeditor',
+            'settings' => serialize($t1),
+        )
+    )->execute();
+
+    $t2 = array(
+        'default' => 1,
+        'user_choose' => 0,
+        'show_toggle' => 1,
+        'theme' => 'advanced',
+        'language' => 'en',
+        'buttons' => array(
+            'default' => array(
+                'Bold' => 1,
+                'Italic' => 1,
+                'Underline' => 1,
+                'Strike' => 1,
+                'JustifyLeft' => 1,
+                'JustifyCenter' => 1,
+                'JustifyRight' => 1,
+                'JustifyBlock' => 1,
+                'BidiLtr' => 1,
+                'BidiRtl' => 1,
+                'BulletedList' => 1,
+                'NumberedList' => 1,
+                'Outdent' => 1,
+                'Indent' => 1,
+                'Undo' => 1,
+                'Redo' => 1,
+                'Link' => 1,
+                'Unlink' => 1,
+                'Anchor' => 1,
+                'Image' => 1,
+                'TextColor' => 1,
+                'BGColor' => 1,
+                'Superscript' => 1,
+                'Subscript' => 1,
+                'Blockquote' => 1,
+                'Source' => 1,
+                'HorizontalRule' => 1,
+                'Cut' => 1,
+                'Copy' => 1,
+                'Paste' => 1,
+                'PasteText' => 1,
+                'PasteFromWord' => 1,
+                'ShowBlocks' => 1,
+                'RemoveFormat' => 1,
+                'SpecialChar' => 1,
+                'Format' => 1,
+                'Font' => 1,
+                'FontSize' => 1,
+                'Styles' => 1,
+                'Table' => 1,
+                'SelectAll' => 1,
+                'Find' => 1,
+                'Replace' => 1,
+                'Flash' => 1,
+                'Smiley' => 1,
+                'CreateDiv' => 1,
+                'Iframe' => 1,
+                'Maximize' => 1,
+                'SpellChecker' => 1,
+                'Scayt' => 1,
+                'About' => 1,
+            ),
+	        'ckfinder' => array('ckfinder' => 1),
+            'drupal' => array(
+                'media' => 0,
+                'node_embed' => 1,
+                'break' => 1,
+            ),
+        ),
+        'toolbar_loc' => 'top',
+        'toolbar_align' => 'left',
+        'path_loc' => 'bottom',
+        'resizing' => 1,
+        'verify_html' => 1,
+        'preformatted' => 0,
+        'convert_fonts_to_spans' => 1,
+        'remove_linebreaks' => 0,
+        'apply_source_formatting' => 0,
+        'paste_auto_cleanup_on_paste' => 0,
+        'block_formats' => 'p,address,pre,h2,h3,h4,h5,h6,div',
+        'css_setting' => 'none',
+        'css_path' => '',
+        'css_classes' => '',
+    );
+    db_insert('wysiwyg')
+        ->fields(
+        array(
+            'format' => 'full_html',
+            'editor' => 'ckeditor',
+            'settings' => serialize($t2),
+        )
+    )->execute();
+
+    db_insert('wysiwyg')
+        ->fields(
+        array(
+            'format' => 'plain_text',
+            'editor' => 'ckeditor',
+        )
+    )->execute();
+
+//    variables
+
+    variable_set('print_pdf_pdf_tool', 'sites/all/libraries/dompdf/dompdf_config.inc.php');
+
+    variable_set('gmap_api_key', '');
+    variable_set(
+        'gmap_default',
+        array(
+            'width' => '100%',
+            'height' => '477px',
+            'latlong' => '32.4000376688555,-94.60936546325684',
+            'zoom' => '11',
+            'maxzoom' => '14',
+            'styles' => array(
+                'line_default' => array(
+                    '0000ff',
+                    '5',
+                    '45',
+                    '',
+                    '',
+                ),
+                'poly_default' => array(
+                    '000000',
+                    '3',
+                    '25',
+                    'ff0000',
+                    '45',
+                ),
+                'highlight_color' => 'ff0000',
+            ),
+            'controltype' => 'Large',
+            'mtc' => 'standard',
+            'maptype' => 'Map',
+            'baselayers' => array(
+                'Map' => 1,
+                'Satellite' => 1,
+                'Hybrid' => 1,
+                'Physical' => 0,
+            ),
+            'behavior' => array(
+                'locpick' => false,
+                'nodrag' => 0,
+                'nokeyboard' => 1,
+                'nomousezoom' => 0,
+                'nocontzoom' => 0,
+                'autozoom' => 1,
+                'dynmarkers' => 1,
+                'overview' => 0,
+                'collapsehack' => 0,
+                'scale' => 1,
+                'extramarkerevents' => false,
+                'clickableshapes' => false,
+                'googlebar' => 0,
+                'highlight' => 0,
+            ),
+            'markermode' => '1',
+            'line_colors' => array(
+                '#00cc00',
+                '#ff0000',
+                '#0000ff',
+            ),
+        )
+    );
+    variable_set(
+        'gmap_markermanager',
+        array(
+            'markermanager' => array(
+                'filename' => 'markermanager_packed.js',
+                'borderPadding' => '256',
+                'maxZoom' => '4',
+                'trackMarkers' => 0,
+                'markerMinZoom' => '4',
+                'markerMaxZoom' => '0',
+            ),
+            'markerclusterer' => array(
+                'filename' => 'markerclusterer_packed.js',
+                'gridSize' => 60,
+                'maxZoom' => 17,
+                'styles' => array(),
+            ),
+            'clusterer' => array(
+                'filename' => 'Clusterer2.js',
+                'marker' => 'cluster',
+                'max_nocluster' => '150',
+                'cluster_min' => '5',
+                'max_lines' => '10',
+                'popup_mode' => 'orig',
+            ),
+            'clustermarker' => array(
+                'filename' => 'ClusterMarker.js',
+                'borderPadding' => '256',
+                'clusteringEnabled' => 1,
+                'clusterMarkerIcon' => '',
+                'clusterMarkerTitle' => '',
+                'fitMapMaxZoom' => '0',
+                'intersectPadding' => '0',
+            ),
+        )
+    );
+    variable_set('gmap_marker_file', '14');
+    variable_set('gmap_mm_type', 'gmap');
+    variable_set(
+        'gmap_node_map',
+        array(
+            'macro' => '[gmap |id=usermap|center=40,0|zoom=3|width=100%|height=400px]',
+            'header' => 'This map illustrates the locations of the nodes on this website. Each marker indicates a node associated with a specific location.',
+            'footer' => '',
+            'markermode' => '1',
+        )
+    );
+    variable_set(
+        'gmap_node_markers',
+        array(
+            'news' => 'numbers',
+            'eds_demographics' => 'numbers',
+            'eds_properties' => 'numbers',
+            'page' => 'numbers',
+            'test_type' => 'numbers',
+            'webform' => 'numbers',
+        )
+    );
+    variable_set(
+        'gmap_role_markers',
+        array(
+            2 => 'drupal',
+            3 => 'drupal',
+        )
+    );
+    variable_set(
+        'gmap_user_map',
+        array(
+            'macro' => '[gmap |id=usermap|center=40,0|zoom=3|width=100%|height=400px]',
+            'header' => 'This map illustrates the extent of users of this website. Each marker indicates a user that has entered their locations.',
+            'footer' => '',
+            'markermode' => '1',
+        )
+    );
+
+    variable_set('jquery_update_compression_type', 'min');
+    variable_set('jquery_update_jquery_cdn', 'none');
+    variable_set('jquery_update_jquery_version', '1.5');
+
+    variable_set('location_defaultnum_eds_properties', '1');
+    variable_set('location_default_country', 'us');
+    variable_set('location_display_location', '1');
+    variable_set('location_jit_geocoding', 0);
+    variable_set('location_locpick_macro', '[gmap]');
+    variable_set('location_maplink_external', 0);
+    variable_set('location_maplink_external_method', 'target="_blank"');
+    variable_set('location_maxnum_eds_properties', '1');
+    variable_set('location_settings_node_eds_properties', array(
+            'multiple' => array(
+                'min' => '0',
+                'max' => '1',
+                'add' => '1',
+            ),
+            'form' => array(
+                'weight' => '0',
+                'collapsible' => 1,
+                'collapsed' => 1,
+                'fields' => array(
+                    'name' => array(
+                        'collect' => '1',
+                        'default' => '',
+                        'weight' => '2',
+                    ),
+                    'street' => array(
+                        'collect' => '1',
+                        'default' => '',
+                        'weight' => '4',
+                    ),
+                    'additional' => array(
+                        'collect' => '1',
+                        'default' => '',
+                        'weight' => '6',
+                    ),
+                    'city' => array(
+                        'collect' => '0',
+                        'default' => '',
+                        'weight' => '8',
+                    ),
+                    'province' => array(
+                        'collect' => '0',
+                        'widget' => 'autocomplete',
+                        'default' => '',
+                        'weight' => '10',
+                    ),
+                    'postal_code' => array(
+                        'collect' => '0',
+                        'default' => '',
+                        'weight' => '12',
+                    ),
+                    'country' => array(
+                        'collect' => '1',
+                        'default' => 'us',
+                        'weight' => '14',
+                    ),
+                    'locpick' => array(
+                        'collect' => '1',
+                        'weight' => '20',
+                    ),
+                ),
+            ),
+            'display' => array(
+                'weight' => '0',
+                'hide' => array(
+                    'name' => 0,
+                    'street' => 0,
+                    'additional' => 0,
+                    'city' => 0,
+                    'province' => 0,
+                    'postal_code' => 0,
+                    'country' => 0,
+                    'locpick' => 0,
+                    'province_name' => 0,
+                    'country_name' => 0,
+                    'map_link' => 0,
+                    'coords' => 0,
+                ),
+                'teaser' => 1,
+                'full' => 1,
+            ),
+            'rss' => array(
+                'mode' => 'simple',
+            ),
+        ));
+    variable_set('location_usegmap', 1);
+    variable_set('location_use_province_abbreviation', '1');
+
+
+    // Remove Body Field from Map content type
+	field_delete_instance(array(
+        	'field_name' => 'body',
+        	'entity_type' => 'node',
+        	'bundle' => 'map',
+		)
+	);
+	
+	field_purge_batch(1);
+	
+    $field = array(
+      'active' => 1,
+      'cardinality' => 1,
+      'deleted' => 0,
+      'entity_types' => array(),
+      'field_name' => 'field_custom_map',
+      'foreign keys' => array(
+        'fid' => array(
+          'columns' => array(
+            'fid' => 'fid',
+          ),
+          'table' => 'file_managed',
+        ),
+      ),
+      'indexes' => array(
+        'fid' => array(
+          0 => 'fid',
+        ),
+      ),
+      'locked' => 0,
+      'module' => 'image',
+      'settings' => array(
+        'default_image' => 0,
+        'uri_scheme' => 'public',
+      ),
+      'translatable' => 0,
+      'type' => 'image',
+    );
+    field_create_field($field);
+	
+
+    // Exported field_base: 'field_google_map'
+    $field = array(
+      'active' => 1,
+      'cardinality' => 1,
+      'deleted' => 0,
+      'entity_types' => array(),
+      'field_name' => 'field_google_map',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => 0,
+      'module' => 'text',
+      'settings' => array(),
+      'translatable' => 0,
+      'type' => 'text_long',
+    );
+    field_create_field($field);
+	
+    // Exported field_base: 'field_map_weight'
+    $field = array(
+      'active' => 1,
+      'cardinality' => 1,
+      'deleted' => 0,
+      'entity_types' => array(),
+      'field_name' => 'field_map_weight',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'locked' => 0,
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          1 => 1,
+          2 => 2,
+          3 => 3,
+          4 => 4,
+          5 => 5,
+          6 => 6,
+          7 => 7,
+          8 => 8,
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => 0,
+      'type' => 'list_integer',
+    );
+    field_create_field($field);
+		
+    $instance = array(
+      'bundle' => 'map',
+      'deleted' => 0,
+      'description' => 'Image must be 1080 x 525 pixels',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'image',
+          'settings' => array(
+            'image_link' => '',
+            'image_style' => '',
+          ),
+          'type' => 'image',
+          'weight' => 2,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_custom_map',
+      'label' => 'Custom Map',
+      'required' => 0,
+      'settings' => array(
+        'alt_field' => 1,
+        'default_image' => 0,
+        'file_directory' => 'map_thumbs',
+        'file_extensions' => 'png gif jpg jpeg',
+        'max_filesize' => '',
+        'max_resolution' => '',
+        'min_resolution' => '',
+        'title_field' => 0,
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'image',
+        'settings' => array(
+          'preview_image_style' => 'thumbnail',
+          'progress_indicator' => 'throbber',
+        ),
+        'type' => 'image_image',
+        'weight' => 2,
+      ),
+    );
+	field_create_instance($instance);
+	
+    // Exported field_instance: 'node-map-field_google_map'
+    $instance = array(
+      'bundle' => 'map',
+      'default_value' => NULL,
+      'deleted' => 0,
+      'description' => 'Map must be 1080 x 525 pixels',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 3,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_google_map',
+      'label' => 'Google Map',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => 1,
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'rows' => 2,
+        ),
+        'type' => 'text_textarea',
+        'weight' => 3,
+      ),
+    );
+	field_create_instance($instance);
+
+    // Exported field_instance: 'node-map-field_map_weight'
+    $instance = array(
+      'bundle' => 'map',
+      'default_value' => NULL,
+      'deleted' => 0,
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 1,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_map_weight',
+      'label' => 'Map Weight',
+      'required' => 1,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_select',
+        'weight' => 1,
+      ),
+    );
+	field_create_instance($instance);
+	
+    // "Map" - Set Variables
+    variable_set('node_submitted_map', 0);
+    variable_set('node_options_map', array('status'));
+    variable_set('comment_map', COMMENT_NODE_HIDDEN);
+		
+	// Add map_thumb Image Styles
+	$style = image_style_save(array('name' => 'map_thumb'));
+	$effect = array(
+		'label' => 'Scale and crop',
+		'help' => 'Scale and crop will maintain the aspect-ratio of the original image, then crop the larger dimension. This is most useful for creating perfectly square thumbnails without stretching the image.',
+		'effect callback' => 'image_scale_and_crop_effect',
+		'dimensions callback' => 'image_resize_dimensions',
+		'form callback' => 'image_resize_form',
+		'summary theme' => 'image_resize_summary',
+		'module' => 'image',
+		'name' => 'image_scale_and_crop',
+		'data' => array(
+		  'width' => 220,
+		  'height' => 128,
+		),
+	    'isid' => $style['isid']
+	);
+	image_effect_save($effect);
+		
+    $blocks = array(
+        array(
+			'title' => '',
+            'module' => 'system',
+            'delta' => 'main',
+            'theme' => $default_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'content',
+            'pages' => '',
+            'cache' => -1,
+        ),
+        array(
+			'title' => '',
+            'module' => 'system',
+            'delta' => 'help',
+            'theme' => $default_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'content',
+            'pages' => '',
+            'cache' => -1,
+        ),
+        array(
+			'title' => '',
+            'module' => 'system',
+            'delta' => 'main',
+            'theme' => $admin_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'content',
+            'pages' => '',
+            'cache' => -1,
+        ),
+        array(
+			'title' => '',
+            'module' => 'system',
+            'delta' => 'help',
+            'theme' => $admin_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'help',
+            'pages' => '',
+            'cache' => -1,
+        ),
+        array(
+			'title' => '',
+            'module' => 'eds_report',
+            'delta' => 'custom_report_detail',
+            'theme' => $default_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'custom_report',
+            'pages' => "contact\nadmin\nadmin/*\n*/*/pdf\neds/report",
+            'cache' => -1,
+        ),
+        array(
+			'title' => '',
+            'module' => 'eds_properties',
+            'delta' => 'property_search_block_0',
+            'theme' => $default_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'front_top_features',
+            'pages' => "eds/property*\neds/properties",
+            'cache' => -1,
+        ),
+        array(
+			'title' => '',
+            'module' => 'eds_report',
+            'delta' => 'custom_report_detail',
+            'theme' => $mobile_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'custom_report',
+            'pages' => "contact\nadmin\nadmin/*\n*/*/pdf\neds/report",
+            'cache' => -1,
+        ),
+        array(
+			'title' => '',
+            'module' => 'eds_properties',
+            'delta' => 'property_search_block_0',
+            'theme' => $mobile_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'front_top_features',
+            'pages' => "eds/property*\neds/properties",
+            'cache' => -1,
+        ),
+        array(
+			'title' => '',
+            'module' => 'system',
+            'delta' => 'help',
+            'theme' => $mobile_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'content',
+            'pages' => '',
+            'cache' => -1,
+        ),
+        array(
+			'title' => '',
+            'module' => 'eds_properties',
+            'delta' => 'property_question_form_block',
+            'theme' => $default_theme,
+		    'visibility' => BLOCK_VISIBILITY_NOTLISTED, // it is displayed only on those pages listed in $block->pages.
+            'status' => 1,
+            'weight' => 10,
+            'region' => 'content',
+            'pages' => '',
+            'cache' => -1,
+        ),
+		array(
+			'title' => '<none>',
+			'module' => 'views',
+		    'delta' => 'map-block', // the id of the block
+		    'theme' => $default_theme, // the current theme
+		    'visibility' => BLOCK_VISIBILITY_LISTED, // it is displayed only on those pages listed in $block->pages.
+		    'region' => 'content',
+		    'status' => 1,
+            'weight' => -10,
+		    'pages' => 'maps', // display the menu only for these pages
+            'cache' => -1
+		),
+		array(
+			'title' => '<none>',
+		    'module' => 'views',
+		    'delta' => 'map-block_1', // the id of the block
+		    'theme' => $default_theme, // the current theme
+		    'visibility' => BLOCK_VISIBILITY_LISTED, // it is displayed only on those pages listed in $block->pages.
+		    'region' => 'content',
+		    'status' => 1,
+            'weight' => -9,
+		    'pages' => 'maps', // display the menu only for these pages
+            'cache' => -1
+		)
+		
+        // try to add menu block
+//        array(
+//            'module' => 'system',
+//            'delta' => 'main-menu',
+//            'theme' => $default_theme,
+//            'status' => 1,
+//            'weight' => 0,
+//            'region' => 'navigation',
+//            'pages' => '',
+//            'cache' => -1,
+//        ),        
+    );
+    $query = db_insert('block')->fields(array('title','module', 'delta', 'theme','visibility','status', 'weight', 'region', 'pages', 'cache'));
+    foreach ($blocks as $block) {
+        $query->values($block);
+    }
+    $query->execute();
+    	
+    $menuBlock =         array(
+            'title' => '<none>',
+            'module' => 'system',
+            'delta' => 'main-menu',
+            'theme' => $default_theme,
+            'status' => 1,
+            'weight' => 0,
+            'region' => 'navigation',
+            'pages' => '',
+            'cache' => -1,
+        ); 
+    
+    $query = db_insert('block')->fields(array('title', 'module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
+    $query->values($menuBlock);
+    $query->execute();
+    
+    //set question form to property
+    $query = db_insert('block_node_type')->fields(array('module', 'delta', 'type'));
+    $qustionFormParams = array(
+        'module' => 'eds_properties',
+        'delta' => 'property_question_form_block',
+        'type' => 'eds_properties'
+    );
+    $query->values($qustionFormParams);
+    $query->execute();   
+    
+    variable_set('statistics_enable_access_log', 1);
+    variable_set('statistics_count_content_views', 1);
+    variable_set('statistics_flush_accesslog_timer', 0);
+    
+    variable_set('node_view_count_node_types_options', array('eds_properties', 'proposal'));
+    variable_set('node_view_count_user_roles_options', array(3));
+    
+    #pathauto configuration
+	variable_set('pathauto_node_pattern', '[node:title]');
+	variable_set('pathauto_node_book_pattern', 'community-profile/[node:title]');
+    variable_set('pathauto_node_lead_manager_pattern', 'lead/[node:title]');
+    variable_set('pathauto_node_eds_properties_pattern', 'eds/property/[node:title]');
+    variable_set('pathauto_node_proposal_pattern', 'proposal/[node:field_code]');
+    variable_set('pathauto_node_news_pattern', 'news/[node:title]');
+    variable_set('pathauto_node_map_pattern', 'maps/[node:title]');
+    variable_set('pathauto_node_blog_pattern', 'blog/[node:title]');
+
+//    print email pdf links
+    variable_set('print_html_book_link','1');
+    variable_set('print_html_link_class','print-page');
+    variable_set('print_html_link_pos',
+        array(
+            'link' => 'link',
+            'block' => 'block',
+            'help' => 'help',
+            'corner' => 0
+        )
+    );
+    variable_set('print_html_link_teaser',0);
+    variable_set('print_html_link_use_alias',1);
+    variable_set('print_html_new_window',1);
+    variable_set('print_html_node_link_pages',"admin/*
+printmail/*");
+    variable_set('print_html_node_link_visibility','0');
+    variable_set('print_html_sendtoprinter',0);
+    variable_set('print_html_show_link','3');
+    variable_set('print_html_sys_link_pages',"admin/*
+printmail/*
+node/add*
+node/*/edit");
+    variable_set('print_html_sys_link_visibility','0');
+    variable_set('print_html_windowclose',1);
+
+    variable_set('print_mail_book_link','1');
+    variable_set('print_mail_display_comment_proposal',0);
+    variable_set('print_mail_display_proposal',1);
+    variable_set('print_mail_display_sys_urllist',0);
+    variable_set('print_mail_display_urllist_proposal',1);
+    variable_set('print_mail_hourly_threshold',3);
+    variable_set('print_mail_job_queue',0);
+    variable_set('print_mail_link_class','print-mail');
+    variable_set('print_mail_link_pos',
+        array(
+            'link' => 'link',
+            'block' => 'block',
+            'help' => 'help',
+            'corner' => 0
+        )
+    );
+    variable_set('print_mail_link_teaser',0);
+    variable_set('print_mail_link_use_alias',1);
+    variable_set('print_mail_node_link_pages',"admin/*
+printmail/*");
+    variable_set('print_mail_node_link_visibility','0');
+    variable_set('print_mail_send_option_default','sendpage');
+    variable_set('print_mail_show_link','3');
+    variable_set('print_mail_sys_link_pages',"admin/*
+printmail/*
+node/add*
+node/*/edit");
+    variable_set('print_mail_sys_link_visibility','0');
+    variable_set('print_mail_teaser_choice',0);
+    variable_set('print_mail_teaser_default',1);
+    variable_set('print_mail_use_reply_to',1);
+
+
+
+    variable_set('print_pdf_autoconfig',1);
+    variable_set('print_pdf_book_link','1');
+    variable_set('print_pdf_content_disposition','1');
+    variable_set('print_pdf_display_comment_proposal',0);
+    variable_set('print_pdf_display_proposal',1);
+    variable_set('print_pdf_display_sys_urllist',1);
+    variable_set('print_pdf_display_urllist_proposal',1);
+    variable_set('print_pdf_dompdf_unicode',0);
+    variable_set('print_pdf_filename','[site:name] - [node:title] - [node:changed:custom:Y-m-d]');
+    variable_set('print_pdf_font_family','dejavusans');
+    variable_set('print_pdf_font_size','10');
+    variable_set('print_pdf_font_subsetting',0);
+    variable_set('print_pdf_images_via_file',0);
+    variable_set('print_pdf_link_class','print-pdf');
+    variable_set('print_pdf_link_pos',
+        array(
+            'link' => 'link',
+            'block' => 'block',
+            'help' => 'help',
+            'corner' => 0
+        )
+    );
+    variable_set('print_pdf_link_teaser',0);
+    variable_set('print_pdf_node_link_pages',"admin/*
+printmail/*");
+    variable_set('print_pdf_node_link_visibility','0');
+    variable_set('print_pdf_page_orientation','portrait');
+    variable_set('print_pdf_paper_size','A4');
+    variable_set('print_pdf_show_link','3');
+    variable_set('print_pdf_sys_link_pages',"admin/*
+printmail/*
+node/add*
+node/*/edit");
+    variable_set('print_pdf_sys_link_visibility','0');
+    variable_set('print_pdf_wkhtmltopdf_options',"--footer-font-size 7 --footer-right '[page]");
+
+
+//    access for print mail pdf
+    $query = db_insert('role_permission')->fields(array('rid', 'permission', 'module'));
+    $query->values(array('rid' => 1, 'permission' => 'access PDF version', 'module' => 'print_pdf'));
+    $query->values(array('rid' => 2, 'permission' => 'access PDF version', 'module' => 'print_pdf'));
+//    $query->values(array('rid' => 3, 'permission' => 'access PDF version', 'module' => 'print_pdf'));
+    $query->values(array('rid' => 1, 'permission' => 'access print', 'module' => 'print'));
+    $query->values(array('rid' => 2, 'permission' => 'access print', 'module' => 'print'));
+//    $query->values(array('rid' => 3, 'permission' => 'access print', 'module' => 'print'));
+    $query->values(array('rid' => 1, 'permission' => 'access send by email', 'module' => 'print_mail'));
+    $query->values(array('rid' => 2, 'permission' => 'access send by email', 'module' => 'print_mail'));
+//    $query->values(array('rid' => 3, 'permission' => 'access send by email', 'module' => 'print_mail'));
+    $query->execute();
+
+////    jquery version
+//    variable_set('jquery_update_jquery_version','1.5');
+
+
+	// Create Map Page
+	$node = new stdClass(); // We create a new node object
+	$node->type = "page"; // Or any other content type you want
+	$node->title = "Maps";
+	$node->language = LANGUAGE_NONE; // Or any language code if Locale module is enabled. More on this below *
+	node_object_prepare($node); // Set some default values.
+	$node->uid = 1; // Or any id you wish
+	$node = node_submit($node); // Prepare node for a submit
+	node_save($node); // After this call we'll get a nid
+	
+	// Create Contact Page
+	$node = new stdClass(); // We create a new node object
+	$node->type = "webform"; // Or any other content type you want
+	$node->title = "Contact Us";
+	$node->language = LANGUAGE_NONE; // Or any language code if Locale module is enabled. More on this below *
+	$node->comment = 0; // Or any id you wish
+	$node->uid = 1; // Or any id you wish
+	
+$components = array(
+      1 => array(
+        'nid' => 24,
+        'cid' => '1',
+        'pid' => '0',
+        'form_key' => 'first_name',
+        'name' => 'First Name',
+        'type' => 'textfield',
+        'value' => '',
+        'extra' => array(
+          'title_display' => 'before',
+          'private' => 0,
+          'disabled' => 0,
+          'unique' => 0,
+          'conditional_operator' => '=',
+          'width' => '',
+          'maxlength' => '',
+          'field_prefix' => '',
+          'field_suffix' => '',
+          'description' => '',
+          'attributes' => array(),
+          'conditional_component' => '',
+          'conditional_values' => '',
+        ),
+        'mandatory' => '1',
+        'weight' => '0',
+        'page_num' => 1,
+      ),
+      2 => array(
+        'nid' => 24,
+        'cid' => '2',
+        'pid' => '0',
+        'form_key' => 'last_name',
+        'name' => 'Last Name',
+        'type' => 'textfield',
+        'value' => '',
+        'extra' => array(
+			'title_display' => 'before',
+			'private' => 0,
+			'disabled' => 0,
+			'unique' => 0,
+			'conditional_operator' => '=',
+			'width' => '',
+			'maxlength' => '',
+			'field_prefix' => '',
+			'field_suffix' => '',
+			'description' => '',
+			'attributes' => array(),
+			'conditional_component' => '',
+			'conditional_values' => '',
+        ),
+        'mandatory' => '1',
+        'weight' => '1',
+        'page_num' => 1,
+      ),
+      3 => array(
+        'nid' => 24,
+        'cid' => '3',
+        'pid' => '0',
+        'form_key' => 'company_name',
+        'name' => 'Company Name',
+        'type' => 'textfield',
+        'value' => '',
+        'extra' => array(
+			'title_display' => 'before',
+			'private' => 0,
+			'disabled' => 0,
+			'unique' => 0,
+			'conditional_operator' => '=',
+			'width' => '',
+			'maxlength' => '',
+			'field_prefix' => '',
+			'field_suffix' => '',
+			'description' => '',
+			'attributes' => array(),
+			'conditional_component' => '',
+			'conditional_values' => '',
+        ),
+        'mandatory' => '0',
+        'weight' => '2',
+        'page_num' => 1,
+      ),
+      6 => array(
+        'nid' => 24,
+        'cid' => '6',
+        'pid' => '0',
+        'form_key' => 'phone_number',
+        'name' => 'Phone Number',
+        'type' => 'textfield',
+        'value' => '',
+        'extra' => array(
+			'title_display' => 'before',
+			'private' => 0,
+			'disabled' => 0,
+			'unique' => 0,
+			'conditional_operator' => '=',
+			'width' => '',
+			'maxlength' => '',
+			'field_prefix' => '',
+			'field_suffix' => '',
+			'description' => '',
+			'attributes' => array(),
+			'conditional_component' => '',
+			'conditional_values' => '',
+        ),
+        'mandatory' => '0',
+        'weight' => '3',
+        'page_num' => 1,
+      ),
+      5 => array(
+        'nid' => 24,
+        'cid' => '5',
+        'pid' => '0',
+        'form_key' => 'e_mail_address',
+        'name' => 'E-mail Address',
+        'type' => 'email',
+        'value' => '',
+        'extra' => array(
+			'title_display' => 'before',
+			'private' => 0,
+			'disabled' => 0,
+			'unique' => 0,
+			'conditional_operator' => '=',
+			'width' => '',
+			'description' => '',
+			'attributes' => array(),
+			'conditional_component' => '',
+			'conditional_values' => '',
+        ),
+        'mandatory' => '1',
+        'weight' => '5',
+        'page_num' => 1,
+      ),
+	  7 => array(
+		'nid' => 24,
+		'cid' => '7',
+		'pid' => '0',
+		'form_key' => 'comments',
+		'name' => 'Comments',
+		'type' => 'textarea',
+		'value' => '',
+		'extra' => array(
+			'title_display' => 0,
+			'private' => 0,
+			'resizable' => 1,
+			'disabled' => 0,
+			'conditional_operator' => '=',
+			'cols' => '',
+			'rows' => '',
+			'description' => '',
+			'attributes' => array(),
+			'conditional_component' => '',
+			'conditional_values' => '',
+		),
+        'mandatory' => '0',
+        'weight' => '6',
+        'page_num' => 1
+	)
+);
+	
+	$node->webform = array(
+		'confirmation' => '',
+		'confirmation_format' => NULL,
+		'redirect_url' => '<confirmation>',
+		'status' => '1',
+		'block' => '0',
+		'teaser' => '0',
+		'allow_draft' => '0',
+		'auto_save' => '0',
+		'submit_notice' => '1',
+		'submit_text' => '',
+		'submit_limit' => '1',
+		'submit_interval' => '-1',
+		'total_submit_limit' => '-1',
+		'total_submit_interval' => '-1',
+		'record_exists' => TRUE,
+		'roles' => array(
+	        // Only authenticated users can submit this webform.
+			0 => '1',
+		),
+			  
+		'emails' => array(),
+		// Here comes our $components array.
+		'components' => $components,
+	);
+	
+	node_save($node);
+	
+	// Insert Captcha
+	db_insert('captcha_points') // Table name no longer needs {}
+	->fields(array(
+	  'form_id' => 'webform_client_form_2',
+	  'module' => 'image_captcha',
+	  'captcha_type' => 'Image',
+	))
+	->execute();
+	
+	
+    // view admin/content
+    $view_name = 'admin_views_node';
+    $view = views_get_view($view_name, TRUE);
+    $view->display['default']->display_options = array (
+        'query' =>
+        array (
+            'type' => 'views_query',
+            'options' =>
+            array (
+                'distinct' => true,
+                'query_comment' => false,
+            ),
+        ),
+        'title' => 'Content',
+        'css_class' => 'admin-views-view',
+        'use_ajax' => true,
+        'use_more_always' => false,
+        'access' =>
+        array (
+            'type' => 'menu',
+        ),
+        'cache' =>
+        array (
+            'type' => 'none',
+        ),
+        'exposed_form' =>
+        array (
+            'type' => 'basic',
+            'options' =>
+            array (
+                'reset_button' => true,
+            ),
+        ),
+        'pager' =>
+        array (
+            'type' => 'full',
+            'options' =>
+            array (
+                'items_per_page' => 50,
+            ),
+        ),
+        'style_plugin' => 'table',
+        'style_options' =>
+        array (
+            'grouping' =>
+            array (
+            ),
+            'row_class' => '',
+            'default_row_class' => 1,
+            'row_class_special' => 1,
+            'override' => 1,
+            'sticky' => 1,
+            'summary' => '',
+            'columns' =>
+            array (
+                'views_bulk_operations' => 'views_bulk_operations',
+                'title' => 'title',
+                'timestamp' => 'title',
+                'type' => 'type',
+                'name' => 'name',
+                'status' => 'status',
+                'changed' => 'changed',
+                'edit_node' => 'edit_node',
+                'delete_node' => 'delete_node',
+                'totalcount' => 'totalcount',
+                'timestamp_1' => 'timestamp_1',
+            ),
+            'info' =>
+            array (
+                'views_bulk_operations' =>
+                array (
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+                'title' =>
+                array (
+                    'sortable' => 1,
+                    'default_sort_order' => 'asc',
+                    'align' => '',
+                    'separator' => '&nbsp;',
+                    'empty_column' => 0,
+                ),
+                'timestamp' =>
+                array (
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+                'type' =>
+                array (
+                    'sortable' => 1,
+                    'default_sort_order' => 'asc',
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+                'name' =>
+                array (
+                    'sortable' => 1,
+                    'default_sort_order' => 'asc',
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+                'status' =>
+                array (
+                    'sortable' => 1,
+                    'default_sort_order' => 'desc',
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+                'changed' =>
+                array (
+                    'sortable' => 1,
+                    'default_sort_order' => 'desc',
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+                'edit_node' =>
+                array (
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+                'delete_node' =>
+                array (
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+                'totalcount' =>
+                array (
+                    'sortable' => 1,
+                    'default_sort_order' => 'asc',
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+                'timestamp_1' =>
+                array (
+                    'sortable' => 1,
+                    'default_sort_order' => 'asc',
+                    'align' => '',
+                    'separator' => '',
+                    'empty_column' => 0,
+                ),
+            ),
+            'default' => 'changed',
+            'empty_table' => 1,
+        ),
+        'empty' =>
+        array (
+            'area_text_custom' =>
+            array (
+                'id' => 'area_text_custom',
+                'table' => 'views',
+                'field' => 'area_text_custom',
+                'empty' => true,
+                'content' => 'No content available.',
+            ),
+        ),
+        'relationships' =>
+        array (
+            'uid' =>
+            array (
+                'id' => 'uid',
+                'table' => 'node',
+                'field' => 'uid',
+            ),
+            'term_node_tid' =>
+            array (
+                'id' => 'term_node_tid',
+                'table' => 'node',
+                'field' => 'term_node_tid',
+                'vocabularies' =>
+                array (
+                    'forums' => 0,
+                    'tags' => 0,
+                ),
+            ),
+        ),
+        'fields' =>
+        array (
+            'views_bulk_operations' =>
+            array (
+                'id' => 'views_bulk_operations',
+                'table' => 'node',
+                'field' => 'views_bulk_operations',
+                'label' => '',
+                'element_label_colon' => false,
+                'hide_alter_empty' => false,
+                'vbo' =>
+                array (
+                    'entity_load_capacity' => '10',
+                    'operations' =>
+                    array (
+                        'action::node_assign_owner_action' =>
+                        array (
+                            'selected' => 1,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 1,
+                            'override_label' => 1,
+                            'label' => 'Change author',
+                        ),
+                        'action::views_bulk_operations_delete_item' =>
+                        array (
+                            'selected' => 1,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 0,
+                            'override_label' => 1,
+                            'label' => 'Delete',
+                        ),
+                        'action::views_bulk_operations_modify_action' =>
+                        array (
+                            'selected' => 1,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 1,
+                            'override_label' => 1,
+                            'label' => 'Change value',
+                            'settings' =>
+                            array (
+                                'show_all_tokens' => 1,
+                                'display_values' =>
+                                array (
+                                    '_all_' => '_all_',
+                                ),
+                            ),
+                        ),
+                        'action::system_message_action' =>
+                        array (
+                            'selected' => 0,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 0,
+                            'override_label' => 0,
+                            'label' => '',
+                        ),
+                        'action::views_bulk_operations_script_action' =>
+                        array (
+                            'selected' => 0,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 0,
+                            'override_label' => 0,
+                            'label' => '',
+                        ),
+                        'action::node_make_sticky_action' =>
+                        array (
+                            'selected' => 1,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 1,
+                            'override_label' => 1,
+                            'label' => 'Stick',
+                        ),
+                        'action::node_make_unsticky_action' =>
+                        array (
+                            'selected' => 1,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 1,
+                            'override_label' => 1,
+                            'label' => 'Unstick',
+                        ),
+                        'action::views_bulk_operations_argument_selector_action' =>
+                        array (
+                            'selected' => 0,
+                            'skip_confirmation' => 0,
+                            'override_label' => 0,
+                            'label' => '',
+                            'settings' =>
+                            array (
+                                'url' => '',
+                            ),
+                        ),
+                        'action::node_promote_action' =>
+                        array (
+                            'selected' => 1,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 1,
+                            'override_label' => 1,
+                            'label' => 'Promote to front page',
+                        ),
+                        'action::node_publish_action' =>
+                        array (
+                            'selected' => 1,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 1,
+                            'override_label' => 1,
+                            'label' => 'Publish',
+                        ),
+                        'action::system_goto_action' =>
+                        array (
+                            'selected' => 0,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 0,
+                            'override_label' => 0,
+                            'label' => '',
+                        ),
+                        'action::node_unpromote_action' =>
+                        array (
+                            'selected' => 1,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 1,
+                            'override_label' => 1,
+                            'label' => 'Demote from front page',
+                        ),
+                        'action::node_save_action' =>
+                        array (
+                            'selected' => 0,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 0,
+                            'override_label' => 0,
+                            'label' => '',
+                        ),
+                        'action::system_send_email_action' =>
+                        array (
+                            'selected' => 0,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 0,
+                            'override_label' => 0,
+                            'label' => '',
+                        ),
+                        'action::node_unpublish_action' =>
+                        array (
+                            'selected' => 1,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 1,
+                            'override_label' => 1,
+                            'label' => 'Unpublish',
+                        ),
+                        'action::node_unpublish_by_keyword_action' =>
+                        array (
+                            'selected' => 0,
+                            'use_queue' => 0,
+                            'skip_confirmation' => 0,
+                            'override_label' => 0,
+                            'label' => '',
+                        ),
+                    ),
+                    'enable_select_all_pages' => 1,
+                    'display_type' => '0',
+                    'display_result' => 1,
+                    'force_single' => 0,
+                ),
+            ),
+            'created' =>
+            array (
+                'id' => 'created',
+                'table' => 'node',
+                'field' => 'created',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => 'Date Added',
+                'exclude' => 0,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => 0,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => 1,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 0,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 1,
+                'date_format' => 'medium',
+                'custom_date_format' => '',
+                'timezone' => '',
+            ),
+            'title' =>
+            array (
+                'id' => 'title',
+                'table' => 'node',
+                'field' => 'title',
+            ),
+            'timestamp' =>
+            array (
+                'id' => 'timestamp',
+                'table' => 'history',
+                'field' => 'timestamp',
+                'label' => '',
+                'element_label_colon' => false,
+            ),
+            'type' =>
+            array (
+                'id' => 'type',
+                'table' => 'node',
+                'field' => 'type',
+            ),
+            'name' =>
+            array (
+                'id' => 'name',
+                'table' => 'users',
+                'field' => 'name',
+                'relationship' => 'uid',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => 'Author',
+                'exclude' => 1,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => 0,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => 1,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 0,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 0,
+                'link_to_user' => 1,
+                'overwrite_anonymous' => 0,
+                'anonymous_text' => '',
+                'format_username' => 1,
+            ),
+            'status' =>
+            array (
+                'id' => 'status',
+                'table' => 'node',
+                'field' => 'status',
+                'not' => 0,
+            ),
+            'field_status' =>
+            array (
+                'id' => 'field_status',
+                'table' => 'field_data_field_status',
+                'field' => 'field_status',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => 'Status',
+                'exclude' => 0,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => 0,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => 1,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 1,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 1,
+                'click_sort_column' => 'value',
+                'type' => 'list_default',
+                'settings' =>
+                array (
+                ),
+                'group_column' => 'value',
+                'group_columns' =>
+                array (
+                ),
+                'group_rows' => true,
+                'delta_limit' => 'all',
+                'delta_offset' => 0,
+                'delta_reversed' => false,
+                'delta_first_last' => false,
+                'multi_type' => 'separator',
+                'separator' => ', ',
+                'field_api_classes' => 0,
+            ),
+            'changed' =>
+            array (
+                'id' => 'changed',
+                'table' => 'node',
+                'field' => 'changed',
+                'label' => 'Updated',
+                'date_format' => 'short',
+            ),
+            'totalcount' =>
+            array (
+                'id' => 'totalcount',
+                'table' => 'node_counter',
+                'field' => 'totalcount',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => 'Total views',
+                'exclude' => 0,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => 0,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => 1,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 0,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 1,
+                'set_precision' => false,
+                'precision' => 0,
+                'decimal' => '.',
+                'separator' => ',',
+                'format_plural' => 0,
+                'format_plural_singular' => '1',
+                'format_plural_plural' => '@count',
+                'prefix' => '',
+                'suffix' => ' <a href="#" class="node-logs">logs</a>',
+            ),
+            'timestamp_1' =>
+            array (
+                'id' => 'timestamp_1',
+                'table' => 'node_counter',
+                'field' => 'timestamp',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => 'Last viewed',
+                'exclude' => 0,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => 0,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => 1,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 0,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 1,
+                'date_format' => 'medium',
+                'custom_date_format' => '',
+                'timezone' => '',
+            ),
+            'edit_node' =>
+            array (
+                'id' => 'edit_node',
+                'table' => 'views_entity_node',
+                'field' => 'edit_node',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => '',
+                'exclude' => 0,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => false,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => false,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 0,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 1,
+                'text' => '',
+            ),
+            'delete_node' =>
+            array (
+                'id' => 'delete_node',
+                'table' => 'views_entity_node',
+                'field' => 'delete_node',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => '',
+                'exclude' => 0,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => false,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => false,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 0,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 1,
+                'text' => '',
+            ),
+            'clone_node' =>
+            array (
+                'id' => 'clone_node',
+                'table' => 'node',
+                'field' => 'clone_node',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => '',
+                'exclude' => 0,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => false,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => false,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 0,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 1,
+                'text' => '',
+            ),
+            'proposal_send_email' =>
+            array (
+                'id' => 'proposal_send_email',
+                'table' => 'node',
+                'field' => 'proposal_send_email',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => '',
+                'exclude' => 0,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => false,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => false,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 0,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 1,
+                'text' => '',
+            ),
+            'property_export' =>
+            array (
+                'id' => 'property_export',
+                'table' => 'node',
+                'field' => 'property_export',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'label' => '',
+                'exclude' => 0,
+                'alter' =>
+                array (
+                    'alter_text' => 0,
+                    'text' => '',
+                    'make_link' => 0,
+                    'path' => '',
+                    'absolute' => 0,
+                    'external' => false,
+                    'replace_spaces' => 0,
+                    'path_case' => 'none',
+                    'trim_whitespace' => 0,
+                    'alt' => '',
+                    'rel' => '',
+                    'link_class' => '',
+                    'prefix' => '',
+                    'suffix' => '',
+                    'target' => '',
+                    'nl2br' => 0,
+                    'max_length' => '',
+                    'word_boundary' => 1,
+                    'ellipsis' => 1,
+                    'more_link' => 0,
+                    'more_link_text' => '',
+                    'more_link_path' => '',
+                    'strip_tags' => 0,
+                    'trim' => 0,
+                    'preserve_tags' => '',
+                    'html' => 0,
+                ),
+                'element_type' => '',
+                'element_class' => '',
+                'element_label_type' => '',
+                'element_label_class' => '',
+                'element_label_colon' => 1,
+                'element_wrapper_type' => '',
+                'element_wrapper_class' => '',
+                'element_default_classes' => 1,
+                'empty' => '',
+                'hide_empty' => 0,
+                'empty_zero' => 0,
+                'hide_alter_empty' => 1,
+                'text' => '',
+            ),
+        ),
+        'filters' =>
+        array (
+            'title' =>
+            array (
+                'id' => 'title',
+                'table' => 'node',
+                'field' => 'title',
+                'operator' => 'contains',
+                'exposed' => true,
+                'expose' =>
+                array (
+                    'operator_id' => 'title_op',
+                    'label' => 'Title',
+                    'operator' => 'title_op',
+                    'identifier' => 'title',
+                    'remember' => true,
+                ),
+            ),
+            'type' =>
+            array (
+                'id' => 'type',
+                'table' => 'node',
+                'field' => 'type',
+                'exposed' => true,
+                'expose' =>
+                array (
+                    'operator_id' => 'type_op',
+                    'label' => 'Type',
+                    'operator' => 'type_op',
+                    'identifier' => 'type',
+                    'remember' => true,
+                ),
+            ),
+            'uid' =>
+            array (
+                'id' => 'uid',
+                'table' => 'users',
+                'field' => 'uid',
+                'relationship' => 'uid',
+                'value' => '',
+                'exposed' => true,
+                'expose' =>
+                array (
+                    'operator_id' => 'uid_op',
+                    'label' => 'Author',
+                    'operator' => 'uid_op',
+                    'identifier' => 'author',
+                    'remember' => true,
+                ),
+            ),
+            'status' =>
+            array (
+                'id' => 'status',
+                'table' => 'node',
+                'field' => 'status',
+                'value' => 'All',
+                'exposed' => true,
+                'expose' =>
+                array (
+                    'operator_id' => '',
+                    'label' => 'Published',
+                    'operator' => 'status_op',
+                    'identifier' => 'status',
+                    'remember' => true,
+                ),
+            ),
+            'vid' =>
+            array (
+                'id' => 'vid',
+                'table' => 'taxonomy_term_data',
+                'field' => 'vid',
+                'relationship' => 'term_node_tid',
+                'exposed' => true,
+                'expose' =>
+                array (
+                    'operator_id' => 'vid_op',
+                    'label' => 'Vocabulary',
+                    'operator' => 'vid_op',
+                    'identifier' => 'vid',
+                    'remember' => true,
+                ),
+            ),
+            'field_status_value' =>
+            array (
+                'id' => 'field_status_value',
+                'table' => 'field_data_field_status',
+                'field' => 'field_status_value',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'operator' => 'or',
+                'value' =>
+                array (
+                ),
+                'group' => '1',
+                'exposed' => true,
+                'expose' =>
+                array (
+                    'operator_id' => 'field_status_value_op',
+                    'label' => 'Proposal status',
+                    'description' => '',
+                    'use_operator' => 0,
+                    'operator' => 'field_status_value_op',
+                    'identifier' => 'field_status_value',
+                    'required' => 0,
+                    'remember' => 1,
+                    'multiple' => 0,
+                    'remember_roles' =>
+                    array (
+                        2 => '2',
+                        3 => '3',
+                        1 => 0,
+                    ),
+                    'reduce' => 0,
+                ),
+                'is_grouped' => false,
+                'group_info' =>
+                array (
+                    'label' => '',
+                    'description' => '',
+                    'identifier' => '',
+                    'optional' => true,
+                    'widget' => 'select',
+                    'multiple' => false,
+                    'remember' => 0,
+                    'default_group' => 'All',
+                    'default_group_multiple' =>
+                    array (
+                    ),
+                    'group_items' =>
+                    array (
+                    ),
+                ),
+                'reduce_duplicates' => 0,
+            ),
+            'body_value' =>
+            array (
+                'id' => 'body_value',
+                'table' => 'field_data_body',
+                'field' => 'body_value',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => 'Keywords',
+                'operator' => 'contains',
+                'value' => '',
+                'group' => '1',
+                'exposed' => true,
+                'expose' =>
+                array (
+                    'operator_id' => 'body_value_op',
+                    'label' => 'Keywords',
+                    'description' => '',
+                    'use_operator' => 0,
+                    'operator' => 'body_value_op',
+                    'identifier' => 'body_value',
+                    'required' => 0,
+                    'remember' => 0,
+                    'multiple' => false,
+                    'remember_roles' =>
+                    array (
+                        2 => '2',
+                        1 => 0,
+                        3 => 0,
+                    ),
+                ),
+                'is_grouped' => false,
+                'group_info' =>
+                array (
+                    'label' => 'Body (body)',
+                    'description' => NULL,
+                    'identifier' => 'body_value',
+                    'optional' => true,
+                    'widget' => 'select',
+                    'multiple' => false,
+                    'remember' => false,
+                    'default_group' => 'All',
+                    'default_group_multiple' =>
+                    array (
+                    ),
+                    'group_items' =>
+                    array (
+                        1 =>
+                        array (
+                        ),
+                        2 =>
+                        array (
+                        ),
+                        3 =>
+                        array (
+                        ),
+                    ),
+                ),
+            ),
+            'field_property_type_value' =>
+            array (
+                'id' => 'field_property_type_value',
+                'table' => 'field_data_field_property_type',
+                'field' => 'field_property_type_value',
+                'relationship' => 'none',
+                'group_type' => 'group',
+                'ui_name' => '',
+                'operator' => 'or',
+                'value' =>
+                array (
+                ),
+                'group' => '1',
+                'exposed' => true,
+                'expose' =>
+                array (
+                    'operator_id' => 'field_property_type_value_op',
+                    'label' => 'Property Type',
+                    'description' => '',
+                    'use_operator' => 0,
+                    'operator' => 'field_property_type_value_op',
+                    'identifier' => 'field_property_type_value',
+                    'required' => 0,
+                    'remember' => 0,
+                    'multiple' => 0,
+                    'remember_roles' =>
+                    array (
+                        2 => '2',
+                        1 => 0,
+                        3 => 0,
+                    ),
+                    'reduce' => 0,
+                ),
+                'is_grouped' => false,
+                'group_info' =>
+                array (
+                    'label' => '',
+                    'description' => '',
+                    'identifier' => '',
+                    'optional' => true,
+                    'widget' => 'select',
+                    'multiple' => false,
+                    'remember' => 0,
+                    'default_group' => 'All',
+                    'default_group_multiple' =>
+                    array (
+                    ),
+                    'group_items' =>
+                    array (
+                    ),
+                ),
+                'reduce_duplicates' => 0,
+            ),
+        ),
+    );
+    views_save_view($view);
+	
+	// Add News View
+	$view = new view();
+	$view->name = 'news';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'News';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+	/* Display: Master */
+	$handler = $view->new_display('default', 'Master', 'default');
+	$handler->display->display_options['title'] = 'News';
+	$handler->display->display_options['use_more_always'] = FALSE;
+	$handler->display->display_options['access']['type'] = 'perm';
+	$handler->display->display_options['cache']['type'] = 'none';
+	$handler->display->display_options['query']['type'] = 'views_query';
+	$handler->display->display_options['exposed_form']['type'] = 'basic';
+	$handler->display->display_options['pager']['type'] = 'full';
+	$handler->display->display_options['pager']['options']['items_per_page'] = '10';
+	$handler->display->display_options['style_plugin'] = 'default';
+	$handler->display->display_options['row_plugin'] = 'node';
+	/* Field: Content: Title */
+	$handler->display->display_options['fields']['title']['id'] = 'title';
+	$handler->display->display_options['fields']['title']['table'] = 'node';
+	$handler->display->display_options['fields']['title']['field'] = 'title';
+	$handler->display->display_options['fields']['title']['label'] = '';
+	$handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+	$handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+	/* Field: Content: Post date */
+	$handler->display->display_options['fields']['created']['id'] = 'created';
+	$handler->display->display_options['fields']['created']['table'] = 'node';
+	$handler->display->display_options['fields']['created']['field'] = 'created';
+	$handler->display->display_options['fields']['created']['label'] = '';
+	$handler->display->display_options['fields']['created']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['created']['date_format'] = 'short';
+	/* Field: Content: Body */
+	$handler->display->display_options['fields']['body']['id'] = 'body';
+	$handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+	$handler->display->display_options['fields']['body']['field'] = 'body';
+	$handler->display->display_options['fields']['body']['label'] = '';
+	$handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['body']['type'] = 'text_summary_or_trimmed';
+	$handler->display->display_options['fields']['body']['settings'] = array(
+	  'trim_length' => '600',
+	);
+	/* Field: Content: Link */
+	$handler->display->display_options['fields']['view_node']['id'] = 'view_node';
+	$handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
+	$handler->display->display_options['fields']['view_node']['field'] = 'view_node';
+	$handler->display->display_options['fields']['view_node']['label'] = '';
+	$handler->display->display_options['fields']['view_node']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['view_node']['text'] = 'Read More';
+	/* Sort criterion: Content: Post date */
+	$handler->display->display_options['sorts']['created']['id'] = 'created';
+	$handler->display->display_options['sorts']['created']['table'] = 'node';
+	$handler->display->display_options['sorts']['created']['field'] = 'created';
+	$handler->display->display_options['sorts']['created']['order'] = 'DESC';
+	/* Filter criterion: Content: Published */
+	$handler->display->display_options['filters']['status']['id'] = 'status';
+	$handler->display->display_options['filters']['status']['table'] = 'node';
+	$handler->display->display_options['filters']['status']['field'] = 'status';
+	$handler->display->display_options['filters']['status']['value'] = 1;
+	$handler->display->display_options['filters']['status']['group'] = 1;
+	$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+	/* Filter criterion: Content: Type */
+	$handler->display->display_options['filters']['type']['id'] = 'type';
+	$handler->display->display_options['filters']['type']['table'] = 'node';
+	$handler->display->display_options['filters']['type']['field'] = 'type';
+	$handler->display->display_options['filters']['type']['value'] = array(
+	  'news' => 'news',
+	);
+
+	/* Display: Page */
+	$handler = $view->new_display('page', 'Page', 'page');
+	$handler->display->display_options['path'] = 'news';
+
+	/* Display: Block */
+	$handler = $view->new_display('block', 'Block', 'block');
+	$handler->display->display_options['defaults']['pager'] = FALSE;
+	$handler->display->display_options['pager']['type'] = 'some';
+	$handler->display->display_options['pager']['options']['items_per_page'] = '3';
+	$handler->display->display_options['pager']['options']['offset'] = '0';
+	$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+	$handler->display->display_options['defaults']['filters'] = FALSE;
+	/* Filter criterion: Content: Published */
+	$handler->display->display_options['filters']['status']['id'] = 'status';
+	$handler->display->display_options['filters']['status']['table'] = 'node';
+	$handler->display->display_options['filters']['status']['field'] = 'status';
+	$handler->display->display_options['filters']['status']['value'] = 1;
+	$handler->display->display_options['filters']['status']['group'] = 1;
+	$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+	/* Filter criterion: Content: Type */
+	$handler->display->display_options['filters']['type']['id'] = 'type';
+	$handler->display->display_options['filters']['type']['table'] = 'node';
+	$handler->display->display_options['filters']['type']['field'] = 'type';
+	$handler->display->display_options['filters']['type']['value'] = array(
+	  'news' => 'news',
+	);
+	/* Filter criterion: Content: Promoted to front page */
+	$handler->display->display_options['filters']['promote']['id'] = 'promote';
+	$handler->display->display_options['filters']['promote']['table'] = 'node';
+	$handler->display->display_options['filters']['promote']['field'] = 'promote';
+	$handler->display->display_options['filters']['promote']['value'] = '1';
+	
+	$view->save();
+	
+	// Add Blog View
+	$view = new view();
+	$view->name = 'blog';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'Blog';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+	/* Display: Master */
+	$handler = $view->new_display('default', 'Master', 'default');
+	$handler->display->display_options['title'] = 'Blog';
+	$handler->display->display_options['use_more_always'] = FALSE;
+	$handler->display->display_options['access']['type'] = 'perm';
+	$handler->display->display_options['cache']['type'] = 'none';
+	$handler->display->display_options['query']['type'] = 'views_query';
+	$handler->display->display_options['exposed_form']['type'] = 'basic';
+	$handler->display->display_options['pager']['type'] = 'full';
+	$handler->display->display_options['pager']['options']['items_per_page'] = '10';
+	$handler->display->display_options['style_plugin'] = 'default';
+	$handler->display->display_options['row_plugin'] = 'node';
+	/* Field: Content: Title */
+	$handler->display->display_options['fields']['title']['id'] = 'title';
+	$handler->display->display_options['fields']['title']['table'] = 'node';
+	$handler->display->display_options['fields']['title']['field'] = 'title';
+	$handler->display->display_options['fields']['title']['label'] = '';
+	$handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+	$handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+	/* Field: Content: Post date */
+	$handler->display->display_options['fields']['created']['id'] = 'created';
+	$handler->display->display_options['fields']['created']['table'] = 'node';
+	$handler->display->display_options['fields']['created']['field'] = 'created';
+	$handler->display->display_options['fields']['created']['label'] = '';
+	$handler->display->display_options['fields']['created']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['created']['date_format'] = 'short';
+	/* Field: Content: Body */
+	$handler->display->display_options['fields']['body']['id'] = 'body';
+	$handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+	$handler->display->display_options['fields']['body']['field'] = 'body';
+	$handler->display->display_options['fields']['body']['label'] = '';
+	$handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['body']['type'] = 'text_summary_or_trimmed';
+	$handler->display->display_options['fields']['body']['settings'] = array(
+	  'trim_length' => '600',
+	);
+	/* Field: Content: Link */
+	$handler->display->display_options['fields']['view_node']['id'] = 'view_node';
+	$handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
+	$handler->display->display_options['fields']['view_node']['field'] = 'view_node';
+	$handler->display->display_options['fields']['view_node']['label'] = '';
+	$handler->display->display_options['fields']['view_node']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['view_node']['text'] = 'Read More';
+	/* Sort criterion: Content: Post date */
+	$handler->display->display_options['sorts']['created']['id'] = 'created';
+	$handler->display->display_options['sorts']['created']['table'] = 'node';
+	$handler->display->display_options['sorts']['created']['field'] = 'created';
+	$handler->display->display_options['sorts']['created']['order'] = 'DESC';
+	/* Filter criterion: Content: Published */
+	$handler->display->display_options['filters']['status']['id'] = 'status';
+	$handler->display->display_options['filters']['status']['table'] = 'node';
+	$handler->display->display_options['filters']['status']['field'] = 'status';
+	$handler->display->display_options['filters']['status']['value'] = 1;
+	$handler->display->display_options['filters']['status']['group'] = 1;
+	$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+	/* Filter criterion: Content: Type */
+	$handler->display->display_options['filters']['type']['id'] = 'type';
+	$handler->display->display_options['filters']['type']['table'] = 'node';
+	$handler->display->display_options['filters']['type']['field'] = 'type';
+	$handler->display->display_options['filters']['type']['value'] = array(
+	  'blog' => 'blog',
+	);
+
+	/* Display: Page */
+	$handler = $view->new_display('page', 'Page', 'page');
+	$handler->display->display_options['path'] = 'blog';
+
+	$view->save();
+	
+	// Add Map View
+	$view = new view();
+	$view->name = 'map';
+	$view->description = 'Maps: Flexslider + Views';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'Map';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+	/* Display: Master */
+	$handler = $view->new_display('default', 'Master', 'default');
+	$handler->display->display_options['title'] = 'Map';
+	$handler->display->display_options['use_more_always'] = FALSE;
+	$handler->display->display_options['access']['type'] = 'perm';
+	$handler->display->display_options['cache']['type'] = 'none';
+	$handler->display->display_options['query']['type'] = 'views_query';
+	$handler->display->display_options['exposed_form']['type'] = 'basic';
+	$handler->display->display_options['pager']['type'] = 'some';
+	$handler->display->display_options['pager']['options']['items_per_page'] = '8';
+	$handler->display->display_options['style_plugin'] = 'list';
+	$handler->display->display_options['style_options']['class'] = 'slides';
+	$handler->display->display_options['style_options']['wrapper_class'] = 'flexslider';
+	$handler->display->display_options['row_plugin'] = 'fields';
+	/* Field: Content: Custom Map */
+	$handler->display->display_options['fields']['field_custom_map']['id'] = 'field_custom_map';
+	$handler->display->display_options['fields']['field_custom_map']['table'] = 'field_data_field_custom_map';
+	$handler->display->display_options['fields']['field_custom_map']['field'] = 'field_custom_map';
+	$handler->display->display_options['fields']['field_custom_map']['label'] = '';
+	$handler->display->display_options['fields']['field_custom_map']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['field_custom_map']['hide_empty'] = TRUE;
+	$handler->display->display_options['fields']['field_custom_map']['click_sort_column'] = 'fid';
+	$handler->display->display_options['fields']['field_custom_map']['settings'] = array(
+	  'image_style' => 'medium',
+	  'image_link' => '',
+	);
+	/* Field: Content: Google Map */
+	$handler->display->display_options['fields']['field_google_map']['id'] = 'field_google_map';
+	$handler->display->display_options['fields']['field_google_map']['table'] = 'field_data_field_google_map';
+	$handler->display->display_options['fields']['field_google_map']['field'] = 'field_google_map';
+	$handler->display->display_options['fields']['field_google_map']['label'] = '';
+	$handler->display->display_options['fields']['field_google_map']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['field_google_map']['hide_empty'] = TRUE;
+	/* Sort criterion: Content: Map Weight (field_map_weight) */
+	$handler->display->display_options['sorts']['field_map_weight_value']['id'] = 'field_map_weight_value';
+	$handler->display->display_options['sorts']['field_map_weight_value']['table'] = 'field_data_field_map_weight';
+	$handler->display->display_options['sorts']['field_map_weight_value']['field'] = 'field_map_weight_value';	
+	/* Filter criterion: Content: Published */
+	$handler->display->display_options['filters']['status']['id'] = 'status';
+	$handler->display->display_options['filters']['status']['table'] = 'node';
+	$handler->display->display_options['filters']['status']['field'] = 'status';
+	$handler->display->display_options['filters']['status']['value'] = 1;
+	$handler->display->display_options['filters']['status']['group'] = 1;
+	$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+	/* Filter criterion: Content: Type */
+	$handler->display->display_options['filters']['type']['id'] = 'type';
+	$handler->display->display_options['filters']['type']['table'] = 'node';
+	$handler->display->display_options['filters']['type']['field'] = 'type';
+	$handler->display->display_options['filters']['type']['value'] = array(
+	  'map' => 'map',
+	);
+
+	/* Display: Map Slides */
+	$handler = $view->new_display('block', 'Map Slides', 'block');
+	$handler->display->display_options['display_description'] = 'Large Map Slides';
+	$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+	$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+	$handler->display->display_options['style_plugin'] = 'list';
+	$handler->display->display_options['style_options']['class'] = 'slides';
+	$handler->display->display_options['style_options']['wrapper_class'] = 'flexslider';
+	$handler->display->display_options['defaults']['style_options'] = FALSE;
+	$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+	$handler->display->display_options['row_plugin'] = 'fields';
+	$handler->display->display_options['defaults']['row_options'] = FALSE;
+	$handler->display->display_options['defaults']['fields'] = FALSE;
+	/* Field: Content: Custom Map */
+	$handler->display->display_options['fields']['field_custom_map']['id'] = 'field_custom_map';
+	$handler->display->display_options['fields']['field_custom_map']['table'] = 'field_data_field_custom_map';
+	$handler->display->display_options['fields']['field_custom_map']['field'] = 'field_custom_map';
+	$handler->display->display_options['fields']['field_custom_map']['label'] = '';
+	$handler->display->display_options['fields']['field_custom_map']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['field_custom_map']['hide_empty'] = TRUE;
+	$handler->display->display_options['fields']['field_custom_map']['click_sort_column'] = 'fid';
+	$handler->display->display_options['fields']['field_custom_map']['settings'] = array(
+	  'image_style' => '',
+	  'image_link' => '',
+	);
+	/* Field: Content: Google Map */
+	$handler->display->display_options['fields']['field_google_map']['id'] = 'field_google_map';
+	$handler->display->display_options['fields']['field_google_map']['table'] = 'field_data_field_google_map';
+	$handler->display->display_options['fields']['field_google_map']['field'] = 'field_google_map';
+	$handler->display->display_options['fields']['field_google_map']['label'] = '';
+	$handler->display->display_options['fields']['field_google_map']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['field_google_map']['hide_empty'] = TRUE;
+
+	/* Display: Map Thumbs */
+	$handler = $view->new_display('block', 'Map Thumbs', 'block_1');
+	$handler->display->display_options['display_description'] = 'Thumbnails in carousel';
+	$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+	$handler->display->display_options['defaults']['fields'] = FALSE;
+	/* Field: Content: Custom Map */
+	$handler->display->display_options['fields']['field_custom_map']['id'] = 'field_custom_map';
+	$handler->display->display_options['fields']['field_custom_map']['table'] = 'field_data_field_custom_map';
+	$handler->display->display_options['fields']['field_custom_map']['field'] = 'field_custom_map';
+	$handler->display->display_options['fields']['field_custom_map']['label'] = '';
+	$handler->display->display_options['fields']['field_custom_map']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['field_custom_map']['hide_empty'] = TRUE;
+	$handler->display->display_options['fields']['field_custom_map']['click_sort_column'] = 'fid';
+	$handler->display->display_options['fields']['field_custom_map']['settings'] = array(
+	  'image_style' => 'map_thumb',
+	  'image_link' => '',
+	);
+	/* Field: Content: Google Map */
+	$handler->display->display_options['fields']['field_google_map']['id'] = 'field_google_map';
+	$handler->display->display_options['fields']['field_google_map']['table'] = 'field_data_field_google_map';
+	$handler->display->display_options['fields']['field_google_map']['field'] = 'field_google_map';
+	$handler->display->display_options['fields']['field_google_map']['label'] = '';
+	$handler->display->display_options['fields']['field_google_map']['alter']['alter_text'] = TRUE;
+	$handler->display->display_options['fields']['field_google_map']['alter']['text'] = '<img src=\'/sites/default/themes/edsuite_generic/images/google-map-thumb.png\' />';
+	$handler->display->display_options['fields']['field_google_map']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['field_google_map']['hide_empty'] = TRUE;
+	/* Field: Content: Title */
+	$handler->display->display_options['fields']['title']['id'] = 'title';
+	$handler->display->display_options['fields']['title']['table'] = 'node';
+	$handler->display->display_options['fields']['title']['field'] = 'title';
+	$handler->display->display_options['fields']['title']['label'] = '';
+	$handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['title']['link_to_node'] = FALSE;
+	
+	$view->save();
+}

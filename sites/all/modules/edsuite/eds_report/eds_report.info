@@ -1,0 +1,6 @@
+name = EDSuite Custom Report
+description = Adjusts EDSuite Custom Report features
+package = EDSuite
+dependencies[] = edsuite
+version = "5.x"
+core = 7.x

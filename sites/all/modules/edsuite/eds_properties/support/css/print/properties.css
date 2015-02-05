@@ -1,0 +1,47 @@
+/**
+ * property-print.css - Print styles for the property page(s)
+ * $Id$
+ */
+
+/***********************************************************************
+ * Elements
+ **********************************************************************/
+
+/***********************************************************************
+ * Items
+ **********************************************************************/
+
+#gmap-properties-gmap0 {
+    width: 100%;
+    margin: 0 auto;
+}
+
+div#gmap-wrapper + div.ajax_views_footers div.ajax_pages span.pager_results {
+    display: block;
+    position: absolute;
+    top: 45px;
+    left: 26px;
+    font-size: 1.4em;
+}
+
+/***********************************************************************
+ * Classes
+ **********************************************************************/
+
+div.page-title,
+#tabs-wrapper div.page-title {
+    display: block;
+    padding-bottom: 40px;
+}
+
+div.pager {
+    display: none;
+}
+
+.property-more-information a {
+   display: none;
+}
+
+.property-more-info-print-link {
+    display: inline;
+}

@@ -1,0 +1,7 @@
+; $Id$
+name = Proposal 
+description = Create proposals for leads
+package = EDSuite
+dependencies[] = node_embed_edsuite
+version = "5.x"
+core = 7.x

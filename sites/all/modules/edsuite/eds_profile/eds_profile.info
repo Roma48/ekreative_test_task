@@ -1,0 +1,8 @@
+; $Id$
+name = EDSuite Community Profile
+description = Adjusts EDSuite Community Profile features
+package = EDSuite
+dependencies[] = edsuite
+dependencies[] = book
+version = "5.x"
+core = 7.x

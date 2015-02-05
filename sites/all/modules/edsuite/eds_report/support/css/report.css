@@ -1,0 +1,103 @@
+/**
+ * report.css - Custom Report styles
+ * $Id$
+ */
+
+/* Hide things */
+#header-container, 
+#page-title,
+#footer-container,
+.mean-bar, 
+.print-logo, 
+.print-site_name,
+.print-breadcrumb,
+.print-breadcrumb ~ .print-hr {
+	border: none;
+	display: none;
+}
+
+/* Layout */
+@page {
+	padding: 0;
+	margin: .25in;
+}
+
+body.page-eds-report {
+	margin: 2em;
+}
+
+/* Page Styles : /eds/report */
+a {
+	text-decoration: none;
+}
+
+body {
+	font-family: helvetica, arial;
+}
+
+div.section {
+	border-bottom: #ddd solid 1px;
+	padding-bottom: .25in;
+	margin-bottom: .25in;
+	page-break-before: always
+}
+
+div.section:first-child {
+	page-break-before: avoid
+}
+
+#report-header {
+	border: none;
+    margin-bottom: 20px;
+	position: relative;
+}
+
+#report-logo {
+    float: left;
+    width: 50%;
+}
+
+#report-contact-information {
+	float: right;
+    width: 50%;
+}
+
+#gmap-wrapper > div {
+	height: 250px !important;
+}
+
+/* Specific Print / PDF Styles : /print/eds/report and /printpdf/eds/report */
+
+/* Hide Stuff */
+.print-content a.csv {
+	display: none;
+}
+
+.print-content {
+	margin: auto;
+	width: 100%
+}
+
+.print-content #report-header {
+	margin-bottom: 0;
+}
+
+.print-content #report-contact-information {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.print-hr {
+	background: #fff !important;
+	border: none;
+	color: #fff !important;
+	height: 0;
+}
+
+/* Media Queries */
+@media only screen and (max-width: 1024px) {
+    a.csv {
+        display: none;
+    }
+}

@@ -1,0 +1,36 @@
+<?php
+/**
+ * @file
+ * Code for the Edsuite Pdf feature.
+ */
+
+include_once 'edsuite_pdf.features.inc';
+
+
+	
+function  edsuite_pdf_form_node_form_alter(&$form, $form_state) {
+	//echo 1; exit;
+  	drupal_add_js(drupal_get_path('module', 'edsuite_pdf') . '/edsuite_pdf.js', array(
+		'scope' => 'header',
+		'every_page' => TRUE,
+		'weight' => 99999,
+	)); 
+}
+
+function  edsuite_pdf_node_validate($node, $form, &$form_state) {
+	if ($node->type=='staff_manager' && $form_state['values']['op']=='Save') {
+	    if ($form_state['values']['field_is_main']['und'][0]['value'] == 1) {
+	    	$type = 'staff_manager';
+	        $row = db_query('SELECT nid FROM {node} WHERE  type = :type', array(':type' => $type))->fetchAll();
+	        $managers = '';
+	        foreach($row as $r) {
+	        	$m = node_load($r->nid);
+	            if ($m->field_is_main['und'][0]['value']==1) {
+	            	$m->field_is_main['und'][0]['value']=0;
+	  				node_save($m);
+	  			} 			
+			}
+			drupal_set_message('Staff Manager <em class="placeholder">'.$node->title.'</em> has been set to Primary Contact.');
+	  	}
+	}
+}

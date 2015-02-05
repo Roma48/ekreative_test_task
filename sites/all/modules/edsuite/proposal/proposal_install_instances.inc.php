@@ -1,0 +1,2456 @@
+<?php
+
+function _proposal_installed_instances()
+{
+    $instances = array(
+        'field_proposal_teaser' => array(
+            'label' => 'Teaser',
+            'widget' => array(
+                'weight' => '1',
+                'type' => 'text_textarea',
+                'module' => 'text',
+                'active' => 1,
+                'settings' => array(
+                    'rows' => '5',
+                ),
+            ),
+            'settings' => array(
+                'text_processing' => '1',
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'hidden',
+                    'type' => 'hidden',
+                    'weight' => '1',
+                    'settings' => array(),
+                ),
+                'teaser' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'related_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'preview_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+            ),
+            'required' => 0,
+            'description' => 'Enter an excerpt for this item. It will be shown on listing pages along with a read more link which leads to the full view. Leave empty to auto-generate one from the body.',
+            'default_value' => NULL,
+            'field_name' => 'field_proposal_teaser',
+            'entity_type' => 'node',
+            'bundle' => 'proposal',
+            'deleted' => '0',
+        ),
+        'field_managers' => array(
+            'label' => 'Contact Manager(s)',
+            'widget' => array(
+              'weight' => '2',
+              'type' => 'node_reference_autocomplete',
+              'module' => 'node_reference',
+              'active' => 1,
+              'settings' => array(
+                'autocomplete_match' => 'contains',
+                'size' => 60,
+                'autocomplete_path' => 'node_reference/autocomplete',
+              ),
+            ),
+            'settings' => array(
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'hidden',
+                'type' => 'hidden',
+                'weight' => '24',
+                'settings' => array(),
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_managers',
+            'entity_type' => 'node',
+            'bundle' => 'proposal',
+            'deleted' => '0',
+          ),
+        'field_code' => array(
+            'label' => 'Code',
+            'widget' => array(
+                'weight' => '3',
+                'type' => 'text_textfield',
+                'module' => 'text',
+                'active' => 1,
+                'settings' => array(
+                    'size' => '60',
+                ),
+            ),
+            'settings' => array(
+                'text_processing' => '0',
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'hidden',
+                    'type' => 'hidden',
+                    'weight' => '2',
+                    'settings' => array(),
+                ),
+                'teaser' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'related_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'preview_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+            ),
+            'required' => 1,
+            'description' => 'The proposal code. It may only contain letters, numbers, and spaces.',
+            'default_value' => NULL,
+            'field_name' => 'field_code',
+            'entity_type' => 'node',
+            'bundle' => 'proposal',
+            'deleted' => '0',
+        ),
+        'field_password' => array(
+            'label' => 'Password',
+            'widget' => array(
+                'weight' => '4',
+                'type' => 'text_textfield',
+                'module' => 'text',
+                'active' => 1,
+                'settings' => array(
+                    'size' => '60',
+                ),
+            ),
+            'settings' => array(
+                'text_processing' => '0',
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'hidden',
+                    'type' => 'hidden',
+                    'weight' => '21',
+                    'settings' => array(),
+                ),
+                'teaser' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'related_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'preview_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+            ),
+            'required' => 1,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_password',
+            'entity_type' => 'node',
+            'bundle' => 'proposal',
+            'deleted' => '0',
+        ),
+        'field_expiration_date' => array(
+            'label' => 'Expiration Date',
+            'widget' => array(
+                'weight' => '5',
+                'type' => 'date_popup',
+                'module' => 'date',
+                'active' => 1,
+                'settings' => array(
+                    'input_format' => 'm/d/Y - H:i:s',
+                    'input_format_custom' => '',
+                    'year_range' => '-3:+3',
+                    'increment' => '15',
+                    'label_position' => 'above',
+                    'text_parts' => array(),
+                    'display_all_day' => 0,
+                    'repeat_collapsed' => 0,
+                ),
+            ),
+            'settings' => array(
+                'default_value' => 'now',
+                'default_value_code' => '',
+                'default_value2' => 'same',
+                'default_value_code2' => '',
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'hidden',
+                    'type' => 'hidden',
+                    'weight' => '5',
+                    'settings' => array(),
+                ),
+                'teaser' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'related_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'preview_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'field_name' => 'field_expiration_date',
+            'entity_type' => 'node',
+            'bundle' => 'proposal',
+            'deleted' => '0',
+        ),
+        'field_status' => array(
+            'label' => 'Status',
+            'widget' => array(
+                'weight' => '7',
+                'type' => 'options_select',
+                'module' => 'options',
+                'active' => 1,
+                'settings' => array(),
+            ),
+            'settings' => array(
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'hidden',
+                    'type' => 'hidden',
+                    'weight' => '6',
+                    'settings' => array(),
+                ),
+                'teaser' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'related_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'preview_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => array(
+                array(
+                    'value' => '0',
+                ),
+            ),
+            'field_name' => 'field_status',
+            'entity_type' => 'node',
+            'bundle' => 'proposal',
+            'deleted' => '0',
+        ),
+        'field_proposal_sections' => array(
+            'label' => 'Sections',
+            'widget' => array(
+                'weight' => '8',
+                'type' => 'field_collection_embed',
+                'module' => 'field_collection',
+                'active' => 0,
+                'settings' => array(),
+            ),
+            'settings' => array(
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'hidden',
+                    'type' => 'hidden',
+                    'weight' => '20',
+                    'settings' => array(),
+                ),
+                'teaser' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'related_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'preview_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_proposal_sections',
+            'entity_type' => 'node',
+            'bundle' => 'proposal',
+            'deleted' => '0',
+        ),
+        'field_navigation_style' => array(
+            'label' => 'Navigation Style',
+            'widget' => array(
+                'weight' => '9',
+                'type' => 'options_buttons',
+                'module' => 'options',
+                'active' => 1,
+                'settings' => array(),
+            ),
+            'settings' => array(
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'hidden',
+                    'type' => 'hidden',
+                    'weight' => '12',
+                    'settings' => array(),
+                ),
+                'teaser' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'related_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'preview_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => array(
+                array(
+                    'value' => '1',
+                ),
+            ),
+            'field_name' => 'field_navigation_style',
+            'entity_type' => 'node',
+            'bundle' => 'proposal',
+            'deleted' => '0',
+        ),
+        'field_skin' => array(
+            'label' => 'skin',
+            'widget' => array(
+                'weight' => '10',
+                'type' => 'options_select',
+                'module' => 'options',
+                'active' => 1,
+                'settings' => array(),
+            ),
+            'settings' => array(
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'hidden',
+                    'type' => 'hidden',
+                    'weight' => '19',
+                    'settings' => array(),
+                ),
+                'teaser' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'related_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+                'preview_list' => array(
+                    'type' => 'hidden',
+                    'label' => 'above',
+                    'settings' => array(),
+                    'weight' => 0,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => array(
+                array(
+                    'value' => 'default',
+                ),
+            ),
+            'field_name' => 'field_skin',
+            'entity_type' => 'node',
+            'bundle' => 'proposal',
+            'deleted' => '0',
+        ),
+//        'field_headers' => array(
+//            'label' => 'Headers',
+//            'widget' => array(
+//                'weight' => '15',
+//                'type' => 'jquery_colorpicker',
+//                'module' => 'jquery_colorpicker',
+//                'active' => 0,
+//                'settings' => array(),
+//            ),
+//            'settings' => array(
+//                'user_register_form' => FALSE,
+//            ),
+//            'display' => array(
+//                'default' => array(
+//                    'label' => 'hidden',
+//                    'type' => 'hidden',
+//                    'weight' => '13',
+//                    'settings' => array(),
+//                ),
+//                'teaser' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'related_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'preview_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//            ),
+//            'required' => 0,
+//            'description' => '',
+//            'default_value' => NULL,
+//            'field_name' => 'field_headers',
+//            'entity_type' => 'node',
+//            'bundle' => 'proposal',
+//            'deleted' => '0',
+//        ),
+//        'field_links' => array(
+//            'label' => 'Links',
+//            'widget' => array(
+//                'weight' => '16',
+//                'type' => 'jquery_colorpicker',
+//                'module' => 'jquery_colorpicker',
+//                'active' => 0,
+//                'settings' => array(),
+//            ),
+//            'settings' => array(
+//                'user_register_form' => FALSE,
+//            ),
+//            'display' => array(
+//                'default' => array(
+//                    'label' => 'hidden',
+//                    'type' => 'hidden',
+//                    'weight' => '14',
+//                    'settings' => array(),
+//                ),
+//                'teaser' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'related_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'preview_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//            ),
+//            'required' => 0,
+//            'description' => '',
+//            'default_value' => NULL,
+//            'field_name' => 'field_links',
+//            'entity_type' => 'node',
+//            'bundle' => 'proposal',
+//            'deleted' => '0',
+//        ),
+//        'field_menu_background' => array(
+//            'label' => 'Menu Background',
+//            'widget' => array(
+//                'weight' => '17',
+//                'type' => 'jquery_colorpicker',
+//                'module' => 'jquery_colorpicker',
+//                'active' => 0,
+//                'settings' => array(),
+//            ),
+//            'settings' => array(
+//                'user_register_form' => FALSE,
+//            ),
+//            'display' => array(
+//                'default' => array(
+//                    'label' => 'hidden',
+//                    'type' => 'hidden',
+//                    'weight' => '16',
+//                    'settings' => array(),
+//                ),
+//                'teaser' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'related_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'preview_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//            ),
+//            'required' => 0,
+//            'description' => '',
+//            'default_value' => NULL,
+//            'field_name' => 'field_menu_background',
+//            'entity_type' => 'node',
+//            'bundle' => 'proposal',
+//            'deleted' => '0',
+//        ),
+//        'field_menu_foreground' => array(
+//            'label' => 'Menu Foreground',
+//            'widget' => array(
+//                'weight' => '18',
+//                'type' => 'jquery_colorpicker',
+//                'module' => 'jquery_colorpicker',
+//                'active' => 0,
+//                'settings' => array(),
+//            ),
+//            'settings' => array(
+//                'user_register_form' => FALSE,
+//            ),
+//            'display' => array(
+//                'default' => array(
+//                    'label' => 'hidden',
+//                    'type' => 'hidden',
+//                    'weight' => '15',
+//                    'settings' => array(),
+//                ),
+//                'teaser' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'related_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'preview_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//            ),
+//            'required' => 0,
+//            'description' => '',
+//            'default_value' => NULL,
+//            'field_name' => 'field_menu_foreground',
+//            'entity_type' => 'node',
+//            'bundle' => 'proposal',
+//            'deleted' => '0',
+//        ),
+//        'field_menu_hover_background' => array(
+//            'label' => 'Menu Hover Background',
+//            'widget' => array(
+//                'weight' => '19',
+//                'type' => 'jquery_colorpicker',
+//                'module' => 'jquery_colorpicker',
+//                'active' => 0,
+//                'settings' => array(),
+//            ),
+//            'settings' => array(
+//                'user_register_form' => FALSE,
+//            ),
+//            'display' => array(
+//                'default' => array(
+//                    'label' => 'hidden',
+//                    'type' => 'hidden',
+//                    'weight' => '17',
+//                    'settings' => array(),
+//                ),
+//                'teaser' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'related_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'preview_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//            ),
+//            'required' => 0,
+//            'description' => '',
+//            'default_value' => NULL,
+//            'field_name' => 'field_menu_hover_background',
+//            'entity_type' => 'node',
+//            'bundle' => 'proposal',
+//            'deleted' => '0',
+//        ),
+//        'field_menu_hover_foreground' => array(
+//            'label' => 'Menu Hover Foreground',
+//            'widget' => array(
+//                'weight' => '20',
+//                'type' => 'jquery_colorpicker',
+//                'module' => 'jquery_colorpicker',
+//                'active' => 0,
+//                'settings' => array(),
+//            ),
+//            'settings' => array(
+//                'user_register_form' => FALSE,
+//            ),
+//            'display' => array(
+//                'default' => array(
+//                    'label' => 'hidden',
+//                    'type' => 'hidden',
+//                    'weight' => '18',
+//                    'settings' => array(),
+//                ),
+//                'teaser' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'related_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//                'preview_list' => array(
+//                    'type' => 'hidden',
+//                    'label' => 'above',
+//                    'settings' => array(),
+//                    'weight' => 0,
+//                ),
+//            ),
+//            'required' => 0,
+//            'description' => '',
+//            'default_value' => NULL,
+//            'field_name' => 'field_menu_hover_foreground',
+//            'entity_type' => 'node',
+//            'bundle' => 'proposal',
+//            'deleted' => '0',
+//        ),
+    );
+    return $instances;
+}
+
+function _proposal_installed_instances_collection()
+{
+    $instances = array(
+        'field_make_this_a_sub_section' => array(
+            'label' => 'Make this a Sub-section',
+            'widget' => array(
+                'weight' => '1',
+                'type' => 'options_onoff',
+                'module' => 'options',
+                'active' => 1,
+                'settings' => array(
+                    'display_label' => 1,
+                ),
+            ),
+            'settings' => array(
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'above',
+                    'type' => 'list_default',
+                    'settings' => array(),
+                    'module' => 'list',
+                    'weight' => 0,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => array(
+                array(
+                    'value' => 0,
+                ),
+            ),
+            'field_name' => 'field_make_this_a_sub_section',
+            'entity_type' => 'field_collection_item',
+            'bundle' => 'field_proposal_sections',
+            'deleted' => '0',
+        ),
+        'field_section_title' => array(
+            'label' => 'Title',
+            'widget' => array(
+                'weight' => '2',
+                'type' => 'text_textfield',
+                'module' => 'text',
+                'active' => 1,
+                'settings' => array(
+                    'size' => '60',
+                ),
+            ),
+            'settings' => array(
+                'text_processing' => '0',
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'above',
+                    'type' => 'text_default',
+                    'settings' => array(),
+                    'module' => 'text',
+                    'weight' => 1,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_section_title',
+            'entity_type' => 'field_collection_item',
+            'bundle' => 'field_proposal_sections',
+            'deleted' => '0',
+        ),
+        'field_section_body' => array(
+            'label' => 'Body',
+            'widget' => array(
+                'weight' => '3',
+                'type' => 'text_textarea',
+                'module' => 'text',
+                'active' => 1,
+                'settings' => array(
+                    'rows' => '5',
+                ),
+            ),
+            'settings' => array(
+                'text_processing' => '1',
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'above',
+                    'type' => 'text_default',
+                    'settings' => array(),
+                    'module' => 'text',
+                    'weight' => 2,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_section_body',
+            'entity_type' => 'field_collection_item',
+            'bundle' => 'field_proposal_sections',
+            'deleted' => '0',
+        ),
+        'field_sidebar_title' => array(
+            'label' => 'Title',
+            'widget' => array(
+                'weight' => '4',
+                'type' => 'text_textfield',
+                'module' => 'text',
+                'active' => 1,
+                'settings' => array(
+                    'size' => '60',
+                ),
+            ),
+            'settings' => array(
+                'text_processing' => '0',
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'above',
+                    'type' => 'text_default',
+                    'settings' => array(),
+                    'module' => 'text',
+                    'weight' => 3,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_sidebar_title',
+            'entity_type' => 'field_collection_item',
+            'bundle' => 'field_proposal_sections',
+            'deleted' => '0',
+        ),
+        'field_sidebar_body' => array(
+            'label' => 'Body',
+            'widget' => array(
+                'weight' => '5',
+                'type' => 'text_textarea',
+                'module' => 'text',
+                'active' => 1,
+                'settings' => array(
+                    'rows' => '5',
+                ),
+            ),
+            'settings' => array(
+                'text_processing' => '1',
+                'user_register_form' => FALSE,
+            ),
+            'display' => array(
+                'default' => array(
+                    'label' => 'above',
+                    'type' => 'text_default',
+                    'settings' => array(),
+                    'module' => 'text',
+                    'weight' => 4,
+                ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_sidebar_body',
+            'entity_type' => 'field_collection_item',
+            'bundle' => 'field_proposal_sections',
+            'deleted' => '0',
+        ),
+    );
+    return $instances;
+}
+/*
+function _staff_manager_installed_instances()
+{
+    $instances = array(
+        //prefix
+        'field_staff_prefix' => array(
+            'label' => 'Prefix',
+            'widget' => array(
+              'weight' => '1',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '10',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 6,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_prefix',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        'field_staff_first_name' => array(
+            'label' => 'First Name',
+            'widget' => array(
+              'weight' => '2',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 17,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_first_name',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        //suffix
+        'field_staff_suffix' => array(
+            'label' => 'Suffix',
+            'widget' => array(
+              'weight' => '4',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '10',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 5,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_suffix',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        //job title
+        'field_staff_job_title' => array(
+            'label' => 'Title',
+            'widget' => array(
+              'weight' => '5',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 7,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_job_title',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        //organization
+        'field_staff_organization' => array(
+            'label' => 'Organization',
+            'widget' => array(
+              'weight' => '6',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 8,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_organization',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        // address
+        'field_staff_address' => array(
+            'label' => 'Address',
+            'widget' => array(
+              'weight' => '7',
+              'type' => 'location',
+              'module' => 'location_cck',
+              'active' => 0,
+              'settings' => array(),
+            ),
+            'settings' => array(
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'location_default',
+                'settings' => array(),
+                'module' => 'location_cck',
+                'weight' => 9,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_address',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        // website url
+        'field_staff_website_url' => array(
+            'label' => 'Website URL',
+            'widget' => array(
+              'weight' => '8',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 10,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_website_url',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        //email address
+        'field_staff_email_address' => array(
+            'label' => 'Email Address',
+            'widget' => array(
+              'weight' => '10',
+              'type' => 'email_textfield',
+              'module' => 'email',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'email_default',
+                'settings' => array(),
+                'module' => 'email',
+                'weight' => 11,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_email_address',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        //phone number
+        'field_staff_phone_number' => array(
+            'label' => 'Phone Number',
+            'widget' => array(
+              'weight' => '11',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 12,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_phone_number',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        //cell phone
+        'field_staff_cell_phone_number' => array(
+            'label' => 'Cell Phone Number',
+            'widget' => array(
+              'weight' => '12',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 13,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_cell_phone_number',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        //fax number
+        'field_staff_fax_number' => array(
+            'label' => 'Fax Number',
+            'widget' => array(
+              'weight' => '13',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 14,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_fax_number',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        //notes
+        'field_staff_notes' => array(
+            'label' => 'Notes',
+            'widget' => array(
+              'weight' => '14',
+              'type' => 'text_textarea',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'rows' => '5',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 15,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_notes',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          ),
+        // project name 
+        'field_staff_int_proj_name' => array(
+            'label' => 'Internal Project Name',
+            'widget' => array(
+              'weight' => '15',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 16,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_staff_int_proj_name',
+            'entity_type' => 'node',
+            'bundle' => 'staff_manager',
+            'deleted' => '0',
+          )
+    );
+    return $instances;
+}
+
+*/
+
+
+function _lead_manager_installed_instances()
+{
+    $instances = array(
+        //prefix
+        'field_lead_prefix' => array(
+            'label' => 'Prefix',
+            'widget' => array(
+              'weight' => '1',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '10',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 6,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_prefix',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        'field_lead_first_name' => array(
+            'label' => 'First Name',
+            'widget' => array(
+              'weight' => '2',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 17,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_first_name',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+          'field_lead_last_name' => array(
+            'label' => 'Last Name',
+            'widget' => array(
+              'weight' => '2',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 17,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_last_name',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        //suffix
+        'field_lead_suffix' => array(
+            'label' => 'Suffix',
+            'widget' => array(
+              'weight' => '4',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '10',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 5,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_suffix',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        //job title
+        'field_lead_job_title' => array(
+            'label' => 'Job Title',
+            'widget' => array(
+              'weight' => '5',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 7,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_job_title',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        //organization
+        'field_lead_organization' => array(
+            'label' => 'Organization',
+            'widget' => array(
+              'weight' => '6',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 8,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_organization',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        // address
+        'field_lead_address' => array(
+            'label' => 'Address',
+            'widget' => array(
+              'weight' => '7',
+              'type' => 'location',
+              'module' => 'location_cck',
+              'active' => 0,
+              'settings' => array(),
+            ),
+            'settings' => array(
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'location_default',
+                'settings' => array(),
+                'module' => 'location_cck',
+                'weight' => 9,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_address',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        // website url
+        'field_lead_website_url' => array(
+            'label' => 'Website URL',
+            'widget' => array(
+              'weight' => '8',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 10,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_website_url',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        //email address
+        'field_lead_email_address' => array(
+            'label' => 'Email Address',
+            'widget' => array(
+              'weight' => '10',
+              'type' => 'email_textfield',
+              'module' => 'email',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'email_default',
+                'settings' => array(),
+                'module' => 'email',
+                'weight' => 11,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_email_address',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        //phone number
+        'field_lead_phone_number' => array(
+            'label' => 'Phone Number',
+            'widget' => array(
+              'weight' => '11',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 12,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_phone_number',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        //cell phone
+        'field_lead_cell_phone_number' => array(
+            'label' => 'Cell Phone Number',
+            'widget' => array(
+              'weight' => '12',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 13,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_cell_phone_number',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        //fax number
+        'field_lead_fax_number' => array(
+            'label' => 'Fax Number',
+            'widget' => array(
+              'weight' => '13',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 14,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_fax_number',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        //notes
+        'field_lead_notes' => array(
+            'label' => 'Notes',
+            'widget' => array(
+              'weight' => '14',
+              'type' => 'text_textarea',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'rows' => '5',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 15,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_notes',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          ),
+        // project name 
+        'field_lead_int_proj_name' => array(
+            'label' => 'Internal Project Name',
+            'widget' => array(
+              'weight' => '15',
+              'type' => 'text_textfield',
+              'module' => 'text',
+              'active' => 1,
+              'settings' => array(
+                'size' => '60',
+              ),
+            ),
+            'settings' => array(
+              'text_processing' => '0',
+              'user_register_form' => FALSE,
+            ),
+            'display' => array(
+              'default' => array(
+                'label' => 'above',
+                'type' => 'text_default',
+                'settings' => array(),
+                'module' => 'text',
+                'weight' => 16,
+              ),
+              'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'related_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'preview_list' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+              'book_report' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+              ),
+            ),
+            'required' => 0,
+            'description' => '',
+            'default_value' => NULL,
+            'field_name' => 'field_lead_int_proj_name',
+            'entity_type' => 'node',
+            'bundle' => 'lead_manager',
+            'deleted' => '0',
+          )
+    );
+    return $instances;
+}

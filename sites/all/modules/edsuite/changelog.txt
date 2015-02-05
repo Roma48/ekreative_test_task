@@ -1,0 +1,122 @@
+EDsuite V3 - 3.0.14.3
+    Includes:
+        Change - More testing with Ed + Sam
+
+EDsuite V3 - 3.0.14.2
+    Includes:
+        Change - Removed something that wasn't needed for a test with Sam and Ed. :D
+
+EDsuite V3 - 3.0.14.1
+    Includes:
+        Bug - Fixed link color overwrite in edsuite_pdf -> edsuite_fix.css
+
+EDsuite V3 - 3.0.14
+    Includes:
+        Bug - Fixed issue where logos are disappearing 
+
+EDsuite V3 - 3.0.13
+    Includes:
+        Bug - Fixed Output Errors
+        Bug - Deleted trash on the second page of the report
+        Bug - Deleted the remainings of the form which sends out an email with the proposal.
+        Bug - Fixed PHP Warnings
+        Change - Added Phone Number to Proposal PDF Cover
+        Change - Cover page structure of Report PDF is now identical to the cover page of Proposal PDF.
+        Change - Fixed order of contact details on PDFs. Job Title and Organization Name.  
+
+EDsuite V3 - 3.0.12
+    Includes:
+        Bug - Available Properties - Pop up title issue (eKreative)
+        Bug - EDsuite PDF property.css overwriting theme styles (eKreative).
+        Bug - Fixed content type Staff Manager (eKreative)
+        Change - PDF Module Fixes (eKreative).
+        Change - In a Proposal added the ability to assign a Staff Manager (eKreative).
+        Change - Removed the add new button and field on the Staff manager content type. Only 1 staff manager may be assigned to a node at a time (eKreative).
+        Change - Removed the 2nd ‘disable rich text’ link (eKreative)
+
+EDsuite V3 - 3.0.11
+    Includes:
+        New - Added User Permission from eKreative.
+        New - Added PDF Module / Fixes from eKreative.
+        New - Added Opportunity Zone field to Property details.
+        Change - Configured the Property Detail -> Website Address to open in a new window. 
+        Change - Modified Full Text filter to NOT add <p> and <br> tags automatically
+
+EDsuite V3 - 3.0.10
+    Includes:
+		Bug - Removed the max upload configuration from the Photographs field on the Property Detail page. It was set to 2kb. It is now blank so it utilizes the Server's max of 8mb
+		Bug - Added some CSS to hide the search button on the Property Listing page. The search querying works without needing to click the button
+		Bug - Property Detail Address was throwing some PHP errors due to the render() function not being implemented correctly. 
+		Bug - In the EDsuite Generic Theme I removed padding maps on map page. This was causing unwanted padding above and below the map.
+		
+EDsuite V3 - 3.0.9
+    Includes:
+        Bug - Property Detail Address fields at the top were spaced out too much. 
+        Bug - Property Listing radio buttons to choose between Site or Building had label wrapping issues.
+        Bug - Property Detail Lease fields 'Actual Price per Month' and 'Actual Price per Month' were showing blank
+
+EDsuite V3 - 3.0.8
+    Includes:
+        Bug - Issues loading Property Image Thumbnail filenames with spaces
+        Bug - EDS Directory was getting errors when removing fields from the directory. I added some conditions to fix the problem.
+        Bug - 'Incentive Zones' and 'Rail Access' data display correction... eKreative fixed this one. 
+
+EDsuite V3 - 3.0.7
+    Includes:
+        Change - I changed a setting in the installation profile for the CKeditor to use the editors default CSS instead of the Admiistrator's theme. This is what was causing the issue with the table borders not appearing in the editor.
+        New - I've added the the EDS Directory module... The module is disable by default and can be enabled under the modules page... The module automatically creates a page called /eds/directory and a few taxonomy categories when enabling.
+
+EDsuite V3 - 3.0.6
+    Includes:
+        Change - Refactored the Startup Theme: I took the startup theme and pulled everything out that I didn't feel needed to be there. It's more of a bare bones skeleton theme with very little theming other than common things we need to get started. I find that Sam and I work much better starting with something very paired down and refined than from an a full existing theme.
+        Change - The Page content type was promoting to front page by Default... I fixed this.
+        Bug - Add to Report now shows on Property Detail Pages as it should.
+        Bug - Was receiving an error on Custom Report page. I fixed this.
+        Bug - The 'Remove All Content' from Custom Report wasn't working... I fixed this.
+        Change - Custom Report PDF Generation: I've refactored the Custom Report CSS to have a very basic / neutral theme. As it stands now, the /eds/report detail page will use the report.css file found in the CR module PLUS the current theme's style.css file... However, when Printing or converting to PDF using the print module, only the CR's report.css file is utilized. There is currently no way to customize the look of the Print or PDF version per theme without modifying the CR module's CSS file which is a big NO NO. I would like to figure out a way to customize the Print and PDF version per theme without messing with the module, but this will have to happen in a later build as I've already spent time with no success.
+
+EDsuite V3 - 3.0.5
+    Includes:
+        Bug - The Property tool no longer breaks when updating the GMAP Module.
+        Bug - PDF Fixes to the Proposal
+        Bug - The Custom Report now works for Anonymous Users.
+        Bug - The Add to Report link will stop showing up if it's disabled for a particular content type.
+        
+EDsuite V3 - 3.0.4
+    Includes:
+        Change - Updates to Custom Report: 
+            - Changed default Content Types: Articles (Book), Properties, News, Pages
+        Change - Updates to Properties:
+            - Enabled the Alt and Title field when adding photographs to a property
+            - Property Comparison Row Fix (changes by eKreative)
+        New - Created a simple Contact Webform + Captcha on Installation (URL: /contact-us)
+        Change - Moved admin JS + CSS to EDsuite Module (changes by eKreative)
+
+EDsuite V3 - 3.0.3
+    Includes:
+        New - Added News
+            - Content Type
+            - View List (/news page)
+            - Minor Theming to both list and landing page
+
+        New - Added Blog
+            - Content Type
+            - View List (/blog page)
+            - Minor Theming to both list and landing page
+
+        New - Added Map Tool
+            - Content Type
+            - View (/maps page)
+            - Necessary Theming and JS to make it work responsively.
+
+        New - Added new / missing PathAuto patterns
+
+        Change - Removed Story and Article and consolidated it down to just "News"
+
+        Change - Modified the Custom Report Builder to show the following per request by Hunter
+            - Articles (community profile)
+            - Properties 
+            - News
+            - Blog
+            
+EDsuite V3 - 3.0.2 and below - Lost in Space

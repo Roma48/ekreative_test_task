@@ -1,0 +1,85 @@
+<?php
+
+/**
+ *@file provides a slider widget for number fields utilizing jquery ui's slider component
+ */
+
+/**
+ * The slider field widget, hook_field_widget_info(), adds a widget for decimal, number, and float.
+ */
+function sliderfield_field_widget_info() {
+  return array(
+    'sliderfield_widget' => array(
+    'label' => t('Number Slider'),
+    'field types' => array('number_decimal', 'number_integer', 'number_float'), 
+    'settings' => array('step' => 1),
+    'behaviors' => array(
+      'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+      'default value' => FIELD_BEHAVIOR_DEFAULT,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function sliderfield_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $element += number_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element); //use the default number field
+  $element['value']['#process'][] = 'slider_process';
+  return $element;
+}
+
+
+function slider_process($element, &$form_state, $form) {
+  $path = drupal_get_path('module', 'sliderfield');	
+  drupal_add_library('system', 'ui.slider');			//Add the UI slider library
+  $instance = $form_state['field'][$element['#field_name']][$element['#language']]['instance'];
+  $widget_settings = $instance['widget']['settings'];
+  $element['#attached']['js'][] = "$path/sliderfield.js";
+  $element['#attributes']['class'][]  = "sliderfield"; 
+  $settings = array(
+  $element['#id'] => array(
+    'step' => $widget_settings['step'] ? $widget_settings['step'] : 1,
+    'max' => $instance['settings']['max'],
+    'min' => $instance['settings']['min'],
+    'val' => $element['#value'] ? $element['#value']:$instance['settings']['min'],
+    ),
+  );
+  $element['#attached']['js'][] = array(
+    'data' => array('sliderfield' => $settings),
+    'type' => 'setting',
+    'scope' => 'header',
+  );
+  return $element;
+}
+
+
+/**
+ * implement hook_field_widget_settings_form() so we can add athe "step" field
+ */
+function sliderfield_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
+  $form['step'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Step'),
+		'#default_value' =>  isset($settings['step']) ? $settings['step']:1,
+		'#description' => t('The step that the slider should use.'),
+		'#element_validate' => array('_element_validate_number'),
+		'#required' => TRUE,
+	);
+	return $form;
+}
+
+/**
+ * implement hook_form_alter()
+ * make min/max required when using the sliderfield widget
+ */
+function sliderfield_form_alter(&$form, &$form_state, $form_id) {
+  //min/max are required for this widget
+  if ($form_id == 'field_ui_field_edit_form' && $form['#instance']['widget']['type'] == 'sliderfield_widget') {
+    $form['instance']['settings']['min']['#required'] = TRUE;
+    $form['instance']['settings']['max']['#required'] = TRUE;
+  }
+}

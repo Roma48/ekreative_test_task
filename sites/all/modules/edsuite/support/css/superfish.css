@@ -1,0 +1,34 @@
+/*** ESSENTIAL STYLES ***/
+div#dashboard ul.links, div#dashboard ul.links * {
+	margin:			0;
+	padding:		0;
+	list-style:		none;
+}
+div#dashboard ul.links {
+	line-height:	1.0;
+}
+div#dashboard ul.links ul {
+	position:		absolute;
+	top:			-999em;
+	width:			10em; /* left offset of submenus need to match (see below) */
+}
+div#dashboard ul.links ul li {
+	width:			100%;
+}
+div#dashboard ul.links li:hover {
+	visibility:		inherit; /* fixes IE7 'sticky bug' */
+}
+div#dashboard ul.links li {
+	float:			left;
+	position:		relative;
+}
+div#dashboard ul.links a {
+	display:		block;
+	position:		relative;
+}
+div#dashboard ul.links li:hover ul,
+div#dashboard ul.links li.sfHover ul {
+	left:			0;
+	top:			39px; /* match top ul list item height */
+	z-index:		99;
+}

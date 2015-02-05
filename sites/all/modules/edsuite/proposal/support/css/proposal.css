@@ -1,0 +1,96 @@
+table#proposal-header {
+    width: 100%;
+    margin: 1em 0;
+}
+
+table#proposal-header tbody {
+    border: 0;
+}
+
+table#proposal-header td {
+    vertical-align: top;
+}
+
+td#proposal-header-contact,
+td#proposal-header-email {
+    width: 225px;
+}
+
+div#proposal-navigation-container {
+    clear: both;
+}
+
+div#proposal-footer {
+    margin-top: 1em;
+    text-align: right;
+}
+
+div.section {
+    display: none;
+    page-break-before: always;
+    padding: 3em;
+    padding-top: 1em;
+}
+
+div.section div.node div.clear-block {
+    display: none;
+}
+
+div.section div.sidebar {
+    float: right !important;
+    margin: 0 0 0 3em !important;
+    padding: 0 0 0 3em;
+    width: 25% !important;
+}
+
+div.sidebar + h2.section-title + div.section-content {
+    margin-right: 25%;
+    padding-right: 6em;
+}
+
+div.section .section-title,
+div.section .sidebar-title {
+    margin: 1em 0px;
+}
+
+.send_email {
+    display: none;
+}
+
+ul.controls {
+    height:24px;
+    margin:0;
+    padding:0;
+    margin: 0 -1.5em;
+}
+
+ul.controls li {
+    display:inline;
+    float:right;
+    height:17px;
+    margin-right:10px;
+    margin-top:3px;
+}
+
+li#print_to_pdf {
+    background: url(../images/icon-pdf.png) no-repeat;
+    padding-left:23px;
+}
+
+li#print_report {
+    background: url(../images/icon-print.png) no-repeat;
+    padding-left:23px;
+}
+
+li#send_email_proposal {
+    background:url(../images/icon-send.png) no-repeat;
+    padding-left:23px;
+}
+
+.submitted {
+    display: none;
+}
+
+.node {
+    padding: 1.5em !important;
+}

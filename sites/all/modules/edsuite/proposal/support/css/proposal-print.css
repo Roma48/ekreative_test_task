@@ -1,0 +1,57 @@
+div.section {
+    display: block !important;
+    page-break-before: always;
+    margin-left: 0;
+}
+
+div#proposal-1 {
+    page-break-before: avoid !important;
+}
+
+div.section div.sidebar {
+    display: block !important;
+    height: 100%;
+}
+
+div#proposal-navigation-container {
+    display: none;
+}
+
+.controls {
+    display: none;
+}
+
+.section,
+.section .node,
+.node {
+    background: none;
+    border: 0;
+}
+
+div#proposal-footer,
+table#proposal-header {
+    color: black;
+}
+
+div.content div#left-col div#image-Container img {
+    display: inline;
+    margin: 0 5px 5px 0;
+}
+
+div.node-type-proposal div.clear-block {
+    display: none;
+}
+
+#proposal-header-logo {
+    padding-right: 0.25in;
+}
+
+div#proposal-header,
+div#proposal-footer {
+    clear: both;
+    font-size: 75%;
+}
+
+div h2.section-title:first-child {
+    padding-top: 0;
+}

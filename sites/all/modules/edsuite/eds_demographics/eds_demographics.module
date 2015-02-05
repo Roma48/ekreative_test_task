@@ -1,0 +1,158 @@
+<?php
+/**
+ * eds_demographics.module - Defines the "demographics" node type
+ * $Id$
+ */
+
+/**
+ * Implementation of hook_access()
+ */
+//function eds_demographics_node_access($node, $op, $account)
+//{
+//    global $user;
+//
+//    switch ($op) {
+//        case 'create':
+//            if (user_access('create demographic report')) return NODE_ACCESS_ALLOW;
+//            return NODE_ACCESS_DENY;
+//            break;
+//
+//        case 'delete':
+//            if(user_access('delete demographic report')) return NODE_ACCESS_ALLOW;
+//            return NODE_ACCESS_DENY;
+//            break;
+//
+//        case 'view':
+//            if(user_access('view demographic report')) return NODE_ACCESS_ALLOW;
+//            return NODE_ACCESS_DENY;
+//            break;
+//
+//        case 'update':
+//            if (user_access('edit demographic report')) {
+//                return NODE_ACCESS_ALLOW;
+//            } else {
+//                if (user_access('edit own demographic report') && ($user->uid == $node->uid)) {
+//                    return NODE_ACCESS_ALLOW;
+//                }
+//            }
+//            return NODE_ACCESS_DENY;
+//            break;
+//    }
+//}
+
+function eds_demographics_form_alter(&$form, &$form_state, $form_id){
+    if ($form_id == 'eds_demographics_node_form'){
+
+        //Get current list
+        $options_list = $form['field_demograph_prop_id']['und']['#options'];
+        //Select list of pages
+        $query = db_select('node');
+        $query->fields('node', array('nid', 'title'));
+        $query->condition('node.type', 'eds_properties');
+        $results = $query->execute()->fetchAllAssoc('nid');
+        //Make correct list for select
+        $pages_list = array();
+        foreach ($results as $key=>$value) {
+            $pages_list[$key] = $value->title;
+        }
+        //Add to result list
+        $res_list = $pages_list;
+        $diff = array_diff($res_list, $options_list);
+        if (!empty($diff)){
+
+            $field = field_read_field('field_demograph_prop_id');
+            $field['settings']['allowed_values'] = $res_list;
+            field_update_field($field);
+        }
+
+        $form['field_demograph_prop_id']['und']['#options'] = $res_list;
+    }
+}
+
+/**
+ * Implementation of hook_menu()
+ */
+function eds_demographics_menu()
+{
+    $items = array();
+
+        $items['node/demographics'] = array(
+            'title'              => t('Demographic Report'),
+            'access callback' => 'user_access',
+            'access arguments'             => array('view demographic report'),
+            'page callback'           => 'eds_demographics_property_view',
+            'type'               => MENU_CALLBACK
+        );
+        $items['eds/property/demographics'] = array(
+            'title'              => t('Demographic Report'),
+            'access callback' => 'user_access',
+            'access arguments'             => array('view demographic report'),
+            'page callback'           => 'eds_demographics_property_view',
+            'type'               => MENU_CALLBACK
+        );
+    return $items;
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function eds_demographics_permission()
+{
+    return array(
+        'create demographic report' => array(
+            'title'=> t('create demographic report')),
+        'edit own demographic report'=> array(
+            'title'=> t('edit own demographic report')),
+        'view demographic report'=> array(
+            'title'=> t('view demographic report')),
+        'delete demographic report'=> array(
+            'title'=> t('delete demographic report')),
+        'edit demographic report'=> array(
+            'title'=> t('edit demographic report')),
+    );
+}
+
+function eds_demographics_property_view($property_nid)
+{
+    $query = db_select('field_data_field_demograph_prop_id', 'prop');
+    $query->leftJoin('node', 'n', 'n.nid = prop.entity_id');
+    $query->fields('n', array('title', 'nid'));
+    $query->condition('prop.field_demograph_prop_id_value',$property_nid);
+    $result = $query->execute()->fetchAllAssoc('nid');
+    foreach ($result as $value) {
+        $nodes[] = node_load($value->nid);
+        $options['node-'. $value->nid] = $value->title;
+    }
+
+    $options['all'] = t('View All Reports');
+
+    drupal_add_css(drupal_get_path('module', 'eds_properties') . '/support/css/property.css', 'file');
+    drupal_add_js(drupal_get_path('module', 'eds_demographics') . '/js/eds_demographics.js', 'file');
+
+    return theme('demographic_report', array('nodes' => $nodes, 'options' => $options, 'property' => node_load($property_nid)));
+}
+
+/**
+ * Add select element on demograpchis report page.
+ */
+function eds_demographics_select_report($form, &$form_state, $options)
+{
+    $form['select_report'] = array(
+        '#type'        => 'select',
+        '#title'       => t('Current Geography Selection'),
+        '#options'     => $options,
+        '#id'          => 'viewSelect',
+    );    
+    
+    return $form;
+}
+
+function eds_demographics_theme($existing, $type, $theme, $path) {
+    $themes = array (
+        'demographic_report' => array(
+            'template' => 'templates/demographic_report',
+            'arguments' => array('nodes' => NULL, 'options' => NULL, 'property' => NULL),
+        ),
+    );
+    return $themes;
+}

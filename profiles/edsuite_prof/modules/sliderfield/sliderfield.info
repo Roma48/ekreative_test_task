@@ -1,0 +1,4 @@
+name = Slider Field
+description = Provides a jQueryUI slider widget
+core = 7.x
+version = 7.x-1.0

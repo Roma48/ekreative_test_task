@@ -1,0 +1,21 @@
+form#eds-properties-export-api-keys-admin table {
+    width: 100%;
+}
+
+form#eds-properties-export-api-keys-admin td {
+    overflow: hidden;
+    text-overflow: ellipsis; -o-text-overflow: ellipsis; -icab-text-overflow: ellipsis; -khtml-text-overflow: ellipsis; -moz-text-overflow: ellipsis; -webkit-text-overflow: ellipsis; 
+}
+
+form#eds-properties-export-api-keys-admin td.user_agent,
+form#eds-properties-export-api-keys-admin td.api_key,
+form#eds-properties-export-api-keys-admin td.created,
+form#eds-properties-export-api-keys-admin td.last_request
+{
+    max-width: 90px;
+    -webkit-transition: max-width 500ms ease-out 100ms;
+}
+
+form#eds-properties-export-api-keys-admin td:hover {
+    max-width: 1000px;
+}

@@ -1,0 +1,67 @@
+/**
+ * eds_properties.css - Style overrides for the property details page(s)
+ */
+
+/***********************************************************************
+ * Elements
+ ***********************************************************************/
+
+/***********************************************************************
+ * Items
+ ***********************************************************************/
+
+div#address-short {
+    background: #333 none repeat scroll 0%;
+    color: #FFFFFF;
+    margin-bottom:10px;
+}
+
+div#address-full {
+    margin-bottom:10px;
+    padding:0 10px;
+}
+
+div#address-full table,
+div#address-full table th,
+div#address-full table td {
+    border: none !important;
+    padding: 0;
+}
+
+div#property-sub-nav {
+    background-color: #e5e6e0;
+    padding:2px 0 0 2px;
+}
+
+/***********************************************************************
+ * Classes
+ ***********************************************************************/
+
+div.content div#left-col {
+    float: left;
+    margin-right: 15px;
+    min-width: 421px;
+}
+
+div#property-sub-nav div.tab.active span.left {
+    background:transparent url(../../images/active_left_corner.gif) no-repeat scroll 0 0;
+    width:4px;
+}
+
+div#property-sub-nav div.tab.active span.right {
+    background:transparent url(../../images/active_right_corner.gif) no-repeat scroll 0 0;
+    width:4px;
+}
+
+div#property-sub-nav div.tab span.middle {
+    padding:5px 5px 0;
+}
+
+div.report_change span {
+    top: 0;
+    margin-bottom: 10px;
+}
+
+.submitted {
+    display: none;
+}

@@ -1,0 +1,6 @@
+name = events
+description = A new content type
+package = Custom node Type
+core = 7.x
+files[] = events.install
+files[] = events.module

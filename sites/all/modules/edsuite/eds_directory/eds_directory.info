@@ -1,0 +1,7 @@
+name = EDSuite Directory
+description = A directory with categories and classifications
+package = EDSuite
+dependencies[] = php
+dependencies[] = edsuite
+version = "7.x-1.0"
+core = 7.x

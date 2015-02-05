@@ -1,0 +1,135 @@
+<?php
+
+function events_uninstall() {
+    cache_clear_all('events', 'cache', TRUE);
+    drupal_uninstall_schema('events');
+    $ournewtype = 'events';
+    $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+    $result = db_query($sql, array(':type' => $ournewtype));
+    $nodeids = array();
+    foreach ($result as $row) {
+        $nodeids[] = $row->nid;
+    }
+    node_delete_multiple($nodeids);
+    delete_custom_fields();
+    node_type_delete($ournewtype);
+    field_purge_batch(500);
+
+}
+
+function events_schema(){
+    $schema = array();
+    $schema['events'] = array(
+        'fields' => array(
+            'event_book_id' => array('type'=>'serial',  'size'      =>'normal', 'not null' => TRUE),
+            'name'          => array('type'=>'varchar', 'length'    => 255,      'not null'=> TRUE),
+            'city'          => array('type'=>'varchar', 'length'    => 255,      'not null'=> TRUE),
+            'id_event_post' => array('type'=>'int',     'not null'=> TRUE),
+        ),
+        'primary key' => array('event_book_id')
+    );
+
+    return $schema;
+}
+
+
+function events_install() {
+    node_types_rebuild();
+    $types = node_type_get_types();
+    add_custom_fields();
+
+}
+
+function _events_installed_fields() {
+    $t = get_t();
+    return array(
+        'events_description' => array(
+            'field_name' => 'events_description',
+            'label' => $t('Description of the events'),
+            'type' => 'text'
+        ),
+        'events_date' => array(
+            'field_name' => 'events_date',
+            'label' => $t('Quantity of the product'),
+            'type' => 'date'
+        ),
+        'number_of_slots' => array(
+            'field_name' => 'number_of_slots',
+            'label' => $t('number of slots'),
+            'type' => 'text'
+        )
+    );
+}
+
+function _events_installed_instances() {
+    $t = get_t();
+    return array(
+        'events_description' => array(
+            'field_name' => 'events_description',
+            'type' => 'text',
+            'label' => $t('Description of the events'),
+            'widget' => array(
+                'type' => 'text_textfield'
+            ),
+            'display' => array(
+                'example_node_list' => array(
+                    'label' => $t('Description of the events'),
+                    'type' => 'text'
+                )
+            )
+        ),
+        'events_date' => array(
+            'field_name' => 'events_date',
+            'type' => 'date',
+            'label' => $t('Quantity of the product'),
+            'widget' => array(
+                'type' => 'date_popup'
+            ),
+            'display' => array(
+                'example_node_list' => array(
+                    'label' => $t('Quantity of the product'),
+                    'type' => 'text'
+                )
+            )
+        ),
+        'number_of_slots' => array(
+            'field_name' => 'number_of_slots',
+            'type' => 'text',
+            'label' => $t('number of slots'),
+            'widget' => array(
+                'type' => 'text_textfield'
+            ),
+            'display' => array(
+                'example_node_list' => array(
+                    'label' => $t('number of slots'),
+                    'type' => 'text'
+                )
+            )
+        )
+    );
+}
+
+function add_custom_fields() {
+    foreach (_events_installed_fields() as $field) {
+        field_create_field($field);
+    }
+    foreach (_events_installed_instances() as $fieldinstance) {
+        $fieldinstance['entity_type'] = 'node';
+        $fieldinstance['bundle'] = 'events';
+        print_r($fieldinstance);
+        field_create_instance($fieldinstance);
+    }
+}
+
+
+
+
+function delete_custom_fields() {
+    foreach (array_keys(_events_installed_fields()) as $field) {
+        field_delete_field($field);
+    }
+    $instances = field_info_instances('node', 'events');
+    foreach ($instances as $instance_name => $fieldinstance) {
+        field_delete_instance($fieldinstance);
+    }
+}

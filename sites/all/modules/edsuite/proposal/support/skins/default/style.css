@@ -1,0 +1,117 @@
+div.section h1,
+div.section h2,
+div.section h3,
+div.section h4,
+div.node a {
+    color: #0998D0;
+}
+
+.node {
+    background: black;
+    color: white;
+}
+
+ul.controls {
+    background: url(controls-bg.jpg) repeat-x;
+    height: 30px;
+}
+
+ul.controls li {
+    vertical-align: middle;
+    margin-top: 6px;
+}
+
+ul.controls a {
+    color: white;
+}
+
+div.section,
+div.section div.node {
+    background: white;
+    color: black;
+}
+
+div#proposal-navigation-container.horizontal {
+    background-color: #7B7B7B;
+    height: 36px;
+    margin-bottom: 3px;
+}
+
+div#proposal-navigation-container.vertical {
+    background-color: #E3E3E3;
+}
+
+ul#proposal-navigation {
+    margin: 0;
+}
+
+div.section div.sidebar {
+    border-left: 1px solid #E3E3E3;
+}
+
+/* Horizontal menu styles */
+ul.horizontal a {
+	border-left:	1px solid #9E9E9E;
+	border-right:	1px solid #525252;
+}
+ul.horizontal a, ul.horizontal a:visited  { /* visited pseudo selector so IE6 applies text colour*/
+	color: #FFFFFF;
+}
+ul.horizontal li {
+	background:		#7B7B7B !important;
+}
+ul.horizontal li li {
+	background:		#0998D0 !important;
+}
+ul.horizontal li li li {
+	background:		#0998D0 !important;
+}
+ul.horizontal li:hover, ul.horizontal li.sfHover,
+ul.horizontal a:focus, ul.horizontal a:hover, ul.horizontal a:active {
+	background:		#0998D0 !important;
+}
+ul.horizontal li li:hover, ul.horizontal li li.sfHover,
+ul.horizontal li li a:focus, ul.horizontal li li a:hover, ul.horizontal li li a:active {
+	background:		#036BB4 !important;
+}
+
+/* Vertical menu styles */
+ul.vertical a {
+    color: #4C4C4C;
+}
+
+ul.vertical a:hover {
+    color: #0A9BD2;
+}
+
+ul#proposal-navigation.menu.vertical li.active {
+    font-weight: bold;
+}
+
+ul#proposal-navigation.menu.vertical li.active ul.menu li {
+    font-weight: normal;
+}
+
+ul#proposal-navigation.menu.vertical {
+    border-bottom: 1px solid #979797;
+    padding-bottom: 0 !important;
+}
+
+ul#proposal-navigation.menu.vertical > li {
+    border-top: 1px solid #979797;
+}
+
+ul#proposal-navigation.menu.vertical li a:hover {
+    color: white;
+    background: #0A9BD2;
+    text-decoration: none;
+}
+
+ul#proposal-navigation.menu.vertical li ul li a:hover {
+    color: #0A9BD2;
+    background: none;
+}
+
+ul#proposal-navigation.menu.vertical li ul.menu li {
+    background: none;
+}

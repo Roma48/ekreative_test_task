@@ -1,0 +1,104 @@
+
+/**
+** Proposal logs
+*/
+#node-logs-container {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    padding: 10px;
+    background: #fff;
+    z-index: 555;
+    top: 150px;
+    left: 50%;
+    margin-left: -300px;
+    background: #e1e2dc;
+    -webkit-box-shadow: 0px 0px 5px 2px #333;
+    box-shadow: 0px 0px 5px 2px #333;
+}
+
+#node-logs-container .node-logs-table-box {
+    overflow-y: auto; 
+    height: 550px;
+    clear: both;
+}
+
+#node-logs-container table {
+    background: #fff;
+}
+
+/* Property Documentation Form */
+
+form.node-property_documentation-form .group_18a > div > div { float: left; width: 200px; margin: 0 10px;}
+form.node-property_documentation-form .group_18a > div {clear: both;}
+form.node-property_documentation-form .group_18a textarea { width: 200px; height: 60px; }
+form.node-property_documentation-form .group_18a input[type=text] { width: 200px; height: 20px;}
+form.node-property_documentation-form .group_18a .form-item { margin: 2px 0; padding: 0;}
+/*form.node-property_documentation-form .group_18a label { text-align: center;}*/
+form.node-property_documentation-form .group_18a_2 label,
+form.node-property_documentation-form .group_18a_3 label,
+form.node-property_documentation-form .group_18a_4 label {display: none;}
+form.node-property_documentation-form .group_18a_1 label { height: 40px;}
+form.node-property_documentation-form .vertical-tabs-pane > legend { margin: 0 0 35px 0; }
+
+form.node-property_documentation-form .group-d1-1 > div > div { float: left; width: 200px; margin: 0 10px;}
+form.node-property_documentation-form .group-d1-1 > div {clear: both;}
+form.node-property_documentation-form .group-d1-1 .form-item { margin: 2px 0; padding: 0;}
+form.node-property_documentation-form .group_d1_1 input[type=text] { width: 200px; height: 20px;}
+form.node-property_documentation-form .group_d1_1 .form-radios > div { float: left;}
+form.node-property_documentation-form .group_d1_1_2 label,
+form.node-property_documentation-form .group_d1_1_3 label,
+form.node-property_documentation-form .group_d1_1_4 label,
+form.node-property_documentation-form .group_d1_1_5 label {display: none;}
+form.node-property_documentation-form .group-d1-1 input[type=radio] + label { display: inline; }
+form.node-property_documentation-form .group-d1-1 input[type=radio] { margin: 0 0 0 5px;}
+
+form.node-property_documentation-form .group_d1_2 { clear: both; padding: 20px 0 0 0; }
+form.node-property_documentation-form .group_d1_2 > div > div { float: left; width: 200px; margin: 0 10px;}
+form.node-property_documentation-form .group_d1_2 > div {clear: both;}
+form.node-property_documentation-form .group_d1_2 .form-item { margin: 2px 0; padding: 0;}
+form.node-property_documentation-form .group_d1_2 .form-radios > div { float: left;}
+form.node-property_documentation-form .group_d1_2_2 label,
+form.node-property_documentation-form .group_d1_2_3 label {display: none;}
+form.node-property_documentation-form .group_d1_2 input[type=radio] + label { display: inline; }
+form.node-property_documentation-form .group_d1_2 input[type=radio] { margin: 0 0 0 5px;}
+
+form.node-property_documentation-form .group_d1_3 { clear: both; padding: 20px 0 0 0; }
+form.node-property_documentation-form .group_d1_3 > div > div { float: left; width: 200px; margin: 0 10px;}
+form.node-property_documentation-form .group_d1_3 > div {clear: both;}
+form.node-property_documentation-form .group_d1_3 .form-item { margin: 2px 0; padding: 0;}
+form.node-property_documentation-form .group_d1_3 .form-radios > div { float: left;}
+form.node-property_documentation-form .group_d1_3_2 label,
+form.node-property_documentation-form .group_d1_3_3 label {display: none;}
+form.node-property_documentation-form .group_d1_3 input[type=radio] + label { display: inline; }
+form.node-property_documentation-form .group_d1_3 input[type=radio] { margin: 0 0 0 5px;}
+
+form.node-property_documentation-form .group_c3 { clear: both; padding: 20px 0 0 0; }
+form.node-property_documentation-form .group_c3 > div > div { float: left; width: 200px; margin: 0 10px;}
+form.node-property_documentation-form .group_c3 > div {clear: both;}
+form.node-property_documentation-form .group_c3 .form-item { margin: 2px 0; padding: 0;}
+form.node-property_documentation-form .group_c3 .form-radios > div { float: left;}
+form.node-property_documentation-form .group_c3_2 label,
+form.node-property_documentation-form .group_c3_3 label,
+form.node-property_documentation-form .group_c3_4 label,
+form.node-property_documentation-form .group_c3_5 label {display: none;}
+form.node-property_documentation-form .group_c3 input[type=radio] + label { display: inline; }
+form.node-property_documentation-form .group_c3 input[type=radio] { margin: 0 0 0 5px;}
+
+form.node-property_documentation-form .group_l1 > div > div { float: left; width: 250px; margin: 0 10px;}
+form.node-property_documentation-form .group_l1 > div {clear: both;}
+form.node-property_documentation-form .group_l1 input[type=text] { width: 200px; height: 20px;}
+form.node-property_documentation-form .group_l1 .form-item { margin: 2px 0; padding: 0;}
+form.node-property_documentation-form .group_l1_2 label,
+form.node-property_documentation-form .group_l1_3 label,
+form.node-property_documentation-form .group_l1_4 label {display: none;}
+form.node-property_documentation-form .group_l1_1 label { height: 40px;}
+
+#edit-field-are-there-any-cemeteries-l,
+#edit-field-federal-zone,
+#edit-field-has-a-copy-of-a-preliminar,
+#edit-field-owners {clear: both; padding: 10px 0 0 0;}
+
+form.node-property_documentation-form input[type=radio][value=_none],
+form.node-property_documentation-form input[type=radio][value=_none] + label { display: none; }
+

@@ -1,0 +1,97 @@
+/**
+ * skeleton.css - Every new CSS file should start off with this
+ * $Id$
+ */
+
+/***********************************************************************
+ * Elements
+ ***********************************************************************/
+
+/***********************************************************************
+ * Items
+ ***********************************************************************/
+
+#save-and-report {
+    font-size: 1.1em;
+}
+
+#save-and-report a {
+    text-decoration: none;
+}
+
+#save-and-report div {
+    float: right;
+    padding: 6px 20px 8px 0px;
+}
+
+#save-and-report img {
+    position: relative;
+    top: 1px;
+    padding-left: 5px;
+}
+
+#save-and-report div.last {
+    padding: 6px 0px 8px 0px;
+}
+
+div#save-and-report-container {
+    /* We add the properties below so that the 'HELP' tool tip appears on rollover */
+    display: block;
+    position: relative;
+}
+
+div#save-and-report-container div#custom-report-help {
+    display: none;
+    font-size: 1.1em; 
+    line-height: 1.4em;
+    position: absolute;
+    padding: 15px;
+    top: 34px;
+    z-index: 999;
+    
+    /* Special Filters */
+    -moz-opacity: 0.92;
+    opacity: 0.92; 
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+}
+.report_container_mobile {
+    display: none;
+}
+
+/***********************************************************************
+ * Classes
+ ***********************************************************************/
+@media screen and (max-width:1024px){
+    div#save-and-report-container {
+        display: none;
+    }
+    .report_container_mobile {
+        text-align: center;
+        display: block;
+    }
+    .report_container_mobile #save-and-report > div{
+        display: inline-block;
+        margin-left: 10px;
+    }
+    .report_container_mobile #save-and-report div:first-child {
+        margin-left: 0;
+    }
+    .report_container_mobile #save-and-report div.last {
+        padding: 0;
+    }
+    .report_container_mobile #save-and-report {
+        padding: 6px 0 8px;
+    }
+    .report_container_mobile #save-and-report .reset, .report_container_mobile #save-and-report .view-custom-report {
+        display: inline-block;
+    }
+    .report_container_mobile #save-and-report .view-custom-report {
+        margin-left: 10px;
+    }
+}
+@media screen and (max-width:480px){
+    .report_container_mobile #save-and-report div.view_reset_wrapper {
+        display: block;
+    }
+}

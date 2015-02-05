@@ -1,0 +1,7 @@
+div.section h1, div.section h2, div.section h3, div.section h4 { color: #000; }
+div.node a { color: #0A9BD2 !important; }
+div#proposal-navigation-container { background-color: #fff !important; }
+ul#proposal-navigation li.section-navigation-item a { color: #0A9BD2 !important; }
+ul#proposal-navigation li.section-navigation-item a:hover { background-color: #ccc !important; }
+ul#proposal-navigation li.section-navigation-item a:hover { color: #fff !important; }
+

@@ -1,0 +1,127 @@
+<?php
+require_once('eds_directory_installed_fields.inc.php');
+require_once('eds_directory_installed_instances.inc.php');
+
+function eds_directory_install() {
+	_create_taxonomy();
+	_create_content_type_fields();
+}
+
+function _create_taxonomy() {
+	
+	/* 
+	 * Create Taxonomy Vocabulary - 'eds_directory_category'
+	 */
+	$vocabularies = taxonomy_vocabulary_get_names();
+	$pos = array_search('EDs Directory Category', $vocabularies);
+	
+	if ($pos !== FALSE) {
+	  // its a keyed array so the $vid is actually $pos
+	  $vid = $pos;
+	} else {
+		// arrays are more convenient to initialize
+		$vocabulary = array(
+			'name' => 'EDs Directory Category',
+			'machine_name' => 'eds_directory_category',
+			'description' => '',
+			'hierarchy' => 0,
+			'module' => 'taxonomy',
+			'weight' => -10,
+		);
+		
+		// argument must be an object
+		$vocabulary = (object) $vocabulary;
+		taxonomy_vocabulary_save($vocabulary);
+
+		// horray, we have a vid now
+		$vid = $vocabulary->vid;
+	}
+		
+	/* 
+	 * Create Taxonomy Vocabulary - 'eds_directory_classification'
+	 */
+	$vocabularies = taxonomy_vocabulary_get_names();
+	$pos = array_search('EDs Directory Classification', $vocabularies);
+
+	if ($pos !== FALSE) {
+	  // its a keyed array so the $vid is actually $pos
+	  $vid = $pos;
+	} else {
+		// arrays are more convenient to initialize
+		$vocabulary = array(
+			'name' => 'EDs Directory Classification',
+			'machine_name' => 'eds_directory_classification',
+			'description' => '',
+			'hierarchy' => 0,
+			'module' => 'taxonomy',
+			'weight' => -10,
+		);
+		
+		// argument must be an object
+		$vocabulary = (object) $vocabulary;
+		taxonomy_vocabulary_save($vocabulary);
+
+		// horray, we have a vid now
+		$vid = $vocabulary->vid;
+		
+		// Add some terms
+		taxonomy_term_save((object) array(
+		  'name' => 'Manufacturing',
+		  'vid' => $vid,
+		));
+		
+		taxonomy_term_save((object) array(
+		  'name' => 'Services',
+		  'vid' => $vid,
+		));
+	}	
+}
+
+function _create_content_type_fields() {
+    node_types_rebuild();
+	
+    variable_set('node_options_eds_directory', array(0 => 'status'));
+    variable_set('node_submitted_eds_directory', 0);
+    variable_set('comment_eds_directory', COMMENT_NODE_HIDDEN);
+	
+    foreach (_eds_directory_installed_fields() as $field) {
+        field_create_field($field);
+    }
+		
+    foreach (_eds_directory_installed_instances() as $instance) {
+        $instance['entity_type'] = 'node';
+        $instance['bundle'] = 'eds_directory';
+        field_create_instance($instance);
+    }
+}
+
+function eds_directory_uninstall() {
+		
+	/* Delete Taxonomy */	
+	$result = db_query('SELECT vid FROM { taxonomy_vocabulary } WHERE name = :name', array(':name' => 'EDs Directory Category'));
+	$vid = $result->fetchObject()->vid;                       
+	taxonomy_vocabulary_delete($vid);                         
+	                                                          
+	$result = db_query('SELECT vid FROM { taxonomy_vocabulary } WHERE name = :name', array(':name' => 'EDs Directory Classification'));
+	$vid = $result->fetchObject()->vid;
+	taxonomy_vocabulary_delete($vid);
+	
+	/* Remove all EDS Directory Nodes */
+	$result = db_query("SELECT n.nid from { node } AS n WHERE n.type = :type", array(':type' => 'eds_directory'));
+	while ($row = $result->fetchObject()) {
+		node_delete($row->nid);
+	}
+	
+	
+	/* Mark Fields for Deletion */
+	foreach (_eds_directory_installed_fields() as $field) {
+		field_delete_field($field['field_name']);
+	}
+	
+    variable_del('node_options_eds_directory');
+    variable_del('node_submitted_eds_directory');
+    variable_del('comment_eds_directory');
+		
+	/* Delete Fields */
+	field_purge_batch(1000);
+}

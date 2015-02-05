@@ -1,0 +1,7 @@
+name = EDSuite Demographics
+description = Adds a demographic content type which is tied to a property
+package = EDSuite
+dependencies[] = edsuite
+dependencies[] = eds_properties
+version = "5.x"
+core = 7.x

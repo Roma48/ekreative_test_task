@@ -1,0 +1,170 @@
+div#dashboard {
+    background: #000 url('../images/dashboard-bg.jpg');
+    height: 47px;
+    min-height: 47px;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans;
+    width: 100%;
+    z-index: 2009;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+div#dashboard + div {
+    padding-top: 47px;
+}
+
+div#dashboard img#edsuite_logo {
+    margin: 6px 15px;
+    vertical-align: middle;
+}
+
+div#dashboard span#get-started-now {
+    position: relative;
+    top: 5px;
+    left: 15px;
+    color: white;
+    font-size: 1.3em;
+}
+
+div#dashboard a {
+    text-decoration: underline;
+    color: white;
+}
+
+div#dashboard ul#dashboard-menu {
+    display: block;
+}
+
+div#dashboard ul.links {
+	height:			47px;
+	padding-bottom:	47px;
+	position: relative;
+	top: 7px;
+}
+
+div#dashboard ul.links li a {
+    font-size: 1.3em;
+    padding: 1em !important;
+    margin: 0 0.3em;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+div#dashboard ul.links li.expanded ul.menu {
+    display: none;
+}
+
+div#dashboard ul.links li ul.menu {
+    border: 0;
+    height: 46px;
+}
+
+div#dashboard div#dashboard-welcome {
+    float: right;
+    color: white;
+    margin: 12px 15px;
+    font-size: 1.2em;
+}
+
+div#dashboard div#dashboard-welcome span.separator {
+    padding: 0 0.7em;
+}
+
+div#dashboard div#dashboard-welcome img#dashboard-photo {
+    vertical-align: middle;
+    margin-left: 10px;
+    margin-top: -6px;
+}
+
+/*** ESSENTIAL STYLES ***/
+div#dashboard ul.links, div#dashboard ul.links * {
+	margin:			0;
+	padding:		0;
+	list-style:		none;
+}
+div#dashboard ul.links {
+	line-height:	1.0;
+}
+div#dashboard ul.links ul {
+	position:		absolute;
+	top:			-999em;
+	width:			10em; /* left offset of submenus need to match (see below) */
+}
+div#dashboard ul.links ul li {
+	width:			100%;
+}
+div#dashboard ul.links li:hover {
+	visibility:		inherit; /* fixes IE7 'sticky bug' */
+}
+div#dashboard ul.links li {
+	float:			left;
+	position:		relative;
+}
+div#dashboard ul.links a {
+	display:		block;
+	position:		relative;
+}
+div#dashboard ul.links li:hover ul,
+div#dashboard ul.links li.sfHover ul {
+	left:			0;
+	top:			39px; /* match top ul list item height */
+	z-index:		99;
+}
+
+/*** adding the class sf-navbar in addition to sf-menu creates an all-horizontal nav-bar menu ***/
+div#dashboard ul.links li {
+	position:		static;
+}
+div#dashboard ul.links a {
+	border-top:		none;
+}
+div#dashboard ul.links li ul {
+	width:			100%; /*IE6 soils itself without this*/
+	background: #2198D0 url('../images/dashboard-submenu-bg.jpg');
+}
+div#dashboard ul.links li li {
+	position:		relative;
+}
+div#dashboard ul.links ul li {
+	width:			auto;
+	float:			left;
+}
+div#dashboard ul.links a, div#dashboard ul.links a:visited {
+	border:			none;
+}
+div#dashboard ul.links li.current {
+}
+div#dashboard ul.links li:hover,
+div#dashboard ul.links li.sfHover,
+div#dashboard ul.links li li.current,
+div#dashboard ul.links a:focus, div#dashboard ul.links a:hover, div#dashboard ul.links a:active {
+	background: url('../images/dashboard-selected-bg.jpg');
+}
+div#dashboard ul.links ul a {
+	background: url('../images/dashboard-bullet.png') no-repeat center left;
+}
+div#dashboard ul.links ul li:hover,
+div#dashboard ul.links ul li.sfHover,
+div#dashboard ul.links ul li:hover li,
+div#dashboard ul.links ul li.sfHover li,
+div#dashboard ul.links ul a:focus, div#dashboard ul.links ul a:hover, div#dashboard ul.links ul a:active {
+    background: none;
+}
+div#dashboard ul.links ul a:hover {
+    background: url('../images/dashboard-bullet-ro.png') no-repeat center left;
+}
+div#dashboard ul.links .current ul,
+div#dashboard ul.links ul li:hover ul,
+div#dashboard ul.links ul li.sfHover ul {
+	left:			0;
+	top:			47px; /* match top ul list item height */
+}
+div#dashboard ul.links .current ul ul {
+	top: 			-999em;
+}
+
+div#dashboard ul.links li li.current > a {
+	font-weight:	bold;
+}

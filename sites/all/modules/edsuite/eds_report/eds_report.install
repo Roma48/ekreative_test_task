@@ -1,0 +1,49 @@
+<?php
+
+function eds_report_install()
+{
+    /* Set the standard set of data for the reports */
+    variable_set('eds_report_nodetypes', array(
+        'book' => array(
+            'status' => 1,
+            'type' => 'book',
+            'alias' => 'Articles',
+            'heading' => 'Articles & Data',
+            'weight' => 4
+		),
+       	'news' => array(
+           'status' => 1,
+           'type' => 'news',
+           'alias' => 'News',
+           'heading' => 'News',
+           'weight' => 3
+	   	),
+        'eds_properties' => array(
+            'status' => 1,
+            'type' => 'eds_properties',
+            'alias' => 'Properties',
+            'heading' => 'Sites & Buildings',
+            'weight' => 2
+		),
+        'blog' => array(
+            'status' => 0,
+            'type' => 'blog',
+            'alias' => 'Blog',
+            'heading' => 'Blog',
+            'weight' => 0
+		),
+        'page' => array(
+            'status' => 1,
+            'type' => 'page',
+            'alias' => 'Page',
+            'heading' => 'page',
+            'weight' => 1
+		),
+	));
+
+    $query = db_insert('role_permission')->fields(array('rid', 'permission', 'module'));
+    $query->values(array('rid' => 1, 'permission' => 'access eds report', 'module' => 'eds_report'));
+    $query->values(array('rid' => 2, 'permission' => 'access eds report', 'module' => 'eds_report'));
+//    $query->values(array('rid' => 3, 'permission' => 'access eds report', 'module' => 'eds_report'));
+    $query->execute();
+}

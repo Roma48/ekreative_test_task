@@ -1,0 +1,54 @@
+#add-a-section {
+    margin: 1em;
+}
+
+.ajax-busy {
+    margin-top: 4px;
+}
+
+.ajax-busy,
+#code-not-unique,
+#invalid-code {
+    display: none;
+}
+
+#code-not-unique,
+#invalid-code,
+.description {
+    clear: left;
+}
+
+#edit-code {
+    width: 11.5em;
+    margin-right: 4px;
+    float: left;
+}
+
+#sections fieldset.sort > legend {
+    background: url(../images/icon_draggable_light.png) no-repeat 2px 4px;
+    cursor: move;
+    padding-left: 24px;
+}
+
+#sections legend:first-child + fieldset .remove {
+    display: none;
+}
+
+#sections fieldset .remove a {
+    float: right;
+    padding: 0.5em;
+    border: 1px solid #ccc;
+    background: #eee;
+}
+
+#sections fieldset .remove + div.form-item {
+    clear: right;
+}
+
+.colorwheel {
+    width: 150px !important;
+}
+
+div.textarea-identifier {
+    display: none;
+}

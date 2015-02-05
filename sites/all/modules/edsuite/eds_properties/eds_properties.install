@@ -1,0 +1,460 @@
+<?php
+
+require_once('eds_properties_install_fields.inc.php');
+require_once('eds_properties_install_instances.inc.php');
+
+function eds_properties_install()
+{
+    $name = 'eds_properties';
+
+    $eds_properties = array(
+        'type' => $name,
+        'name' => t('Property'),
+        'base' => 'node_content',
+        'title_label' => t('Title'),
+        'description' => t(
+            'Add a new "available property" to your site. Properties are made of up of sites and buildings and are usually assigned one or more demographic reports.'
+        ),
+        'custom' => 1,
+        'modified' => 1,
+        'locked' => 0,
+    );
+    if (!node_type_load($name)){
+        $content_type = node_type_set_defaults($eds_properties);
+
+        node_type_save($content_type);
+
+        variable_set('node_options_' . $name, array(0 => 'status'));
+        variable_set('node_submitted_' . $name, 0);
+        variable_set('comment_' . $name, '1');
+
+        $style = image_style_save(array('name' => 'eds_properties_photo'));
+        $effect = array(
+            'name' => 'image_scale_and_crop',
+            'data' => array(
+                'width' => 500,
+                'height' => 271,
+            ),
+            'isid' => $style['isid'],
+        );
+        image_effect_save($effect);
+        $style = image_style_save(array('name' => 'eds_properties_search'));
+        $effect = array(
+            'name' => 'image_scale',
+            'data' => array(
+                'width' => 140,
+                'height' => 80,
+                'upscale' => 1,
+            ),
+            'isid' => $style['isid'],
+        );
+        image_effect_save($effect);
+
+        foreach (_eds_properties_installed_fields() as $field) {
+            field_create_field($field);
+        }
+
+        foreach (_eds_properties_installed_instances() as $instance) {
+            $instance['entity_type'] = 'node';
+            $instance['bundle'] = $eds_properties['type'];
+            field_create_instance($instance);
+        }
+    }
+
+    $t1 = array(
+        'label' => 'Alternate Contact Information',
+        'weight' => '2',
+        'children' => array(
+            'field_primary_alternate_contact',
+            'field_alternate_contact_email',
+            'field_alternate_contact_phone',
+            'field_alternate_cont_comp_name',
+            'field_alternate_cont_comp_url',
+            'field_secondary_alternate_contac',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t2 = array(
+        'label' => 'General Information',
+        'weight' => '5',
+        'children' => array(
+            'field_property_type',
+            'field_property_for_sale',
+            'field_property_for_lease',
+            'field_zoning_type',
+            'field_enterprise_zone',
+            'field_reinvestment_zone',
+            'field_foreign_trade_zone',
+            'field_rec_mark_devel_zone',
+            'field_acreage',
+            'field_rail_access',
+            'field_rail_provider',
+            'field_environmental_statement',
+            'field_properties_urls',
+            'group_sale_price',
+            'group_lease_price',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t3 = array(
+        'label' => 'Sale Pricing Option',
+        'weight' => '9',
+        'children' => array(
+            'field_sale_cost_description',
+            'field_sale_additional_expense',
+            'field_sale_actual_price',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t4 = array(
+        'label' => 'Lease Pricing Option',
+        'weight' => '10',
+        'children' => array(
+            'field_lease_cost_description',
+            'field_lease_additional_expense',
+            'field_lease_actual_per_month',
+            'field_lease_actual_per_year',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t5 = array(
+        'label' => 'Additional Building Details',
+        'weight' => '6',
+        'children' => array(
+            'field_building_type',
+            'field_nearest_interstate_distanc',
+            'field_office_sq_footage',
+            'field_retail_sq_footage',
+            'field_warehouse_sq_footage',
+            'field_manufacturing_sq_footage',
+            'field_sq_footage',
+            'field_space_divisible_to',
+            'field_number_of_parking_spaces',
+            'field_ceiling_height',
+            'field_year_built',
+            'field_building_dimensions',
+            'field_construction_type',
+            'field_overhead_crane_1_capacity',
+            'field_overhead_crane_2_capacity',
+            'field_overhead_crane_3_capacity',
+            'field_column_spacing',
+            'field_no_of_grd_lvl_load_docks',
+            'field_no_of_high_loading_docks',
+            'field_sprinkler_system',
+            'field_primary_anchor_tenant',
+            'field_secondary_anchor_tenant',
+            'field_date_available',
+            'field_previous_use',
+            'path',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t6 = array(
+        'label' => 'Additional Site Details',
+        'weight' => '7',
+        'children' => array(
+            'field_site_type',
+            'field_frontage',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t7 = array(
+        'label' => 'Electricity Supply',
+        'weight' => '10',
+        'children' => array(
+            'field_electricity_service_provid',
+            'field_electricity_supply',
+            'field_phase',
+            'field_number_of_indep_sources',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t8 = array(
+        'label' => 'Water Supply',
+        'weight' => '11',
+        'children' => array(
+            'field_water_supply_provider',
+            'field_water_supply',
+            'field_maximum_capacity_available',
+            'field_raw_water_available',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t9 = array(
+        'label' => 'Sewer Service',
+        'weight' => '12',
+        'children' => array(
+            'field_sewer_service_provider',
+            'field_sewer_service',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );
+    $t10 = array(
+        'label' => 'Data for verification',
+        'weight' => '13',
+        'children' => array(
+            'field_emails_for_cron',
+            'field_verified',
+        ),
+        'format_type' => 'fieldset',
+        'format_settings' => array(
+            'formatter' => 'collapsible',
+            'instance_settings' => array(
+                'description' => '',
+                'classes' => '',
+                'required_fields' => 1,
+            ),
+        ),
+    );    
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_alter_contact_inf|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')
+        ->fields(
+        array(
+            'identifier' => 'group_alter_contact_inf|node|eds_properties|form',
+            'group_name' => 'group_alter_contact_inf',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => '',
+            'data' => serialize($t1),
+        )
+    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_general_inf|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_general_inf|node|eds_properties|form',
+            'group_name' => 'group_general_inf',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => '',
+            'data' => serialize($t2),
+        )
+    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_sale_price|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_sale_price|node|eds_properties|form',
+            'group_name' => 'group_sale_price',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => 'group_general_inf',
+            'data' => serialize($t3),
+        )
+    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_lease_price|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_lease_price|node|eds_properties|form',
+            'group_name' => 'group_lease_price',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => 'group_general_inf',
+            'data' => serialize($t4),
+        )
+    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_addition_building|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_addition_building|node|eds_properties|form',
+            'group_name' => 'group_addition_building',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => '',
+            'data' => serialize($t5),
+        )
+    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_additional_site|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_additional_site|node|eds_properties|form',
+            'group_name' => 'group_additional_site',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => '',
+            'data' => serialize($t6),
+        )
+    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_electricity|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_electricity|node|eds_properties|form',
+            'group_name' => 'group_electricity',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => '',
+            'data' => serialize($t7),
+        )
+    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_water|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_water|node|eds_properties|form',
+            'group_name' => 'group_water',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => '',
+            'data' => serialize($t8),
+        )
+    )->execute();
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_sewer|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_sewer|node|eds_properties|form',
+            'group_name' => 'group_sewer',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => '',
+            'data' => serialize($t9),
+        )
+    )->execute();
+    
+    $res = db_select('field_group')
+        ->fields('field_group', array('id'))
+        ->condition('identifier', 'group_data_for_verification|node|eds_properties|form')
+        ->execute()
+        ->rowCount();
+    if (!$res)
+    db_insert('field_group')->fields(
+        array(
+            'identifier' => 'group_data_for_verification|node|eds_properties|form',
+            'group_name' => 'group_data_for_verification',
+            'entity_type' => 'node',
+            'bundle' => 'eds_properties',
+            'mode' => 'form',
+            'parent_name' => '',
+            'data' => serialize($t10),
+        )
+    )->execute();
+    $query = db_insert('role_permission')->fields(array('rid', 'permission', 'module'));
+    $query->values(array('rid' => 1, 'permission' => 'view property', 'module' => 'eds_properties'));
+    $query->values(array('rid' => 2, 'permission' => 'view property', 'module' => 'eds_properties'));
+//    $query->values(array('rid' => 3, 'permission' => 'view property', 'module' => 'eds_properties'));
+    $query->execute();
+
+
+}

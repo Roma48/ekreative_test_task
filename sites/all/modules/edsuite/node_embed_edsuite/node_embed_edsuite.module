@@ -1,0 +1,633 @@
+<?php 
+// $Id: node_embed.module,v 1.6 2011/02/07 17:03:47 jec006 Exp $
+
+/**
+ * This module defines an input filter for taking an embed code syntax ([[nid: ###]])
+ * and removing the embed code and replacing with a rendered node view at that position
+ * in the text field. *
+ */
+
+/**
+ * Implementation of hook_filter_info()
+ */
+//function node_embed_edsuite_filter_info() {
+//
+//  $filters['node_embed'] = array(
+//    'title' => t('Insert node'),
+//    'description' => t('By including the syntax [[nid:(node_id)]], this filter will embed the node with given NID'),
+//    'prepare callback' => 'node_embed_filter_node_embed_prepare',
+//    'process callback' => 'node_embed_filter_node_embed_process',
+//    'tips callback'  => 'node_embed_filter_node_embed_tips',
+//    'cache' => FALSE,
+//  );
+//
+//  return $filters;
+//
+//} // node_embed_filter_info
+
+/**
+ * Prepare callback for hook_filter
+ */
+//function node_embed_edsuite_filter_node_embed_prepare($text, $filter, $format, $langcode, $cache, $cache_id) {
+//
+//  return $text;
+//
+//} // node_embed_filter_node_embed_prepare
+
+/**
+ * Process callback for hook_filter
+ */
+//function node_embed_edsuite_filter_node_embed_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+//
+//  return preg_replace_callback('/\[\[nid:(\d+)(\s.*)?\]\]/', '_node_make_edsuite_replacements', $text);
+//
+//} // node_embed_filter_node_embed_process
+
+/**
+ * Tips callback for hook_filter
+ */
+//function node_embed_edsuite_filter_node_embed_tips($filter, $format, $long) {
+//
+//  return t('[[nid:123]] - Insert a node content');
+//
+//} // node_embed_filter_node_embed_tips
+  
+/**
+ * Provides the replacement html to be rendered in place of the embed code.
+ * Does not handle nested embeds.
+ *
+ * @param $matches
+ *    numeric node id that has been captured by preg_replace_callback
+ * @return
+ *    The rendered HTML replacing the embed code
+ */ 
+//function _node_make_edsuite_replacements($matches) {
+//
+//
+//  $node = node_load($matches[1]);
+//
+//  if ($node == FALSE || !node_access('view', $node) || !$node->status) {
+//
+//    return "[[nid:{$matches[1]}]]";
+//
+//  } // if
+//  else {
+//
+//
+//    $node->node_embed_parameters = array();
+//
+//    if (isset($matches[2]) && trim($matches[2]) != '') {
+//      parse_str(trim(str_replace('&nbsp;', ' ', $matches[2])), $node->node_embed_parameters);
+//    } // if
+//
+//    if (!isset($node->node_embed_parameters['view_mode'])) {
+//      $node->node_embed_parameters['view_mode'] = 'node_embed';
+//    } // if
+//
+//    $view = node_view($node, $node->node_embed_parameters['view_mode'], NULL);
+//
+//    $render = drupal_render($view);
+//    return $render;
+//
+//  } // else
+//
+//} // _node_make_replacements
+
+/**
+ * Implements hook_theme_registry_alter()
+ * This is where we add our default template for the fckeditor view page template.
+ */
+function node_embed_edsuite_theme_registry_alter(&$theme_registry) {
+  
+  //Add 'html--ckeditor-node-embed.tpl.php' template file
+  $theme_registry['html__ckeditor_node_embed'] = Array();
+  $theme_registry['html__ckeditor_node_embed']['template'] = 'html--ckeditor-node-embed';
+  $theme_registry['html__ckeditor_node_embed']['path'] = drupal_get_path('module', 'node_embed_edsuite') . "/theme";
+  $theme_registry['html__ckeditor_node_embed']['render element'] = 'page';
+  $theme_registry['html__ckeditor_node_embed']['base hook'] = 'html';
+  $theme_registry['html__ckeditor_node_embed']['type'] = 'theme_engine';
+  $theme_registry['html__ckeditor_node_embed']['theme path'] = path_to_theme();
+  $theme_registry['html__ckeditor_node_embed']['preprocess functions'] = Array();
+  $theme_registry['html__ckeditor_node_embed']['process functions'] = Array();
+
+  //Add 'page--ckeditor-node-embed.tpl.php' template file
+  $theme_registry['page__ckeditor_node_embed'] = Array();
+  $theme_registry['page__ckeditor_node_embed']['template'] = 'page--ckeditor-node-embed';
+  $theme_registry['page__ckeditor_node_embed']['path'] = drupal_get_path('module', 'node_embed_edsuite') . "/theme";
+  $theme_registry['page__ckeditor_node_embed']['render element'] = 'page';
+  $theme_registry['page__ckeditor_node_embed']['base hook'] = 'page';
+  $theme_registry['page__ckeditor_node_embed']['type'] = 'theme_engine';
+  $theme_registry['page__ckeditor_node_embed']['theme path'] = path_to_theme();
+  $theme_registry['page__ckeditor_node_embed']['preprocess functions'] = Array();
+  $theme_registry['page__ckeditor_node_embed']['process functions'] = Array();
+  
+} // node_embed_theme_registry_alter
+
+/**
+ * Make compatible with views 2 for default view.
+ */
+function node_embed_edsuite_views_api() {
+
+  return array('api' => 3);
+
+} // node_embed_views_api
+
+/**
+ * Implementation of hook_views_pre_render() {
+ */
+function node_embed_edsuite_views_pre_render(&$view) {
+
+  if ($view->name == 'ckeditor_node_embed' && $view->current_display == 'page_1') {
+
+    node_embed_edsuite_suppress_admin_menu();
+
+  } // if
+
+} // node_embed_views_pre_render
+
+
+/**
+ * Implementation of hook_views_default_views().
+ */
+function node_embed_edsuite_views_default_views() {
+
+  $views = array();
+  
+  if (module_exists('ckeditor') || module_exists('wysiwyg')) {
+
+    $pathCK = drupal_get_path('module', 'node_embed_edsuite') . '/ckeditor/ckeditor_node_embed.view.inc';
+    include_once($pathCK);
+    $views[$view->name] = $view;
+
+  } // if
+
+  return $views;
+
+} // node_embed_views_default_views
+
+/**
+ * Implements hook_views_data_alter()
+ */
+function node_embed_edsuite_views_data_alter(&$data)  {
+
+  $data['views']['node_embed'] = array(
+    'title' => t('Node embed add area'),
+    'help' => t('Provide links to add nodes.'),
+    'area' => array(
+      'handler' => 'views_handler_node_embed_add_area',
+    ),
+  );
+
+} // node_embed_views_data_alter
+
+/**
+ * Implement hook_form_alter()
+ * add a validation handler to nodes with node_embed.
+ */
+function node_embed_edsuite_form_alter(&$form, &$form_state, $form_id) {
+
+  $form['#validate'][] = 'node_embed_edsuite_validate';
+
+} // node_embed_form_alter
+
+/**
+ * validation for the node_embed filter.
+ * we do not allow nodes to embed in themselves.
+ * results in segment fault.
+ */
+function node_embed_edsuite_validate($node, $form) {
+
+  if (isset($form['values']['nid'])) {
+
+    $nid = $form['values']['nid'];
+
+    $needle = "[[nid:{$nid}]]";    
+
+    $num = 0;
+    $language = (isset($form['values']['language']) && $form['values']['language']) ? $form['values']['language'] : LANGUAGE_NONE;
+
+    while (isset($form['values']['body'][$language][$num])) {
+
+      $found = strpos($form['values']['body'][$form['values']['language']][$num]['value'], $needle);
+  
+      if ($found == TRUE) {
+        form_set_error('edit-body', t('A node is not allowed to embed in itself.'));
+      } // if
+      
+      $num++;
+
+    } // while
+
+  } // if
+
+} // node_embed_validate
+
+/**
+ * Implementing the Wysiwyg API
+ * Register a directory containing Wysiwyg plugins.
+ *
+ * @param $type
+ *   The type of objects being collected: either 'plugins' or 'editors'.
+ * @return
+ *   A sub-directory of the implementing module that contains the corresponding
+ *   plugin files. This directory must only contain integration files for
+ *   Wysiwyg module.
+ */
+function node_embed_edsuite_wysiwyg_include_directory($type) {
+
+  switch ($type) {
+    case 'plugins':
+      // You can just return $type, if you place your Wysiwyg plugins into a
+      // sub-directory named 'plugins'.
+      return $type;
+  } // switch
+
+} // node_embed_wysiwyg_include_directory
+
+/**
+ *  Implementation of hook_init - attach the needed css files if we're on a form page
+ */
+function node_embed_edsuite_init() {
+
+	drupal_add_css(drupal_get_path('module', 'node_embed_edsuite') . '/plugins/node_embed/node_embed.css');
+
+} // node_embed_init
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function node_embed_edsuite_entity_info_alter(&$entity_info) {
+
+  if (isset($entity_info['node'])) {
+
+    $entity_info['node']['view modes'] += array(
+      'node_embed' => array(
+        'label' => 'Node embed',
+        'custom settings' => false,
+      ),
+    );
+
+  } // if
+
+} // node_embed_entity_info_alter
+
+/**
+ * Implements template_preproccess_node().
+ */
+function node_embed_edsuite_preprocess_node(&$variables) {
+
+  if ($variables['view_mode'] == 'node_embed') {
+
+    $node = $variables['node'];
+    $variables['theme_hook_suggestions'][] = 'node__node_embed';
+    $variables['theme_hook_suggestions'][] = 'node__' . $node->type . '__node_embed';
+
+  } // if
+
+} // node_embed_preprocess_node
+
+/**
+ * Suppress Admin Menu if it is present
+ */
+function node_embed_edsuite_suppress_admin_menu() {
+
+  if (module_exists('admin_menu')) {
+
+    admin_menu_suppress();
+
+  } // if
+
+} // node_embed_suppress_admin_menu
+
+function node_embed_edsuite_menu(){
+    $items['node-embed-edsuite-node'] = array(
+        'page callback'           => 'node_embed_edsuite_get_node',
+        'access callback'    => true,
+        'type'               => MENU_CALLBACK
+    );
+    return $items;
+}
+
+function node_embed_edsuite_get_node(){
+    $nid = $_REQUEST['node_embed_nid'];
+    $cur_node = node_load($nid);
+//    $field_body = field_get_items('node', $cur_node, 'body');
+    
+    //echo '<pre>'; print_r($cur_node); exit;
+    
+    //$field_body = render(node_view($cur_node, 'node_embed'));
+    
+    switch($cur_node->type) {
+        case 'eds_properties': 
+            $field_body = getPropertyTemplate($cur_node);
+            break;
+        default:
+            $field_body = getOtherTemplate($cur_node);
+            break;
+    }
+    
+    $return = array(
+        'node_text' => $field_body,
+    );
+
+    drupal_add_http_header('Content-type',"application/json");
+    print drupal_json_encode($return);
+
+    module_invoke_all('exit');
+    exit;
+}
+
+function getPropertyTemplate($node) {
+    
+    
+    
+    
+    
+    
+$output = '<div class="proposalEmbedNode">';
+$output .= '<div id="top-col">';
+/*
+if (!$teaser) {
+    $output .= '<div id="property-sub-nav">';
+    $output .= '<div class="tab active"> <span class="left">&nbsp;</span>';
+    $output .= '<span class="right">&nbsp;</span> </div>';
+    $query = db_select('field_data_field_demograph_prop_id', 'prop');
+    $query->fields('prop', array('entity_id'));
+    $query->condition('prop.field_demograph_prop_id_value',$node->nid);
+    $result = $query->execute()->fetchAllAssoc('entity_id');
+    if (!empty($result)) {
+        $output .= '<div class="tab"> <span class="left">&nbsp;</span> <span class="middle">';
+        $output .= l(t('Demographics'), 'eds/property/demographics/' . $node->nid);
+        $output .= '</span> <span class="right">&nbsp;</span> </div>';
+    }
+    $output .= '</div>';
+}
+*/
+$output .= theme('eds_property_address', array('node' => $node));
+$output .= '</div><!-- .top-col end -->';
+    
+$output .= '<div id="left-col">';
+
+$output .= theme('eds_property_photos', array('node' => $node, 'teaser' => 0));
+
+$output .= ' <div id="location">';
+$output .= '<div class="title-page-pdf">' . $node->title . '</div>';
+$output .= '  <div class="title">' . t('Location') . '</div>';
+/*
+if ($node->field_location) {
+ 
+    drupal_add_js('http://maps.googleapis.com/maps/api/js?v=3&language=en&sensor=false&libraries=geometry');
+    $gmap = array();
+    $gmap['#settings'] = gmap_defaults();
+
+    $markers = array();
+    //$marker_type    = 'drupal';
+    
+    $field_location = field_get_items('node', $node, 'field_location');
+    $gmap['#settings']['latitude']  = $field_location[0]['latitude'];
+    $gmap['#settings']['longitude'] = $field_location[0]['longitude'];
+    
+    $marker_image = "marker.png";
+    $marker = base_path() . variable_get('gmap_markerfiles', drupal_get_path('module', 'gmap') .'/markers/') . $marker_image;
+    
+    $markers[0] = array(
+        //'markername' => $marker_type,
+        'latitude'   => $field_location[0]['latitude'], //$node->location['lat'],
+        'longitude'  => $field_location[0]['longitude'], //$node->location['lon'],
+        // 'link'       => url('eds/property/' . $node->nid),
+        'offset'     => 0,
+        'opt'        => array('title' => $node->title),
+        'text'       => false,
+        'icon' => $marker
+    ); 
+    
+     $output .= '<div id="gmap-wrapper">' . theme('gmap', array('#settings' => $gmap['#settings'])) . '</div>';
+  
+ 
+     $output .= '<script type="text/javascript">
+                    var mapMarkers = '. json_encode($markers) .';
+                    var mapSettings = '. json_encode($gmap['#settings']) .';
+                    var mapId = "gmap-auto1map-gmap0";
+                    var autozoom = false;
+
+                    jQuery(window).load(function() {
+                        mapInit();
+                    });
+                </script>';
+ 
+}*/
+ //$template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Location</legend>';
+    $output .= '<p> <span class="i_need_hide_it">'. ((isset($node->field_location['und'][0]['street'])) ? $node->field_location['und'][0]['street'] : '') .' <br /> ';
+    $output .= ((isset($node->field_location['und'][0]['city'])) ? $node->field_location['und'][0]['city'] : '') .', '. ((isset($node->field_location['und'][0]['province'])) ? $node->field_location['und'][0]['province'] : '') .', '. ((isset($node->field_location['und'][0]['postal_code'])) ? $node->field_location['und'][0]['postal_code'] : '');  
+    $params = "'" . ((isset($node->field_location['und'][0]['latitude'])) ? urlencode($node->field_location['und'][0]['latitude']) : '') 
+                  ."', '". (isset($node->field_location['und'][0]['longitude']) ? urlencode($node->field_location['und'][0]['longitude']) : '') 
+                  . "', '" . (isset($node->field_location['und'][0]['country_name']) ? urlencode($node->field_location['und'][0]['country_name']) : '') 
+                  ."', '". (isset($node->field_location['und'][0]['province_name']) ? urlencode($node->field_location['und'][0]['province_name']) : '') 
+                  . "','" .  (isset($node->field_location['und'][0]['city']) ? urlencode($node->field_location['und'][0]['city']) : '') 
+                  ."','" .  (isset($node->field_location['und'][0]['street']) ? urlencode($node->field_location['und'][0]['street']) : '') 
+                  ."','". (isset($node->field_location['und'][0]['postal_code']) ? urlencode($node->field_location['und'][0]['postal_code']) : '') ."'";
+    $output .= '<br /></span><img src="http://maps.google.com/maps/api/staticmap?center='.$node->field_location['und'][0]['latitude'].','.$node->field_location['und'][0]['longitude'].'&markers='.$node->field_location['und'][0]['latitude'].','.$node->field_location['und'][0]['longitude'].'&zoom=12&size=600x475&sensor=false" alt="map" /></p>';
+
+$output .= '    </div>';
+if (!empty($node->field_additional_information)){
+    $output .= '        <div id="additional-information">';
+    $output .= '<div class="title-page-pdf">' . $node->title . '</div>';
+    $output .= '  <div class="title">' . t('Additional Information') . '</div>';
+    $output .= '            <div class="content">';
+
+    $field_additional_information = field_view_field(
+        'node',
+        $node,
+        'field_additional_information',
+        array('label' => 'hidden')
+    );
+    $output .= render($field_additional_information);
+
+    $output .= '            </div>';
+    $output .= '        </div>';
+}
+$output .= '    </div><!-- .left-col end -->';
+
+$output .= '    <div id="right-col">';
+
+$output .= theme('eds_property_details', array('node' => $node));
+
+$output .= '        <div id="attachments">';
+if (!empty($node->content['attachment'])) {
+    $output .= '                <div class="title">' . t('Attachments') . '</div>';
+    $output .= $node->content['attachment']['#value'];
+}
+$output .= '        </div>';
+$output .= '    </div><!-- .right-col end -->';
+$output .= '    <div class="clearer"> </div>';
+
+
+
+$output .= '</div>';
+//$output .= '<input type="hidden" id="nodeUid" name="nodeUid" value="'. $node->uid .'" />';
+//$output .= '<input type="hidden" id="nodeUid" name="nodeId" value="'. $node->nid .'" />';
+ 
+
+return $output;
+    
+    /*
+    $template = '<div class="proposalEmbedNode">';
+    
+    $template .= '<div class="proposalpropertyTitle" style="font-size: 18px; margin: 0 0 20px 0;">'. $node->title .'</div>';
+    
+    //location
+    $template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Location</legend>';
+    $template .= '<p>'. ((isset($node->field_location['und'][0]['street'])) ? $node->field_location['und'][0]['street'] : '') .' <br /> ';
+    $template .= ((isset($node->field_location['und'][0]['city'])) ? $node->field_location['und'][0]['city'] : '') .', '. ((isset($node->field_location['und'][0]['province'])) ? $node->field_location['und'][0]['province'] : '') .', '. ((isset($node->field_location['und'][0]['postal_code'])) ? $node->field_location['und'][0]['postal_code'] : '');  
+    $params = "'" . ((isset($node->field_location['und'][0]['latitude'])) ? urlencode($node->field_location['und'][0]['latitude']) : '') 
+                  ."', '". (isset($node->field_location['und'][0]['longitude']) ? urlencode($node->field_location['und'][0]['longitude']) : '') 
+                  . "', '" . (isset($node->field_location['und'][0]['country_name']) ? urlencode($node->field_location['und'][0]['country_name']) : '') 
+                  ."', '". (isset($node->field_location['und'][0]['province_name']) ? urlencode($node->field_location['und'][0]['province_name']) : '') 
+                  . "','" .  (isset($node->field_location['und'][0]['city']) ? urlencode($node->field_location['und'][0]['city']) : '') 
+                  ."','" .  (isset($node->field_location['und'][0]['street']) ? urlencode($node->field_location['und'][0]['street']) : '') 
+                  ."','". (isset($node->field_location['und'][0]['postal_code']) ? urlencode($node->field_location['und'][0]['postal_code']) : '') ."'";
+    $template .= '<br /><br /><a href="#" onclick="mapOpen('. $params.');">Show on the map</a></p>';
+    $template .= '</fieldset>';
+    
+    //contacts
+    $template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Primary Contacts</legend>';
+    $template .= '<p>'. (isset($node->field_primary_alternate_contact['und'][0]['value']) ? $node->field_primary_alternate_contact['und'][0]['value'] .' <br /> ' : '');
+    $template .= (isset($node->field_alternate_contact_phone['und'][0]['value']) ? $node->field_alternate_contact_phone['und'][0]['value'] .' <br />' : '');
+    $template .= (isset($node->field_alternate_contact_email['und'][0]['value']) ? $node->field_alternate_contact_email['und'][0]['value'] : ''); 
+    $template .= (isset($node->field_alternate_cont_comp_name['und'][0]['value']) ? $node->field_alternate_cont_comp_name['und'][0]['value'] : '');  
+    if (isset($node->field_alternate_cont_comp_url) && $node->field_alternate_cont_comp_url) {
+        $url = $node->field_alternate_cont_comp_url['und'][0]['value'];
+        if (strpos($url, 'http') === false) {
+            $url = 'http://' . $url;
+        }
+        $template .= $url . '<br />';
+    }     
+    $template .= '</p></fieldset>';
+    
+    //other contacts
+    $template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Secondary Contact</legend>';
+    $template .= (isset($node->field_secondary_alternate_contac['und'][0]['value']) ? $node->field_secondary_alternate_contac['und'][0]['value'] : '');
+    $template .= '</fieldset>';
+    //photos
+    $template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Photos</legend>';
+    
+    foreach($node->field_property_photographs['und'] as $photo) {
+        $template .= '<a href="'. file_create_url($photo['uri']) .'" class="lightboxGallery"><img style="margin: 10px;" width="300" src="'. file_create_url($photo['uri']) .'" /></a>';
+    }
+    
+    $template .= '</fieldset>';
+    
+    //Property Details
+    $template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Property Details</legend>';
+    
+    $template .= '<p><strong>Property For: </strong>'. (($node->field_property_for_sale['und'][0]['value']) ? 'Yes' : 'No') .' <br />';
+    $template .= (isset($node->field_building_type['und'][0]['value']) ? '<strong>Zoning Type: </strong>'. $node->field_building_type['und'][0]['value'] .'<br />' : '');
+    
+    //BEGIN zones
+    $zonesStr = '';
+    $zonesStr .= ($node->field_enterprise_zone['und'][0]['value']) ? 'Enterprise Zone, ' : '';
+    $zonesStr .= ($node->field_reinvestment_zone['und'][0]['value']) ? 'Reinvestment Zone, ' : '';
+    $zonesStr .= ($node->field_foreign_trade_zone['und'][0]['value']) ? 'Foreign Trade Zone, ' : '';
+    $zonesStr .= ($node->field_rec_mark_devel_zone['und'][0]['value']) ? 'Recycling Market Development Zone, ' : '';
+    //END Zones
+    
+    $template .= '<strong>Incentive Zones: </strong> '. trim($zonesStr, ', ') . '<br />';
+    $template .= (isset($node->field_acreage['und'][0]['value']) ? '<strong>Acreage: </strong>' . number_format($node->field_acreage['und'][0]['value'], 2) .'<br />' : '');
+    $template .= '<strong>Rail Access: </strong>'. (($node->field_rail_access['und'][0]['value']) ? 'Yes' : 'No') .'<br />';
+    $template .= (isset($node->field_rail_provider['und'][0]['value']) ? '<strong>Rail Provider: </strong>'. $node->field_rail_provider['und'][0]['value'] .'<br />': '');
+    $template .= (isset($node->field_environmental_statement['und'][0]['value']) ? '<strong>Environmental Statement: </strong>'. $node->field_environmental_statement['und'][0]['value'] .'<br />': '');
+    $template .= (isset($node->field_nearest_interstate_distanc['und'][0]['value']) ? '<strong>Nearest Interstate Distance: </strong>'. $node->field_nearest_interstate_distanc['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_column_spacing['und'][0]['value']) ? '<strong>Number of Parking Spaces: </strong>'. $node->field_column_spacing['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_building_type['und'][0]['value']) ? '<strong>Building Type: </strong>'. $node->field_building_type['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_ceiling_height['und'][0]['value']) ? '<strong>Ceiling Height: </strong>'. $node->field_ceiling_height['und'][0]['value'] .' ft.<br />' : '');
+    $template .= (isset($node->field_office_sq_footage['und'][0]['value']) ? '<strong>Office Sq. Footage: </strong>'. number_format($node->field_office_sq_footage['und'][0]['value']) .' SF<br />' : '');
+    $template .= (isset($node->field_retail_sq_footage['und'][0]['value']) ? '<strong>Retail Sq. Footage: </strong>'. number_format($node->field_retail_sq_footage['und'][0]['value']).' SF<br />' : '' );
+    $template .= (isset($node->field_space_divisible_to['und'][0]['value']) ? '<strong>Space Divisible To: </strong>'. number_format($node->field_space_divisible_to['und'][0]['value']) .' SF<br />' : '');
+    $template .= (isset($node->field_warehouse_sq_footage['und'][0]['value']) ? '<strong>Warehouse Sq. Footage: </strong>'. number_format($node->field_warehouse_sq_footage['und'][0]['value']) .' SF<br />' : '');
+    $template .= (isset($node->field_manufacturing_sq_footage['und'][0]['value']) ? '<strong>Manufacturing Sq. Footage: </strong>'. number_format($node->field_manufacturing_sq_footage['und'][0]['value']) .' SF<br />' : '');
+    $template .= (isset($node->field_sq_footage['und'][0]['value']) ? '<strong>Total Square Footage: </strong>'. number_format($node->field_sq_footage['und'][0]['value']) .' SF<br />' : '');
+    $template .= (isset($node->field_year_built['und'][0]['value']) ? '<strong>Year Built: </strong>'. $node->field_year_built['und'][0]['value'] .'<br />' : '');
+    
+    $template .= (isset($node->field_building_dimensions['und'][0]['value']) ? '<strong>Building Dimensions: </strong>'. $node->field_building_dimensions['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_construction_type['und'][0]['value']) ? '<strong>Construction Type: </strong>'. $node->field_construction_type['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_overhead_crane_1_capacity['und'][0]['value']) ? '<strong>Overhead Crane 1 Capacity: </strong>'. $node->field_overhead_crane_1_capacity['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_overhead_crane_2_capacity['und'][0]['value']) ? '<strong>Overhead Crane 2 Capacity: </strong>'. $node->field_overhead_crane_2_capacity['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_overhead_crane_3_capacity['und'][0]['value']) ? '<strong>Overhead Crane 3 Capacity:</strong>'. $node->field_overhead_crane_3_capacity['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_column_spacing['und'][0]['value']) ? '<strong>Column Spacing: </strong>'. $node->field_column_spacing['und'][0]['value'] .' ft.<br />' : '');
+    $template .= (isset($node->field_no_of_high_loading_docks['und'][0]['value']) ? '<strong>Number of High Loading Docks: </strong>'. $node->field_no_of_high_loading_docks['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_no_of_grd_lvl_load_docks['und'][0]['value']) ? '<strong>Number of Ground Level Loading Docks: </strong>'. $node->field_no_of_grd_lvl_load_docks['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_building_dimensions['und'][0]['value']) ? '<strong>Building Dimensions: </strong>'. $node->field_building_dimensions['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_building_dimensions['und'][0]['value']) ? '<strong>Building Dimensions: </strong>'. $node->field_building_dimensions['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_sprinkler_system['und'][0]['value']) ? '<strong>Sprinkler System: </strong>'. $node->field_sprinkler_system['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_primary_anchor_tenant['und'][0]['value']) ? '<strong>Primary Anchor Tenant: </strong>'. $node->field_primary_anchor_tenant['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_secondary_anchor_tenant['und'][0]['value']) ? '<strong>Secondary Anchor Tenant: </strong>'. $node->field_secondary_anchor_tenant['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_date_available['und'][0]['value']) ? '<strong>Date Available: </strong>'. date('F j, Y', strtotime($node->field_date_available['und'][0]['value'])) .'<br />' : '');
+    
+    $template .= (isset($node->field_previous_use['und'][0]['value']) ? '<strong>Previous Use: </strong>'. $node->field_previous_use['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_electricity_service_provid['und'][0]['value']) ? '<strong>Electricity Service Provider: </strong>'. $node->field_electricity_service_provid['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_electricity_supply['und'][0]['value']) ? '<strong>Electricity Supply: </strong>'. $node->field_electricity_supply['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_phase['und'][0]['value']) ? '<strong>Phase: </strong>'. $node->field_phase['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_number_of_indep_sources['und'][0]['value']) ? '<strong>Number of independent sources: </strong>'. $node->field_number_of_indep_sources['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_water_supply_provider['und'][0]['value']) ? '<strong>Water Supply Provider: </strong>'. $node->field_water_supply_provider['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_water_supply['und'][0]['value']) ? '<strong>Water Supply: </strong>'. $node->field_water_supply['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_maximum_capacity_available['und'][0]['value']) ? '<strong>Maximum Capacity Available: </strong>'. $node->field_maximum_capacity_available['und'][0]['value'] .'<br />' : '');
+    $template .= '<strong>Raw water available: </strong>'. (($node->field_raw_water_available['und'][0]['value']) ? 'Yes' : 'No') .'<br />';
+    
+    $template .= (isset($node->field_sewer_service_provider['und'][0]['value']) ? '<strong>Sewer Service Provider: </strong>'. $node->field_sewer_service_provider['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_sewer_service['und'][0]['value']) ? '<strong>Sewer Service: </strong>'. $node->field_sewer_service['und'][0]['value'] .'<br />' : '');
+    
+    $template .= '</p>';
+    
+    $template .= '</fieldset>';
+    
+    //Sale Pricing Option
+    $template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Sale Pricing Option</legend>';
+    $template .= (isset($node->field_sale_cost_description['und'][0]['value']) ? '<strong>Cost Description: </strong>$'. $node->field_sale_cost_description['und'][0]['value'] .' per SF<br />' : '');
+    $template .= (isset($node->field_sale_additional_expense['und'][0]['value']) ? '<strong>Additional Expense: </strong>'. $node->field_sale_additional_expense['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_sale_actual_price['und'][0]['value']) ? '<strong>Actual Price: </strong>$'. $node->field_sale_actual_price['und'][0]['value'] .' per SF<br />' : '');
+    $template .= '</fieldset>';
+//    
+//  //Lease Pricing Option
+    $template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Lease Pricing Option</legend>';
+    $template .= (isset($node->field_lease_cost_description['und'][0]['value']) ? '<strong>Cost Description: </strong>$'. $node->field_lease_cost_description['und'][0]['value']  .' per SF<br />': '');
+    $template .= (isset($node->field_lease_additional_expense['und'][0]['value']) ? '<strong>Additional Expense: </strong>'. $node->field_lease_additional_expense['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_lease_actual_per_month['und'][0]['value']) ? '<strong>Actual price per Month: </strong> $'. $node->field_lease_actual_per_month['und'][0]['value'] .'<br />' : '');
+    $template .= (isset($node->field_lease_actual_per_year['und'][0]['value']) ? '<strong>Actual price per Year: </strong> $'. $node->field_lease_actual_per_year['und'][0]['value'] .'<br />' : '');
+    $template .= '</fieldset>';
+    
+    //Virtual Tours
+    $field_properties_urls = field_get_items('node', $node, 'field_properties_urls');
+    $template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Virtual Tours</legend>';
+        $template .= '<ul id="urls">';
+        foreach ($field_properties_urls as $url) {
+            $template .= '<li><a href="' . $url['url'] . '" title="' . $url['title'] . '" target="_blank">' . $url['title'] . '</a></li>';
+        }
+        $template .= '</ul>';
+     
+//    if (!empty($node->field_qr_image_path)) {
+//        $field_qr_image_path = field_get_items('node', $node, 'field_qr_image_path');
+//        $template .= '<div id="qr_image">' . theme('image', array('path' => file_create_url($field_qr_image_path[0]['file']->uri), 'alt' => 'QR Code', 'title' => 'QR Code')) . '</div>';
+//    }     
+        
+    $template .= '</fieldset>';
+    
+    //Additional Information
+    if(isset($node->field_additional_information['und'][0]['value'])) {
+        $template .= '<fieldset style="margin: 10px 0;"><legend style="font-size: 14px; font-weight: bold;">Additional Information</legend>';
+        $template .= '<p>'. $node->field_additional_information['und'][0]['value'] .'</p>';
+        $template .= '</fieldset>';
+    }
+    
+    return $template;*/
+}
+
+function getOtherTemplate($node) {
+    $template = '<div class="proposalEmbedNode">';
+    
+    $template .= '<div class="proposalEmbedTitle" style="font-size: 18px; margin: 0 0 20px 0;">'. $node->title .'</div>';
+    $template .= '<div class="proposalEmbedBody">' . $node->body['und'][0]['value'] . '</div>';
+    
+    $template .= '</div>';
+    
+    return $template;    
+}

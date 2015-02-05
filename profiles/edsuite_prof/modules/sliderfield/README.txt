@@ -1,0 +1,1 @@
+The sliderfield module simply adds a widget to Drupal. This widget can be used by any number field including decimal, float, or integer.

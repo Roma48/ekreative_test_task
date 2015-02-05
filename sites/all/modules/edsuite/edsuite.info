@@ -1,0 +1,25 @@
+; $Id$
+name = EDSuite Master Module 
+description = Master module with base/common functionality for all other modules
+package = EDSuite
+version = "5.x"
+core = 7.x
+dependencies[] = date_all_day
+dependencies[] = date_popup
+dependencies[] = date_repeat_field
+dependencies[] = date_tools
+dependencies[] = date_views
+
+dependencies[] = field_collection
+dependencies[] = node_reference
+dependencies[] = field_group_multiple
+dependencies[] = gmap_location
+dependencies[] = gmap_macro_builder
+dependencies[] = jquery_colorpicker
+dependencies[] = link
+dependencies[] = location_cck
+dependencies[] = media_youtube
+dependencies[] = menu_block_export
+
+dependencies[] = print_mail
+dependencies[] = print_pdf

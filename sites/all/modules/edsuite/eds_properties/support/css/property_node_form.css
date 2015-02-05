@@ -1,0 +1,63 @@
+table {
+    width: 100%;
+}
+
+div#gmap-loc1-gmap0 {
+    height: 400px !important;
+}
+
+div.edit-image-row {
+    border: 1px solid #e5e5e5;
+    padding: 5px;
+    margin-bottom: 10px;
+    clear: both;
+}
+
+div.edit-image-row img {
+    border: 1px solid #e5e5e5;
+    float: left;
+}
+
+div.edit-image-row div {
+    float: left;
+    padding-left: 5px;
+}
+
+div.edit-image-row div.filename {
+    float: none;
+    padding-left: 135px;
+}
+
+div.edit-image-row div.form-item + div.form-item + div.form-item + div.form-item {
+    float: right;
+}
+
+div.edit-image-row div.form-item input.form-text {
+    display: inline-block;
+    width: auto;
+}
+
+div.edit-image-row div.image-preview {
+    width: 120px;
+    padding: 5px;
+}
+
+div.edit-url-row {
+    padding: 5px;
+    clear: both;
+}
+
+div.edit-url-row + div.edit-url-row {
+    border-top: 1px solid #e5e5e5;
+}
+
+div.edit-url-row div.form-item {
+    float: left;
+}
+
+div.edit-url-row div.form-item input.form-text {
+    display: inline-block;
+    width: auto;
+}
+
+#qr .image-preview { float: right; }

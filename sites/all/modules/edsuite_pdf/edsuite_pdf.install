@@ -1,0 +1,77 @@
+<?php
+
+require_once('edsuite_pdf_install_fields.inc.php');
+require_once('edsuite_pdf_install_instances.inc.php');
+
+
+
+function edsuite_pdf_enable() {
+    edsuite_pdf_install();
+}
+
+function edsuite_pdf_disable() {
+    edsuite_pdf_uninstall();
+}
+
+function edsuite_pdf_uninstall() {
+    $name = 'stuff_manager';
+    if (node_type_load($name)){
+        
+        $result = db_query('SELECT nid FROM {node} n WHERE n.type = :type', array(':type' => $name));
+        $nids   = array();
+        foreach($result as $row)
+        {
+            $nids[] = $row->nid;
+        }
+        node_delete_multiple($nids);
+
+
+        $RES1 = db_query("UPDATE {node_type} SET `custom` = 1, `locked` = 0, `module` = 'node' WHERE `type` = '".$name."'");
+/* 
+        $fields = _edsuite_pdf_installed_fields();
+        foreach ($fields as $n => $i) {
+            field_delete_field($n);
+        }
+        $ins = _edsuite_pdf_installed_instances();
+        foreach ($ins as $n => $i) {
+            field_delete_instance($n);
+        }*/
+        node_type_delete($name);
+        menu_rebuild();
+
+        //drupal_flush_all_caches();
+    }
+}
+
+function edsuite_pdf_install()
+{
+    $name = 'staff_manager';
+
+    $edsuite_pdf = array(
+        'type' => $name,
+        'name' => t('Staff Manager'),
+        'base' => 'node_content',
+        'title_label' => t('Last name (Title)'),
+        'description' => '',
+        'custom' => 1,
+        'modified' => 1,
+        'locked' => 0,
+    );
+    if (!node_type_load($name)){
+        $content_type = node_type_set_defaults($edsuite_pdf);
+
+        node_type_save($content_type);
+    }
+
+    foreach (_edsuite_pdf_installed_fields() as $field) {
+        if (field_info_field($field['field_name'])==null) {
+            field_create_field($field);
+        }
+    }
+
+    foreach (_edsuite_pdf_installed_instances() as $instance) {
+        if (field_info_instance($instance['entity_type'],$instance['field_name'], $instance['bundle'])==null) {
+            field_create_instance($instance);
+        }
+    }
+}

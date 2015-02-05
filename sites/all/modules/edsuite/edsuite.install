@@ -1,0 +1,94 @@
+<?php
+
+require_once('edsuite_install_fields.inc.php');
+require_once('edsuite_install_instances.inc.php');
+
+function edsuite_install()
+{
+    $name = 'news';
+
+    $news = array(
+        'type' => $name,
+        'name' => t('News'),
+        'base' => 'node_content',
+        'title_label' => t('Title'),
+        'description' => t(
+            'News Articles'
+        ),
+        'custom' => 1,
+        'modified' => 1,
+        'locked' => 0,
+    );
+    if (!node_type_load($name)){
+        $vocabulary = (object) array(
+            'name' => st('Authors'),
+            'description' => '',
+            'machine_name' => 'authors',
+            'help' => '',
+        );
+        taxonomy_vocabulary_save($vocabulary);
+
+        $content_type = node_type_set_defaults($news);
+
+        node_type_save($content_type);
+
+        variable_set('node_options_' . $name, array(0 => 'status'));
+        variable_set('node_submitted_' . $name, 0);
+
+        foreach (_edsuite_installed_fields_news() as $field) {
+            field_create_field($field);
+        }
+
+        foreach (_edsuite_installed_instances_news() as $instance) {
+            $instance['entity_type'] = 'node';
+            $instance['bundle'] = $news['type'];
+            field_create_instance($instance);
+        }
+        node_add_body_field($content_type, t('Body'));
+    }
+	
+    $name = 'blog';
+
+    $blog = array(
+        'type' => $name,
+        'name' => t('Blog'),
+        'base' => 'node_content',
+        'title_label' => t('Title'),
+        'description' => t(
+            'Blog entries'
+        ),
+        'custom' => 1,
+        'modified' => 1,
+        'locked' => 0,
+    );
+	
+    if (!node_type_load($name)){
+        $content_type = node_type_set_defaults($blog);
+
+        node_type_save($content_type);
+
+        variable_set('node_options_' . $name, array(0 => 'status'));
+        variable_set('node_submitted_' . $name, 0);
+
+        foreach (_edsuite_installed_fields_blog() as $field) {
+            field_create_field($field);
+        }
+
+        foreach (_edsuite_installed_instances_blog() as $instance) {
+            $instance['entity_type'] = 'node';
+            $instance['bundle'] = $blog['type'];
+            field_create_instance($instance);
+        }
+        node_add_body_field($content_type, t('Body'));
+    }
+	
+    // "News" - Variable Settings
+    variable_set('node_submitted_news', 1);
+    variable_set('node_options_news', array('status','promote'));
+    variable_set('comment_news', COMMENT_NODE_HIDDEN);
+	
+	// "Blog" - Variable Settings
+    variable_set('node_submitted_blog', 1);
+    variable_set('node_options_blog', array('status'));
+    variable_set('comment_blog', COMMENT_NODE_HIDDEN);
+}

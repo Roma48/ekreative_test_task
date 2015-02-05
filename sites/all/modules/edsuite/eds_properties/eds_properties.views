@@ -1,0 +1,1128 @@
+<?php
+/**
+ * eds_properties.views - Functions relating to the Views module
+ * $Id$
+ */
+
+/**
+ * Implementation of hook_views_arguments()
+ */
+function eds_properties_views_arguments()
+{
+    // $arguments['eds_properties_views_arguments'] = array(
+    //     'name' => "Node Reference: Property",
+    //     'help' => t('A node id for the linked property'),
+    //     'handler' => '_nodereference_filter_handler',
+    // );
+    // return $arguments;
+}
+
+/**
+ * Implementation of hook_views_default_views()
+ */
+function eds_properties_views_default_views()
+{
+      $view = new stdClass();
+      $view->name = 'comparison';
+      $view->description = 'Side by Side Comparison of those Properties that are added to the Custom Report';
+      $view->access = array (
+    );
+      $view->view_args_php = '';
+      $view->page = TRUE;
+      $view->page_title = '';
+      $view->page_header = '';
+      $view->page_header_format = '1';
+      $view->page_footer = '';
+      $view->page_footer_format = '1';
+      $view->page_empty = '';
+      $view->page_empty_format = '1';
+      $view->page_type = 'views_csv';
+      $view->url = 'eds/property/comparison';
+      $view->use_pager = FALSE;
+      $view->nodes_per_page = '0';
+      $view->sort = array (
+        array (
+          'tablename' => 'node',
+          'field' => 'title',
+          'sortorder' => 'ASC',
+          'options' => '',
+        ),
+      );
+      $view->argument = array (
+      );
+      $view->field = array (
+        array (
+          'tablename' => 'node',
+          'field' => 'title',
+          'label' => '',
+          'handler' => 'views_handler_field_nodelink',
+          'options' => 'link',
+        ),
+        array (
+          'tablename' => 'node',
+          'field' => 'created',
+          'label' => '',
+          'handler' => 'views_handler_field_date_small',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'primary_alternate_contact',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'alternate_contact_email',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'alternate_contact_phone',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'alternate_contact_company_name',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'alternate_contact_company_url',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'secondary_alternate_contact',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'property_type',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'property_for_sale',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'sale_cost_description',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'sale_additional_expense',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'sale_actual_price',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'property_for_lease',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'lease_cost_description',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'lease_additional_expense',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'lease_actual_per_month',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'lease_actual_per_year',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'zoning_type',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties_incentive_zones',
+          'field' => 'zone',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'acreage',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'rail_access',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'rail_provider',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'environmental_statement',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'building_type',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'nearest_interstate_distance',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'office_sq_footage',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'retail_sq_footage',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'warehouse_sq_footage',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'manufacturing_sq_footage',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'sq_footage',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'space_divisible_to',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'number_of_parking_spaces',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'ceiling_height',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'year_built',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'building_dimensions',
+          'label' => '',
+        ),
+        array (
+            'tablename' => 'eds_properties',
+            'field' => 'construction_type',
+            'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'overhead_crane_1_capacity',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'overhead_crane_2_capacity',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'overhead_crane_3_capacity',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'column_spacing',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'no_of_ground_level_loading_docks',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'no_of_high_loading_docks',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'sprinkler_system',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'primary_anchor_tenant',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'secondary_anchor_tenant',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'date_available',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'previous_use',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'site_type',
+          'label' => '',
+        ),
+        array (
+          'tablename' => 'eds_properties',
+          'field' => 'frontage',
+          'label' => '',
+        ),
+      );
+      $view->filter = array (
+        array (
+          'tablename' => 'node',
+          'field' => 'nid',
+          'operator' => 'OR',
+          'options' => 'php',
+          'value' => array (
+      0 => 'return(eds_report_node_list(\'eds_properties\'));',
+    ),
+        ),
+      );
+      $view->exposed_filter = array (
+      );
+      $view->requires = array(node, eds_properties, eds_properties_incentive_zones);
+      $views[$view->name] = $view;
+
+      
+    return $views;
+}
+
+function eds_properties_views_handler_price($fieldinfo, $fielddata, $value, $data)
+{
+    $decimals = is_float($value) ? 2 : 0;
+    return '$' . number_format($value, $decimals);
+}
+
+function eds_properties_views_handler_photo($fieldinfo, $fielddata, $value, $data)
+{
+    if (!$value) {
+        $value = variable_get('eds_properties_placeholder', "");
+    }
+    //TODO replace imagecache
+//    $image = theme('imagecache', 'eds_properties_search', $value);
+    return l($image, 'node/'. $data->nid, array(), NULL, NULL, FALSE, TRUE);
+}
+
+function eds_properties_views_handler_sqft($fieldinfo, $fielddata, $value, $data)
+{
+    global $eds_property_defaults;
+
+    $decimals = is_float($value) ? 1 : 0;
+    return number_format($value, $decimals) . ' ' . variable_get('eds_properties_sqft_suffix', $eds_property_defaults['sqft_suffix']);
+}
+
+/**
+ * Implementation of hook_views_tables()
+ */
+function eds_properties_views_tables()
+{
+    global $eds_property_defaults;
+    $default_building_types       = variable_get('eds_properties_building_types', $eds_property_defaults['building_types']);
+    $default_property_types       = variable_get('eds_properties_property_types', $eds_property_defaults['property_types']);
+    $default_site_types           = variable_get('eds_properties_site_types', $eds_property_defaults['site_types']);
+    $default_sqft_suffix          = variable_get('eds_properties_sqft_suffix', $eds_property_defaults['sqft_suffix']);
+    $default_zoning_types         = variable_get('eds_properties_zoning_types', $eds_property_defaults['zoning_types']);
+    $default_incentive_zones      = variable_get('eds_properties_incentive_zones', $eds_property_defaults['incentive_zones']);
+
+    $tables['eds_properties'] = array(
+        'name' => 'eds_properties',
+        'join' => array(
+            'left' => array(
+                'table' => 'node',
+                'field' => 'nid',
+            ),
+            'right' => array(
+                'field' => 'nid',
+            ),
+        ),
+        'fields' => array(
+            'county' => array(
+				'name' => t('Property: County'),
+				'sortable' => true,
+			),
+
+            'primary_alternate_contact' => array(
+				'name' => t('Property: Alternate Contact (Primary)'),
+				'sortable' => true,
+			),
+
+            'alternate_contact_email' => array(
+				'name' => t('Property: Alternate Contact Email'),
+				'sortable' => true,
+			),
+
+            'secondary_alternate_contact' => array(
+				'name' => t('Property: Alternate Contact (Secondary)'),
+				'sortable' => true,
+			),
+
+            'alternate_contact_phone' => array(
+				'name' => t('Property: Alternate Contact Phone'),
+				'sortable' => true,
+			),
+
+            'alternate_contact_company_name' => array(
+				'name' => t('Property: Alternate Contact Company Name'),
+				'sortable' => true,
+			),
+
+            'alternate_contact_company_url' => array(
+    			'name' => t('Property: Alternate Contact Company URL'),
+    			'sortable' => true,
+    		),
+
+            'property_type' => array(
+				'name' => t('Property: Property Type'),
+				'sortable' => true,
+			),
+
+            'property_for_sale' => array(
+				'name' => t('Property: Property for Sale'),
+				'sortable' => true,
+			),
+
+            'property_for_lease' => array(
+				'name' => t('Property: Property for Lease'),
+				'sortable' => true,
+			),
+
+            'zoning_type' => array(
+				'name' => t('Property: Zoning Type'),
+				'sortable' => true,
+			),
+
+            'acreage' => array(
+				'name' => t('Property: Acreage'),
+				'sortable' => true,
+				'handler' => 'views_handler_field_int',
+			),
+
+            'rail_access' => array(
+				'name' => t('Property: Rail Access'),
+				'sortable' => true,
+			),
+
+            'building_type' => array(
+				'name' => t('Property: Building Type'),
+				'sortable' => true,
+			),
+
+            'nearest_interstate_distance' => array(
+				'name' => t('Property: Nearest Interstate Distance'),
+				'sortable' => true,
+			),
+
+            'ceiling_height' => array(
+				'name' => t('Property: Ceiling Height'),
+				'sortable' => true,
+			),
+
+            'number_of_parking_spaces' => array(
+				'name' => t('Property: Number of Parking Spaces'),
+				'sortable' => true,
+				'handler' => 'views_handler_field_int',
+			),
+
+            'office_sq_footage' => array(
+				'name' => t('Property: Office Square Footage'),
+				'sortable' => true,
+				'handler' => 'eds_properties_views_handler_sqft',
+			),
+
+            'retail_sq_footage' => array(
+				'name' => t('Property: Retail Square Footage'),
+				'sortable' => true,
+				'handler' => 'eds_properties_views_handler_sqft',
+            ),
+
+            'manufacturing_sq_footage' => array(
+				'name' => t('Property: Manufacturing Square Footage'),
+				'sortable' => true,
+				'handler' => 'eds_properties_views_handler_sqft',
+			),
+
+            'warehouse_sq_footage' => array(
+				'name' => t('Property: Warehouse Square Footage'),
+				'sortable' => true,
+				'handler' => 'eds_properties_views_handler_sqft',
+			),
+
+            'sq_footage' => array(
+				'name' => t('Property: Total Square Footage'),
+				'sortable' => true,
+				'handler' => 'eds_properties_views_handler_sqft',
+			),
+
+            'year_built' => array(
+				'name' => t('Property: Year Built'),
+				'sortable' => true,
+				'handler' => 'views_handler_field_int',
+			),
+
+            'building_dimensions' => array(
+				'name' => t('Property: Building Dimensions'),
+				'sortable' => true,
+			),
+
+            'construction_type' => array(
+				'name' => t('Property: Construction Type'),
+				'sortable' => true,
+			),
+
+            'overhead_crane_1_capacity' => array(
+				'name' => t('Property: Overhead Crane 1 Capacity'),
+				'sortable' => true,
+			),
+
+            'overhead_crane_2_capacity' => array(
+				'name' => t('Property: Overhead Crane 2 Capacity'),
+				'sortable' => true,
+			),
+
+            'overhead_crane_3_capacity' => array(
+				'name' => t('Property: Overhead Crane 3 Capacity'),
+				'sortable' => true,
+			),
+
+            'column_spacing' => array(
+				'name' => t('Property: Column Spacing'),
+				'sortable' => true,
+				'handler' => 'views_handler_field_int',
+			),
+
+            'no_of_ground_level_loading_docks' => array(
+				'name' => t('Property: Number of Ground Level Loading Docks'),
+				'sortable' => true,
+				'handler' => 'views_handler_field_int',
+			),
+
+            'no_of_high_loading_docks' => array(
+				'name' => t('Property: Number of High Loading Docks'),
+				'sortable' => true,
+				'handler' => 'views_handler_field_int',
+			),
+
+            'sprinkler_system' => array(
+				'name' => t('Property: Sprinkler System'),
+				'sortable' => true,
+			),
+
+            'site_type' => array(
+				'name' => t('Property: Site Type'),
+				'sortable' => true,
+			),
+
+            'rail_provider' => array(
+				'name' => t('Property: Rail Provider'),
+				'sortable' => true,
+			),
+
+            'environmental_statement' => array(
+				'name' => t('Property: Environmental Statement'),
+				'sortable' => true,
+			),
+
+            'primary_anchor_tenant' => array(
+				'name' => t('Property: Primary Anchor Tenant'),
+				'sortable' => true,
+			),
+
+            'secondary_anchor_tenant' => array(
+				'name' => t('Property: Secondary Anchor Tenant'),
+				'sortable' => true,
+			),
+
+            'date_available' => array(
+				'name' => t('Property: Date Available'),
+				'sortable' => true,
+				'handler' => 'views_handler_field_int',
+			),
+
+            'previous_use' => array(
+				'name' => t('Property: Previous Use'),
+				'sortable' => true,
+			),
+
+            'frontage' => array(
+				'name' => t('Property: Frontage'),
+				'sortable' => true,
+			),
+
+            'space_divisible_to' => array(
+				'name' => t('Property: Space Divisible To'),
+				'sortable' => true,
+				'handler' => 'eds_properties_views_handler_sqft',
+			),
+
+            'sale_cost_description' => array(
+    			'name' => t('Property: Sale - Cost Description'),
+    			'sortable' => true,
+    		),
+
+            'sale_additional_expense' => array(
+    			'name' => t('Property: Sale - Additional Expense'),
+    			'sortable' => true,
+    		),
+
+            'sale_actual_price' => array(
+        		'name' => t('Property: Sale - Actual Price'),
+        		'sortable' => true,
+				'handler' => 'eds_properties_views_handler_price',
+        	),
+
+            'lease_cost_description' => array(
+    			'name' => t('Property: Lease - Cost Description'),
+            	'sortable' => true,
+            ),
+
+            'lease_additional_expense' => array(
+    			'name' => t('Property: Lease - Additional Expense'),
+            	'sortable' => true,
+            ),
+
+            'lease_actual_per_month' => array(
+    			'name' => t('Property: Lease - Actual Price per Month'),
+            	'sortable' => true,
+				'handler' => 'eds_properties_views_handler_price',
+            ),
+
+            'lease_actual_per_year' => array(
+    			'name' => t('Property: Lease - Actual Price per Year'),
+            	'sortable' => true,
+				'handler' => 'eds_properties_views_handler_price',
+            ),
+
+        ),
+
+        'filters' => array(
+            'county' => array(
+                'field' => 'county',
+    			'name' => t('Property: County'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'primary_alternate_contact' => array(
+    			'name' => t('Property: Alternate Contact (Primary)'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'alternate_contact_email' => array(
+    			'name' => t('Property: Alternate Contact Email'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'secondary_alternate_contact' => array(
+    			'name' => t('Property: Alternate Contact (Secondary)'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'alternate_contact_phone' => array(
+    			'name' => t('Property: Alternate Contact Phone'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'alternate_contact_company_name' => array(
+    			'name' => t('Property: Alternate Contact Company Name'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'alternate_contact_company_url' => array(
+    			'name' => t('Property: Alternate Contact Company URL'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'property_type' => array(
+    			'name' => t('Property: Property Type'),
+    			'operator' => 'views_handler_operator_andor',
+                'value' => array('#type' => 'select', '#multiple' => true, '#options' => eds_properties_prepare_options($default_property_types)),
+    		),
+
+            'property_for_sale' => array(
+    			'name' => t('Property: Property for Sale'),
+    			'operator' => 'views_handler_operator_yesno',
+    		),
+
+            'property_for_lease' => array(
+    			'name' => t('Property: Property for Lease'),
+    			'operator' => 'views_handler_operator_yesno',
+    		),
+
+            'zoning_type' => array(
+    			'name' => t('Property: Zoning Type'),
+    			'operator' => 'views_handler_operator_andor',
+                'value' => array('#type' => 'select', '#multiple' => true, '#options' => eds_properties_prepare_options($default_zoning_types)),
+    		),
+
+            'acreage' => array(
+    			'name' => t('Property: Acreage'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'rail_access' => array(
+    			'name' => t('Property: Rail Access'),
+    			'operator' => 'views_handler_operator_andor',
+                'value' => array('#type' => 'select', '#multiple' => true, '#options' => array(YES => 'Yes', NO => 'No', POSSIBLE => 'Possible')),
+    		),
+
+            'building_type' => array(
+    			'name' => t('Property: Building Type'),
+    			'operator' => 'views_handler_operator_andor',
+                'value' => array('#type' => 'select', '#multiple' => true, '#options' => eds_properties_prepare_options($default_building_types)),
+    		),
+
+            'nearest_interstate_distance' => array(
+    			'name' => t('Property: Nearest Interstate Distance'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'ceiling_height' => array(
+    			'name' => t('Property: Ceiling Height'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'number_of_parking_spaces' => array(
+    			'name' => t('Property: Number of Parking Spaces'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'office_sq_footage' => array(
+    			'name' => t('Property: Office Square Footage'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'retail_sq_footage' => array(
+    			'name' => t('Property: Retail Square Footage'),
+    			'operator' => 'views_handler_operator_gtlt',
+            ),
+
+            'manufacturing_sq_footage' => array(
+    			'name' => t('Property: Manufacturing Square Footage'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'warehouse_sq_footage' => array(
+    			'name' => t('Property: Warehouse Square Footage'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'sq_footage' => array(
+    			'name' => t('Property: Total Square Footage'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'year_built' => array(
+    			'name' => t('Property: Year Built'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'building_dimensions' => array(
+    			'name' => t('Property: Building Dimensions'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'construction_type' => array(
+    			'name' => t('Property: Construction Type'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'overhead_crane_1_capacity' => array(
+    			'name' => t('Property: Overhead Crane 1 Capacity'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'overhead_crane_2_capacity' => array(
+    			'name' => t('Property: Overhead Crane 2 Capacity'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'overhead_crane_3_capacity' => array(
+    			'name' => t('Property: Overhead Crane 3 Capacity'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'column_spacing' => array(
+    			'name' => t('Property: Column Spacing'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'no_of_ground_level_loading_docks' => array(
+    			'name' => t('Property: Number of Ground Level Loading Docks'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'no_of_high_loading_docks' => array(
+    			'name' => t('Property: Number of High Loading Docks'),
+    			'operator' => 'views_handler_operator_gtlt',
+    		),
+
+            'sprinkler_system' => array(
+    			'name' => t('Property: Sprinkler System'),
+    			'operator' => 'views_handler_operator_yesno',
+    		),
+
+            'site_type' => array(
+    			'name' => t('Property: Site Type'),
+    			'operator' => 'views_handler_operator_andor',
+                'value' => array('#type' => 'select', '#multiple' => true, '#options' => eds_properties_prepare_options($default_site_types)),
+    		),
+
+            'rail_provider' => array(
+				'name' => t('Property: Rail Provider'),
+    			'operator' => 'views_handler_operator_like',
+			),
+
+            'environmental_statement' => array(
+				'name' => t('Property: Environmental Statement'),
+    			'operator' => 'views_handler_operator_like',
+			),
+
+            'primary_anchor_tenant' => array(
+				'name' => t('Property: Primary Anchor Tenant'),
+    			'operator' => 'views_handler_operator_like',
+			),
+
+            'secondary_anchor_tenant' => array(
+				'name' => t('Property: Secondary Anchor Tenant'),
+    			'operator' => 'views_handler_operator_like',
+			),
+
+            'date_available' => array(
+				'name' => t('Property: Date Available'),
+    			'operator' => 'views_handler_operator_gtlt',
+			),
+
+            'previous_use' => array(
+				'name' => t('Property: Previous Use'),
+    			'operator' => 'views_handler_operator_like',
+			),
+
+            'frontage' => array(
+				'name' => t('Property: Frontage'),
+    			'operator' => 'views_handler_operator_like',
+			),
+
+            'space_divisible_to' => array(
+				'name' => t('Property: Space Divisible To'),
+    			'operator' => 'views_handler_operator_gtlt',
+			),
+
+            'sale_cost_description' => array(
+    			'name' => t('Property: Sale - Cost Description'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'sale_additional_expense' => array(
+    			'name' => t('Property: Sale - Additional Expense'),
+    			'operator' => 'views_handler_operator_like',
+    		),
+
+            'sale_actual_price' => array(
+        		'name' => t('Property: Sale - Actual Price'),
+    			'operator' => 'views_handler_operator_gtlt',
+        	),
+
+            'lease_cost_description' => array(
+    			'name' => t('Property: Lease - Cost Description'),
+    			'operator' => 'views_handler_operator_like',
+            ),
+
+            'lease_additional_expense' => array(
+    			'name' => t('Property: Lease - Additional Expense'),
+    			'operator' => 'views_handler_operator_like',
+            ),
+
+            'lease_actual_per_month' => array(
+    			'name' => t('Property: Lease - Actual Price per Month'),
+    			'operator' => 'views_handler_operator_gtlt',
+            ),
+
+            'lease_actual_per_year' => array(
+    			'name' => t('Property: Lease - Actual Price per Year'),
+    			'operator' => 'views_handler_operator_gtlt',
+            ),
+
+        ),
+
+        'sorts' => array(
+            'county' => array(
+    			'name' => t('Property: County'),
+    		),
+
+            'primary_alternate_contact' => array(
+    			'name' => t('Property: Alternate Contact (Primary)'),
+    		),
+
+            'alternate_contact_email' => array(
+    			'name' => t('Property: Alternate Contact Email'),
+    		),
+
+            'secondary_alternate_contact' => array(
+    			'name' => t('Property: Alternate Contact (Secondary)'),
+    		),
+
+            'alternate_contact_phone' => array(
+    			'name' => t('Property: Alternate Contact Phone'),
+    		),
+
+            'alternate_contact_company_name' => array(
+    			'name' => t('Property: Alternate Contact Company Name'),
+    		),
+
+            'alternate_contact_company_url' => array(
+    			'name' => t('Property: Alternate Contact Company URL'),
+    		),
+
+            'property_type' => array(
+    			'name' => t('Property: Property Type'),
+    		),
+
+            'property_for_sale' => array(
+    			'name' => t('Property: Property for Sale'),
+    		),
+
+            'property_for_lease' => array(
+    			'name' => t('Property: Property for Lease'),
+    		),
+
+            'zoning_type' => array(
+    			'name' => t('Property: Zoning Type'),
+    		),
+
+            'acreage' => array(
+    			'name' => t('Property: Acreage'),
+    		),
+
+            'rail_access' => array(
+    			'name' => t('Property: Rail Access'),
+    		),
+
+            'building_type' => array(
+    			'name' => t('Property: Building Type'),
+    		),
+
+            'nearest_interstate_distance' => array(
+    			'name' => t('Property: Nearest Interstate Distance'),
+    		),
+
+            'ceiling_height' => array(
+    			'name' => t('Property: Ceiling Height'),
+    		),
+
+            'number_of_parking_spaces' => array(
+    			'name' => t('Property: Number of Parking Spaces'),
+    		),
+
+            'office_sq_footage' => array(
+    			'name' => t('Property: Office Square Footage'),
+    		),
+
+            'retail_sq_footage' => array(
+    			'name' => t('Property: Retail Square Footage'),
+            ),
+
+            'manufacturing_sq_footage' => array(
+    			'name' => t('Property: Manufacturing Square Footage'),
+    		),
+
+            'warehouse_sq_footage' => array(
+    			'name' => t('Property: Warehouse Square Footage'),
+    		),
+
+            'sq_footage' => array(
+    			'name' => t('Property: Total Square Footage'),
+    		),
+
+            'year_built' => array(
+    			'name' => t('Property: Year Built'),
+    		),
+
+            'building_dimensions' => array(
+    			'name' => t('Property: Building Dimensions'),
+    		),
+
+            'construction_type' => array(
+    			'name' => t('Property: Construction Type'),
+    		),
+
+            'overhead_crane_1_capacity' => array(
+    			'name' => t('Property: Overhead Crane 1 Capacity'),
+    		),
+
+            'overhead_crane_2_capacity' => array(
+    			'name' => t('Property: Overhead Crane 2 Capacity'),
+    		),
+
+            'overhead_crane_3_capacity' => array(
+    			'name' => t('Property: Overhead Crane 3 Capacity'),
+    		),
+
+            'column_spacing' => array(
+    			'name' => t('Property: Column Spacing'),
+    		),
+
+            'no_of_ground_level_loading_docks' => array(
+    			'name' => t('Property: Number of Ground Level Loading Docks'),
+    		),
+
+            'no_of_high_loading_docks' => array(
+    			'name' => t('Property: Number of High Loading Docks'),
+    		),
+
+            'sprinkler_system' => array(
+    			'name' => t('Property: Sprinkler System'),
+    		),
+
+            'site_type' => array(
+    			'name' => t('Property: Site Type'),
+    		),
+
+            'rail_provider' => array(
+    			'name' => t('Property: Rail Provider'),
+    		),
+
+            'environmental_statement' => array(
+    			'name' => t('Property: Environmental Statement'),
+    		),
+
+            'primary_anchor_tenant' => array(
+    			'name' => t('Property: Primary Anchor Tenant'),
+    		),
+
+            'secondary_anchor_tenant' => array(
+    			'name' => t('Property: Secondary Anchor Tenant'),
+    		),
+
+            'date_available' => array(
+    			'name' => t('Property: Date Available'),
+    		),
+
+            'previous_use' => array(
+    			'name' => t('Property: Previous Use'),
+    		),
+
+            'frontage' => array(
+    			'name' => t('Property: Frontage'),
+    		),
+
+            'space_divisible_to' => array(
+    			'name' => t('Property: Space Divisible To'),
+    		),
+
+            'sale_cost_description' => array(
+    			'name' => t('Property: Sale - Cost Description'),
+    		),
+
+            'sale_additional_expense' => array(
+    			'name' => t('Property: Sale - Additional Expense'),
+    		),
+
+            'sale_actual_price' => array(
+        		'name' => t('Property: Sale - Actual Price'),
+        	),
+
+            'lease_cost_description' => array(
+    			'name' => t('Property: Lease - Cost Description'),
+            ),
+
+            'lease_additional_expense' => array(
+    			'name' => t('Property: Lease - Additional Expense'),
+            ),
+
+            'lease_actual_per_month' => array(
+    			'name' => t('Property: Lease - Actual Price per Month'),
+            ),
+
+            'lease_actual_per_year' => array(
+    			'name' => t('Property: Lease - Actual Price per Year'),
+            ),
+        ),
+    );
+    ksort($tables['eds_properties']['fields']);
+    ksort($tables['eds_properties']['filters']);
+    ksort($tables['eds_properties']['sorts']);
+    
+    $tables['eds_properties_photos'] = array(
+        'name' => 'eds_properties_photos',
+        'join' => array(
+            'left' => array(
+                'table' => 'eds_properties',
+                'field' => 'nid',
+                ),
+            'right' => array(
+                'field' => 'nid',
+                ),
+            ),
+        'fields' => array(
+            'photo_path' => array(
+                'name' => t('Property Photo'),
+                'handler' => 'eds_properties_views_handler_photo'
+                ),
+            ),
+        );
+
+    $tables['eds_properties_incentive_zones'] = array(
+        'name' => 'eds_properties_incentive_zones',
+        'join' => array(
+            'left' => array(
+                'table' => 'eds_properties',
+                'field' => 'nid',
+                ),
+            'right' => array(
+                'field' => 'nid',
+                ),
+            ),
+        'fields' => array(
+            'zone' => array(
+                'name' => t('Property: Incentive Zone'),
+                ),
+            ),
+        'filters' => array(
+            'property_type' => array(
+                'name' => t('Property: Incentive Zone'),
+    			'operator' => 'views_handler_operator_andor',
+                'value' => array('#type' => 'select', '#multiple' => true, '#options' => eds_properties_prepare_options($default_incentive_zones)),
+        		),
+            ),
+        );
+    
+    return $tables;
+}
+

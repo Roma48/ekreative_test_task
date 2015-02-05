@@ -1,0 +1,158 @@
+<?php
+
+function events_menu() {
+    $items = array();
+
+    $items['events'] = array(
+        'title' => 'Events',
+        'page callback'    => 'events_block',
+        'access callback' => TRUE,
+
+    );
+
+    $items['events/book'] = array(
+        'title' => 'Events book',
+        'page callback'    => 'drupal_get_form',
+        'page arguments'   => array('events_book_form'),
+        'access callback' => TRUE,
+    );
+
+    $items['events/finish'] = array(
+        'title' => 'Events book',
+        'page callback'    => 'events_finish',
+        'access callback' => TRUE,
+    );
+
+    return $items;
+}
+
+function events_book_form($form, &$form_state) {
+
+    $form['name'] = array(
+        '#title'         => t('Name'),
+        '#type'          => 'textfield',
+
+
+    );
+
+    $form['city'] = array(
+        '#title'         => t('City'),
+        '#type'          => 'textfield',
+
+
+    );
+
+    $form['submit'] = array(
+        '#type'  => 'submit',
+        '#value' => t('Continue'),
+    );
+
+    return $form;
+}
+
+function events_book_form_submit($form, &$form_state) {
+
+    $eid = $_GET{'eid'};
+
+
+
+    $available_slot = db_select( 'field_data_number_of_slots', 'e' );
+    $available_slot->fields( 'e', array( 'number_of_slots_value' ));
+    $available_slot->condition( 'e.entity_id', $eid );
+    $available = $available_slot->execute()->fetchAll();
+
+    foreach ($available as $num){
+        $new_available_slot = $num->number_of_slots_value;
+        $new_available_slot --;
+    }
+
+    if ( $new_available_slot > 0 ) {
+        $result = db_insert('events')
+            ->fields(array(
+                    'name' => $form_state['values']['name'],
+                    'city' => $form_state['values']['city'],
+                    'id_event_post' => $eid
+                )
+            )
+            ->execute();
+
+        $num_updated = db_update('field_data_number_of_slots')
+            ->fields(array(
+                'number_of_slots_value' => $new_available_slot,
+            ))
+            ->condition('entity_id', $eid)
+            ->execute();
+
+
+        drupal_goto('events/finish');
+    }
+
+
+}
+
+
+function events_finish() {
+    return "Thank you for your reservation!";
+}
+
+
+
+function events_node_info() {
+    return array(
+        'events' => array(
+            'name' => t('Events'),
+            'base' => 'events',
+            'description' => t('You can define new Events here'),
+            'has_title' => TRUE,
+            'title_label' => t('Events title')
+        )
+    );
+}
+
+function events_form($node, $form_state) {
+    return node_content_form($node, $form_state);
+}
+
+function events_block_info() {
+    $blocks[ 'events_block' ] = array(
+        'info' => "Events block"
+    );
+    return $blocks;
+}
+
+
+function events_block_view( $delta = '' ) {
+    switch ($delta) {
+        case 'events_block':
+            $block[ 'content' ] = events_block();
+            break;
+    }
+    return $block;
+}
+
+function events_block() {
+
+    $events = db_select( 'node', 'n' );
+    $events->fields( 'n' , array( 'nid', 'title' ) );
+    $events->fields( 'd' , array( 'events_description_value' ) );
+    $events->fields( 'e' , array( 'events_date_value' ) );
+    $events->fields( 's' , array( 'number_of_slots_value' ) );
+    $events->condition('n.type','events');
+    $events->leftJoin('field_data_events_description', 'd', 'd.entity_id = n.nid');
+    $events->leftJoin('field_data_events_date', 'e', 'e.entity_id = n.nid');
+    $events->leftJoin('field_data_number_of_slots', 's', 's.entity_id = n.nid');
+    $events_post = $events->execute()->fetchAll();
+
+
+    $output = theme( 'events', array( 'variable' => $events_post ) );
+    return $output;
+}
+
+function events_theme() {
+    return array(
+        'events' => array(
+            'template'  =>  'events',
+            'variables' =>  ''
+        )
+    );
+}

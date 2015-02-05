@@ -1,0 +1,45 @@
+div.report_change_all span {
+    float: right;
+    font-size: 0.9em;
+}
+
+div.report_change_all span a {
+    padding-right: 17px;
+}
+
+div.report_change_all span a.add_all {
+    background: url(../images/icon-add-all-content.gif) no-repeat center right;
+}
+
+div.report_change_all span a.remove_all {
+    background: url(../images/icon-remove.gif) no-repeat center right;
+}
+
+div.report_change {
+    float: right;
+}
+
+div.report_change div.line {
+    padding:0;
+}
+
+div.report_change span {
+    float:right;
+    font-size:0.9em;
+    padding-left:5px;
+    position: relative;
+    top: -0.8em;
+}
+
+div.report_change span a {
+    padding-right: 17px;
+    height: 15px;
+}
+
+div.report_change span a.add {
+    background: url(../images/icon-add.gif) no-repeat center right;
+}
+
+div.report_change span a.remove {
+    background: url(../images/icon-remove.gif) no-repeat center right;
+}

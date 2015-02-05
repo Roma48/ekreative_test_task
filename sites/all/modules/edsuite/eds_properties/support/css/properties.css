@@ -1,0 +1,419 @@
+/**
+ * properties.css - CSS styling for the eds/properties page
+ * $Id$
+ */
+
+/***********************************************************************
+ * Search Form
+ ***********************************************************************/
+
+form#eds-properties-search-form > div > div.form-item:first-child + div.form-item {
+    clear: left;
+    padding-top: 1em;
+}
+
+form#eds-properties-search-form .slider-wrapper,
+form#eds-properties-search-form .slider {
+    width: 188px;
+}
+
+form#eds-properties-search-form > div > div.form-item:first-child label,
+form#eds-properties-search-form > div > div.form-item:first-child div.form-radios,
+form#eds-properties-search-form > div > div.form-item:first-child div.form-radios div {
+    float: left;
+    margin: 0;
+}
+
+form#eds-properties-search-form > div > div.form-item:first-child div.form-radios {
+
+}
+
+form#eds-properties-search-form > div > div.form-item:first-child input.form-radio {
+    float: left;
+}
+
+form#eds-properties-search-form > div > div.form-item:first-child label,
+form#eds-properties-search-form > div > div.form-item:first-child div.form-radios label {
+    margin-right: 1em;
+}
+
+/***********************************************************************
+ * GMap Popup Window
+ ***********************************************************************/
+
+div.gmap-popup.info-window td.gmap-popup {
+    border-bottom: 1px solid #CCC;
+}
+
+div.gmap-popup.info-window td.gmap-popup.last {
+    border: 0;
+}
+
+div.gmap-popup.info-window td.gmap-popup.photo {
+    vertical-align: top;
+    border: 0;
+}
+
+div.gmap-popup.info-window td.gmap-popup.photo img {
+    margin-right: 10px;
+    border:1px solid #CCC;
+}
+
+.gmap-popup {
+    margin: 0;
+    margin-bottom: 5px;
+}
+
+.gmap-popup.body {
+    margin-top: 10px;
+}
+
+.gmap-popup form {
+    display: inline;
+}
+
+.gmap-popup input {
+    font-size: 0.9em;
+}
+
+.gmap-popup.street,
+.gmap-popup.city,
+.gmap-popup.province {
+    color: #AAA;
+}
+
+.gmap-popup.title {
+    font-weight: bold;
+}
+
+.gmap-popup.view {
+    text-align: right;
+    padding-bottom: 15px;
+    margin-bottom: 10px;
+}
+
+
+/***********************************************************************
+ * Elements
+ ***********************************************************************/
+
+/***********************************************************************
+ * Items
+ ***********************************************************************/
+
+div#ajax-properties {
+    padding: 1em 0 0 1em;
+    margin-left: 222px;
+}
+
+div#ajax-busy {
+    text-align: center;
+    padding: 1em;
+    margin: 1em 0 1em 234px;
+    font-weight: bold;
+    background: white;
+    border: 2px solid #555;
+}
+
+div#ajax-busy img {
+    vertical-align: middle;
+}
+
+span#hide_map {
+    float: right;
+    color: white;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+div#gmap-wrapper {
+    height: 477px;
+    position: relative;
+}
+
+div#gmap-properties-gmap0 {
+    margin-bottom: 10px;
+}
+
+div#search_results_header_top {
+    background: #E3E3DE;
+    border: 1px solid #D9D9D5;
+    border-left: 0;
+    border-bottom: 0;
+    margin-left: -1px;
+}
+
+div#search_results_header_bottom {
+    background: #ACADA8;
+    border: 0;
+}
+
+div#search_results_header_bottom span.results_title {
+    color: white;
+    font-size: 110%;
+    padding-left: 20px;
+}
+
+div#search_results_header_top {
+    text-align: right;
+}
+
+div#search_results_header_top a {
+    text-decoration: none;
+}
+
+/***********************************************************************
+ * Classes
+ ***********************************************************************/
+
+div#ajax-properties div.pager {
+    margin: 1em 0;
+    clear: none;
+}
+
+div#ajax-properties div.pager a {
+    text-decoration: none;
+}
+
+div#ajax-properties div.pager a.page-size {
+    padding: 0;
+}
+
+div#ajax-properties div.pager span.pager_links a.pager-first,
+div#ajax-properties div.pager span.pager_links a.pager-previous {
+    background: url('../images/icon-gray-arrow-left.gif') no-repeat;
+    background-position: 0 3px;
+    padding-left: 0 14px;
+}
+
+div#ajax-properties div.pager span.pager_links a.pager-last,
+div#ajax-properties div.pager span.pager_links a.pager-next {
+    background: url('../images/icon-gray-arrow.gif') no-repeat;
+    background-position: 0 3px;
+    padding: 0 14px;
+}
+
+div#ajax-properties div.pager span.pager_links {
+    display:block;
+    float:right;
+}
+
+div#ajax-properties div.pager span.pager_results {
+    font-weight: bold;
+    float: left;
+}
+
+div.property-list {
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    border: 1px solid #D9D9D5;
+    margin-bottom: 7px;
+    padding: 10px 10px;
+    margin-left: 0;
+}
+
+table.property-list {
+    border-collapse: collapse;
+    font-size: 115%;
+    line-height: 1.2em;
+    width: 100%;
+}
+
+table.property-list tbody {
+    border: 0;
+}
+
+table.property-list td.marker {
+    width: 44px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+table.property-list td.title {
+    font-weight: bold;
+}
+
+table.property-list td.photo {
+    vertical-align: top;
+    padding-right: 10px;
+    height: 110px;
+}
+
+table.property-list td.sq-footage,
+table.property-list td.building-type,
+table.property-list td.zoning-type,
+table.property-list td.acreage {
+    width: 41%;
+    padding: 0px;
+}
+
+span.property-more-info-print-link {
+    display: none;
+}
+
+div.property-search-form-container {
+    font-size: 0.9em;
+    float: left;
+    width: 222px;
+}
+
+div.property-search-form-container div.keyword-search,
+div.property-search-form-container div.property-search-form {
+    padding: 15px 10px;
+    border: 1px solid #D9D9D9;
+    background: #E3E3DE;
+    margin-bottom: 10px;
+}
+
+div.property-search-form-container div.keyword-search {
+    font-weight: bold;
+}
+
+div.property-search-form-container div.keyword-search input#edit-search-theme-form-keys {
+    float: none;
+    margin: 10px 0;
+}
+
+div.property-search-form-container div.keyword-search form#search-theme-form div#search input#edit-submit {
+    float: none;
+    margin: 0 auto;
+    display: block;
+}
+.search_form_toogle {
+    display: none;
+}
+ .more_mobile {
+    display: none;
+    text-align: center;
+    width: 110px;
+    position: absolute;
+    left: 10px;
+    top: 110px;
+    line-height: 25px;
+    border: 1px solid #AAAAAA;
+    border-radius: 10px;
+    background: #FFFFFF;
+}
+.more_mobile a {
+    color: #000000;
+}
+.pager_mobile {
+    display: none;
+}
+@media screen and (max-width: 1024px) {
+    div.property-list {
+        position: relative;
+    }
+table.property-list td.marker {
+    width: 0;
+    overflow: visible;
+    position: relative;
+}
+table.property-list td.marker img {
+    display: block;
+    position: absolute;
+    left: 50px;
+    top: 20px;
+}
+table.property-list td.photo{
+    width: 112px;
+}
+table.property-list td.title{
+    width: 600px;
+}
+
+}
+
+
+@media only screen and (min-width : 320px) and (max-width : 568px) {
+
+    div.property-search-form-container div.property-search-form {
+        padding: 15px 10px 15px 125px;
+    }
+    div.property-search-form-container {
+        float: none;
+        width: 100%;
+        position: relative;
+        margin-top: 40px;
+    }
+    div.property-search-form-container .property-search-form{
+        display: none;
+    }
+    .search_form_toogle {
+        display: block;
+    }
+    div#ajax-properties {
+        margin: 0;
+        padding: 1em;
+    }
+    div#gmap-wrapper {
+        height: 300px;
+        width: 100%;
+    }
+    div#gmap-wrapper > div {
+        width: 100% !important;
+        height: 300px !important;
+    }
+    div#ajax-properties div.pager {
+        clear: both;
+    }
+    div.property-list {
+        position: relative;
+        font-size: 12px !important;
+        margin-top: 10px;
+    }
+
+    td.building-type, td.sq-footage, td.zoning-type, td.acreage {
+        width: 135px !important;
+        display: block;
+    }
+    .property-more-information > a {
+        display: none;
+    }
+    .more_mobile {
+        display: block;
+    }
+
+    .pager_mobile {
+        display: block;
+    }
+    .pager {
+        display: none;
+    }
+    .pager_mobile .pager_results { background: #aaa; display: block; width: 100%; padding: 5px 0; text-align: center; color:#fff; font-size: 100%;}
+    .pager_mobile .pager_links { display: block; width: 100%; text-align: center; padding: 5px 0;}
+    .pager_mobile .pager_links a { width: 100px;}
+    .pager_mobile a {
+        display: inline-block; width: 30px; height: 30px; text-align: center; background: #aaa; color:#fff; font-size: 100%; margin: 2px 5px 0 5px; line-height: 30px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+    }
+
+    .pager_mobile { font-size: 100%; text-align: center;}
+
+    #page-title, #search_results_header {
+        display: none;
+    }
+    .search_form_toogle {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        padding: 0 1em;
+        font-weight: bold;
+        width: 100%; height: 40px; line-height: 40px; font-size: 130%; color: #666;
+        background: #E3E3DE url('../images/devices/down_button.png') no-repeat 95% 4px;
+    }
+    .search_form_toogle.active {
+        background-image: url('../images/devices/up_button.png')
+    }
+    div#ajax-busy {
+        margin: 1em auto !important;
+    }
+    .pager_mobile_title {
+        text-align: center;
+    }
+}
+@media screen and (max-width: 320px) {
+    div.property-search-form-container div.property-search-form {
+        padding: 15px 10px 15px 55px;
+    }
+}

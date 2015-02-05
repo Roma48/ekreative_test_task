@@ -1,0 +1,7 @@
+; $Id$
+name = EDSuite Export Table
+description = "Input filter that provides the ability export HTML tables as CSV."
+package = EDSuite
+dependencies[] = edsuite
+version = "5.x"
+core = 7.x

@@ -1,0 +1,44 @@
+@media only screen and (max-width: 1024px) {
+
+	/* Mean Menu */
+	.mean-container .mean-bar {
+	    padding-bottom: 0;
+	    overflow: hidden;
+	}
+
+	.mean-bar ul.menu li {
+	    margin: 0;
+	}
+
+	.mean-container .mean-nav ul li a {
+	    float: none;
+	    padding-left: 3%;
+	    width: 92%;
+	}
+
+	.mean-container .mean-nav ul li li a {
+	    padding-left: 8%;
+	}
+
+	.mean-container .mean-bar {
+	    float: none;
+	}
+
+}
+
+@media screen and (max-width: 930px) {
+	#site-container {
+		width: 96%;
+	}
+}
+
+/* Mobile - Landscape */
+@media screen and (min-width: 321px) and (max-width: 480px) {
+	
+}
+
+/* Mobile - Portrait */
+@media screen and (max-width: 320px) {
+				
+}
+

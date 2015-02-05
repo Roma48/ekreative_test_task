@@ -1,0 +1,912 @@
+<?php
+define('PROPOSAL_NOTIFCATION_EMAIL', "Dear !name,\n\nWe have prepared a proposal for you.  To access it go to !uri and type in `!code` in the 'Proposal Login' box.");
+define('PROPOSAL_SEND_SUBJECT', "Proposal sent by !name");
+define('PROPOSAL_SEND_EMAIL', "This is a notification that a proposal has been emailed at the request of !name.\n\nA copy of the proposal (PDF) is attached to this email.\n\n\nThank you,\n\nEDsuite System Automation\n");
+
+
+
+/**
+ * The form used to create the email notification that will be sent with proposals.
+ */
+function proposal_admin_send_proposal_form($nid)
+{
+    global $user;
+    $form = array();
+    $node = node_load($nid);
+    
+    $proposal_email_body_template = variable_get('proposal_notify_email_body_template', t(PROPOSAL_NOTIFCATION_EMAIL));
+
+    drupal_add_js(drupal_get_path('module', 'proposal') . '/js/proposal_admin_send_proposal_form.js', 'module');
+    
+    
+    $form['from'] = array(
+        '#type' => 'textfield',
+        '#title' => t('From'),
+        '#default_value' => $user->mail,
+    );
+    
+    $bcc = explode("\n", $node->emails);
+    $form['bcc'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Bcc'),
+        '#default_value' => implode(', ', array_map("trim", $bcc)),
+    );
+
+    $form['subject'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Subject'),
+        '#default_value' => t('Proposal Notification'),
+    );
+    
+    $form['body'] = array(
+        '#type' => 'text_format',
+        '#rows'          => 20,
+        '#title'         => t('Email Body'),
+        '#default_value' => t($proposal_email_body_template, array('!name' => $node->names, '!code' => $node->code, '!uri' => l($GLOBALS['base_url'], $GLOBALS['base_url']))),
+    );
+    
+    $form['nid'] = array('#type' => 'hidden', '#name' => 'nid', '#value' => $nid);
+    
+    $form['submit'] = array(
+        '#type'  => 'submit', 
+        '#value' => t('Send!') 
+    );
+    
+    return $form;
+}
+
+/**
+ * This is the submit action for the above form
+ */
+function proposal_admin_send_proposal_form_submit($form_id, &$form_values)
+{
+    $ret = drupal_mail('proposal-notification-mail', $form_values['from'], $form_values['subject'], $form_values['body'], $form_values['from'], array('Bcc' => $form_values['bcc'], 'Content-Type' => 'text/html; charset=UTF-8'));
+    flood_register_event('proposal-notification-mail');
+    watchdog('mail', t('%name-from sent a proposal notifcation email.', array('%name-from' => $form_values['from'])));
+    proposal_log($form_values['nid'], t('emailed the proposal notifcation to: !bcc', array('!bcc' => $form_values['bcc'])));
+
+    // Update user
+    if ($ret) {
+        drupal_set_message(t('Your message has been sent.'));
+    } else {
+        drupal_set_message(t('There was an error sending the email.'));
+    }
+  
+    // Jump to home page rather than back to custom report page to avoid contradictory messages if flood control has been activated.
+    return 'admin/content/proposals';
+}
+
+/**
+ * Define the settings form.
+ */
+function proposal_admin_settings()
+{
+    $proposal_email_body_template = variable_get('proposal_notify_email_body_template', t(PROPOSAL_NOTIFCATION_EMAIL));
+    $proposal_send_email_subject_template = variable_get('proposal_send_email_subject_template', t(PROPOSAL_SEND_SUBJECT));
+    $proposal_send_email_body_template = variable_get('proposal_send_email_body_template', t(PROPOSAL_SEND_EMAIL));
+    $proposal_header = variable_get('proposal_header', array('logo' => '', 'contact' => '', 'email' => variable_get('site_mail', '')));
+
+    $form['notify'] = array(
+        '#title'       => t('Proposal Notification Settings'),
+        '#type'        => 'fieldset',
+        '#collapsible' => true,
+        '#collapsed'   => false,
+        '#description' => t('These settings are for the "send" action on the admin screen.')
+    );
+
+    $form['notify']['proposal_notify_email_body_template'] = array(
+        '#type'          => 'textarea',
+        '#rows'          => 20,
+        '#title'         => t('Email Body Template'),
+        '#default_value' => $proposal_email_body_template,
+        '#description'   => t('Customize the body of the proposal notification e-mail.  Available variables are: !name, !uri, !code'),
+    );
+
+    $form['send'] = array(
+        '#title'       => t('Email Proposal Settings'),
+        '#type'        => 'fieldset',
+        '#collapsible' => true,
+        '#collapsed'   => false,
+        '#description' => t('These settings are for the "send" action while viewing a proposal.')
+    );
+
+    $form['send']['proposal_send_email_subject_template'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Email Subject Template'),
+        '#default_value' => $proposal_send_email_subject_template,
+        '#description'   => t('Customize the subject of the proposal e-mail. Available variables are: !name, !site, !uri.'),
+    );
+
+    $form['send']['proposal_send_email_body_template'] = array(
+        '#type'          => 'textarea',
+        '#rows'          => 15,
+        '#title'         => t('Email Body Template'),
+        '#default_value' => $proposal_send_email_body_template,
+        '#description'   => t('Customize the body of the proposal e-mail. Available variables are: !name, !site, !uri.'),
+    );
+    
+    $form['header'] = array(
+        '#title'       => t('Proposal Header Settings'),
+        '#type'        => 'fieldset',
+        '#collapsible' => true,
+        '#collapsed'   => false,
+    );
+
+    $form['header']['proposal_header_logo'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Path to Logo for Proposals'),
+        '#description'   => t('This file will be used as the logo in the header for all your proposals.'),
+        '#default_value' => $proposal_header['logo'],
+        '#size'          => 60,
+        '#maxlength'     => 256
+    );
+
+    $form['header']['proposal_header_logo_file'] = array(
+        '#type'          => 'file',
+        '#title'         => t('Upload Logo for Proposals'),
+        '#description'   => t('Upload an image file if you do not have one or know the path to one.'),
+    );
+
+    $form['header']['proposal_header_contact'] = array(
+        '#type'          => 'textarea',
+        '#rows'          => 6,
+        '#title'         => t('General Contact Information'),
+        '#default_value' => $proposal_header['contact'],
+        '#description'   => t('Customize the general contact information of the header.  Typical data are PO Box, Address, Phone Number(s), Fax, website.'),
+    );
+
+    $form['header']['proposal_header_email'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Email'),
+        '#default_value' => $proposal_header['email'],
+        '#description'   => t('This is the email address that will be displayed in the header.'),
+    );
+
+    $form['submit'] = array(
+        '#type'  => 'submit', 
+        '#value' => t('Save configuration') 
+    );
+
+    $form['#attributes'] = array('enctype' => 'multipart/form-data');
+
+    return $form;
+}
+
+/**
+ * Save settings
+ */
+function proposal_admin_settings_submit($form_id, $form_values)
+{
+    variable_set('proposal_notify_email_body_template', $form_values['values']['proposal_notify_email_body_template']);
+    variable_set('proposal_send_email_subject_template', $form_values['values']['proposal_send_email_subject_template']);
+    variable_set('proposal_send_email_body_template', $form_values['values']['proposal_send_email_body_template']);
+
+    $proposal_header = array('logo' => $form_values['values']['proposal_header_logo'], 'contact' => $form_values['values']['proposal_header_contact'], 'email' => $form_values['values']['proposal_header_email']);
+
+      $file = file_save_upload('proposal_header_logo_file', array(
+          'file_validate_is_image' => array(),
+          'file_validate_extensions' => array('png gif jpg jpeg'),
+      ));
+      
+      if ($file) {
+        $file->status = FILE_STATUS_PERMANENT;
+        file_save($file);
+        if ($file = file_move($file, 'public://')) { 
+            
+          $proposal_header['logo'] = file_create_url($file->uri);
+          //variable_set('proposal_header_logo_file', file_create_url($file->uri));
+          //$form_state['values']['file'] = $file;
+        }
+        else {
+          //form_set_error('file', t('Failed to write the uploaded file the site\'s file folder.'));
+            form_set_error('proposal_header_logo_file', t('There was an error in uploading your file.  Please try again.'));
+        }
+      }
+      else {
+        //variable_set('eds_properties_placeholder', $form_values['values']['eds_default_property_placeholder']);
+          //form_set_error('eds_default_property_placeholder_file', t('Only JPEG, PNG and GIF images are allowed.'));
+      }     
+
+    variable_set('proposal_header', $proposal_header);
+    
+    drupal_set_message(t('The configuration options have been saved.'));
+}
+
+/**
+ * AJAX: returns true or false based on the uniqueness of the code
+ */
+function proposal_ajax_code_is_unique()
+{
+    $return = array();
+    
+    if (drupal_valid_token($_POST['token'], 'proposal_node_form')) {
+        $return['unique'] = proposal_code_is_unique($_POST['code']);
+    }
+    
+    drupal_set_header('Content-Type: application/json; charset=utf-8');
+    print drupal_to_js($return);
+    module_invoke_all('exit');
+    exit; 
+}
+
+/**
+ * AJAX: returns a list of nodes based on partial title searches
+ */
+function proposal_autocomplete($string = '')
+{
+    $matches = array();
+    if ($string) {
+        $result = db_query_range("SELECT n.title, t.name as type, n.nid FROM {node} n INNER JOIN {node_type} t ON t.type = n.type WHERE LOWER(n.title) LIKE LOWER('%%%s%%') ORDER BY t.name,n.title ASC", strtolower($string), 0, 10);
+        while ($node = db_fetch_object($result)) {
+            $key = sprintf("%s (node:%d)", $node->title, $node->nid);
+            $matches[$key] = check_plain(sprintf("[%s] %s", $node->type, $node->title));
+        }
+    }
+
+    drupal_set_header('Content-Type: application/json; charset=utf-8');
+    print drupal_to_js($matches);
+    module_invoke_all('exit');
+    exit; 
+}
+
+/**
+* Implements hook_block_info().
+*/
+function proposal_block_info() {  
+    
+    $blocks = array();
+   
+    $blocks['propsal_login'] = array(
+        'info'    => t('Propsal Login'),
+        'weight'  => 0,
+        'enabled' => 0,
+        );   
+    
+    $blocks['propsal_secure'] = array(
+        'info'    => t('Propsal Secure'),
+        'weight'  => 0,
+        'enabled' => 0,
+        );     
+ 
+    return $blocks;
+}
+
+
+/**
+* Implements hook_block_view().
+*
+*/
+function proposal_block_view($delta = '') {
+    
+    switch($delta) {
+        case 'propsal_login':
+            drupal_add_js(drupal_get_path('module', 'proposal') . '/js/proposal_block.js', 'file');
+            return array('subject' => t('Proposal Login'), 'content' => drupal_get_form('proposal_block_form'));
+            break;
+        case 'propsal_secure':
+            return array('subject' => t('Proposal Secure'), 'content' => drupal_get_form('proposal_secure_block_form'));
+    }
+}
+
+function proposal_secure_block_form()
+{
+    $form['code'] = array(
+        '#title' => 'Code:',
+        '#type' => 'textfield',
+        '#default_value' => arg(2),
+        '#maxlength' => 32,
+        '#size' => 40,
+        '#id' => 'login-code',
+    );    
+    
+    $form['password'] = array(
+        '#title' => t('Please enter the password from email:'),
+        '#type' => 'password',
+        '#default_value' => '',
+        '#size' => 40,
+        '#id' => 'login-code',
+    );
+    $form['button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Go'),
+    );
+    
+    return $form;
+}
+function proposal_secure_block_form_submit($form_id, $form_values)
+{    
+    if (!checkProposalPassword($form_values['values']['code'], $form_values['values']['password'])) {
+        //drupal_not_found();
+        module_invoke_all('exit');
+    } else {
+        $_SESSION['proposal_password'] = md5($form_values['values']['password']);
+
+        drupal_goto('proposal/code/' . $form_values['values']['code']);
+
+    }
+    
+}
+
+function checkProposalPassword($code, $password) {
+    $sql = "SELECT n.nid FROM {node} n
+            LEFT JOIN {field_data_field_code} pc on pc.entity_id = n.nid
+            LEFT JOIN {field_data_field_status} ps on ps.entity_id = n.nid
+            LEFT JOIN {field_data_field_password} pp on pp.entity_id = n.nid
+            WHERE pc.field_code_value = :code AND
+                  ps.field_status_value = :status AND
+                  pp.field_password_value = :password AND
+                  n.type = 'proposal'";
+    
+    $proposal = db_query($sql, array(":code" => $code, ':status' => PROPOSAL_ACTIVE, ':password' => $password))->fetchAssoc();
+   
+    if (!$proposal) {
+        
+        return false;
+        
+    } else {
+        
+        return true;
+        
+    }
+}
+
+function getProposalPassword($code) {
+    $sql = "SELECT n.nid, pp.field_password_value AS password FROM {node} n
+            LEFT JOIN {field_data_field_code} pc on pc.entity_id = n.nid
+            LEFT JOIN {field_data_field_status} ps on ps.entity_id = n.nid
+            LEFT JOIN {field_data_field_password} pp on pp.entity_id = n.nid
+            WHERE pc.field_code_value = :code AND
+                  ps.field_status_value = :status AND
+                  n.type = 'proposal'";
+    
+    $proposal = db_query($sql, array(":code" => $code, ':status' => PROPOSAL_ACTIVE))->fetchAssoc();
+   
+    return isset($proposal['password']) ? $proposal['password'] : false;
+}
+
+/**
+ * The actual form used inside the block
+ */
+function proposal_block_form()
+{
+    $form['code'] = array(
+        '#type' => 'textfield',
+        '#default_value' => t('Proposal Login'),
+        '#maxlength' => 32,
+        '#size' => 12,
+        '#id' => 'login-code',
+    );
+    $form['button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Go'),
+    );
+    
+    // $form['#action'] = url('proposal/code');
+    $form['#attributes'] = array('target' => '_blank');
+    
+    return $form;
+}
+
+
+function proposal_block_form_submit($form_id, $form_values)
+{    
+  //var_dump($form_values['values']['code']);exit;  
+    $sql = "SELECT n.nid FROM {node} n
+            LEFT JOIN {field_data_field_code} pc on pc.entity_id = n.nid
+            LEFT JOIN {field_data_field_status} ps on ps.entity_id = n.nid
+            WHERE pc.field_code_value = :code AND
+                  ps.field_status_value = :status AND
+                  n.type = 'proposal'";
+    
+    $proposal = db_query($sql, array(":code" => $form_values['values']['code'], ':status' => PROPOSAL_ACTIVE))->fetchAssoc();
+   
+    if (!$proposal) {
+        drupal_not_found();
+        module_invoke_all('exit');
+    } else {
+        drupal_goto('proposal/login/' . $form_values['values']['code']);
+    }
+    
+}
+
+/**
+ * Send e-mail from a proposal
+ */
+function proposal_email_proposal_form($form, &$form_state, $node)
+{
+    global $user;
+    $form['send_mail'] = array(
+        '#type'        => 'fieldset',
+        // '#title'       => t('Share this Proposal via Email'),
+        '#collapsible' => false,
+        '#collapsed'   => false,
+        '#attributes'  => array('class' => array('send_email')),
+        );    
+    $form['send_mail']['name'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Your name'),
+        '#maxlength'     => 255,
+        '#default_value' => $user->uid ? $user->mail : '',
+        '#required'      => TRUE,
+        '#weight' => -9        
+        );    
+    $form['send_mail']['to'] = array(
+        '#type'          => 'textarea',
+        '#title'         => t('Email Address(es)'),
+        '#description'   => t('Enter a list of addresses that will be emailed about this report.  One per line please.'),
+        '#required'      => TRUE,
+        '#rows'          => 3,
+        '#weight'        => -8
+        );
+    $form['send_mail']['title'] = array(
+        '#type' => 'hidden',
+        '#default_value' => 'Proposal',
+        );
+    $form['send_mail']['code'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $node->field_code,
+        );
+    $form['send_mail']['nid'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $node->nid,
+        );
+    $form['send_mail']['submit'] = array(
+        '#type'   => 'submit',
+        '#value'  => t('Send e-mail'),
+        '#weight' => 1
+    );
+
+    return $form;
+}
+
+/**
+ * Process the proposal send email form submission.
+ */
+function proposal_email_proposal_form_submit($form_id, $form_values) 
+{
+    // E-mail address of the sender: as the form field is a text field,
+    // all instances of \r and \n have been automatically stripped from it.
+    $from = variable_get('site_mail', ini_get('sendmail_from'));
+    $proposal_url = 'proposal/code/' . $form_values['code'];
+    $proposal_send_email_subject_template = variable_get('proposal_send_email_subject_template', t(PROPOSAL_SEND_SUBJECT));
+    $proposal_send_email_body_template = variable_get('proposal_send_email_body_template', t(PROPOSAL_SEND_EMAIL));
+
+    $eol = "\r\n";
+    $mime_boundary = md5(time());
+    $filename = 'proposal.pdf';
+    $mime_type = 'application/pdf';
+
+    $url = EDS_WEBPDF_URL . "?purl=" . url($proposal_url, null, null, true);
+        
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HEADER, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $header = curl_exec($ch);
+    curl_close($ch);
+    
+    $res = preg_match('/Location: (http.*)\n/', $header, $matches);
+
+    if ($res == 0) {
+        drupal_set_message(t('There was an error in fetching the PDF version of the report.'));
+        return $proposal_url;
+    }
+
+    $ch = curl_init($matches[1]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $filedata = curl_exec($ch);
+    curl_close($ch);
+    
+    $fdata = chunk_split(base64_encode($filedata)); //Encode data into text form
+    
+    $template_vars = array('!name' => $form_values['name'], '!uri' => $GLOBALS[base_url], '!site' => $GLOBALS[conf][site_name]);
+
+    // Compose the body:
+    $message[] = t($proposal_send_email_body_template, $template_vars);
+
+    // Tidy up the body:
+    foreach ($message as $key => $value) {
+        $message[$key] = wordwrap($value);
+    }
+    
+    $subject = t($proposal_send_email_subject_template, $template_vars);
+    
+    $headers['Content-Type'] = 'multipart/mixed; boundary="'. $mime_boundary .'"';
+
+    $body  = "\n--$mime_boundary\n";
+    $body .= "Content-Type: text/html; charset=UTF-8;\n\n"; // sets the mime type
+
+    // Prepare the body:
+    $body .= implode("\n\n", $message);
+    $body .= "\n\n\n";
+
+    // Process the attachment.
+    $body .= "--$mime_boundary\n";
+    $body .= "Content-Type: ". $mime_type ."; name=\"". $filename ."\"\n";
+    $body .= "Content-Transfer-Encoding: base64\n";
+    $body .= "Content-Disposition: attachment; filename=\"". $filename ."\"\n\n";
+    $body .= $fdata;
+    $body .= "\n\n";    
+    $body .= "--$mime_boundary--\n\n";
+
+    // Send the e-mail to the recipients
+    $to = explode("\n", $form_values['to']);
+
+    $ret = drupal_mail('proposal-mail', implode(', ', $to), $subject, $body, $from, $headers);
+    
+    // Log the operation
+    flood_register_event('proposal-mail');
+    watchdog('mail', t('%name-from sent a proposal via e-mail.', array('%name-from' => $form_values['name'] ." <$from>")));
+    proposal_log($form_values['nid'], t('!name emailed the proposal to: !to', array('!name' => $form_values['name'], '!to' => implode(', ', $to))));
+
+    // Update user
+    if ($ret) {
+        drupal_set_message(t('Your message has been sent.'));
+    } else {
+        drupal_set_message(t('There was an error sending the report.'));
+    }
+  
+    // Jump to home page rather than back to custom report page to avoid contradictory messages if flood control has been activated.
+    return $proposal_url;
+}
+
+/**
+ * Validate the proposal send email form submission.
+ */
+function proposal_email_proposal_form_validate($form_id, $form_values) 
+{
+    if (empty($form_values['to'])) {
+        form_set_error('to', t('You must enter at least one valid email address.'));
+    } else {
+        $email = explode("\n", $node->emails);
+        foreach ($email as $e) {
+            if (!empty($e) && !valid_email_address($e)) {
+                form_set_error('to', t('You must enter only valid email addresses. (`!address` is not valid)', array('!address' => $e)));
+                
+            }
+        }
+    }
+}
+
+/**
+ * This function simply fetches a node and returns it via JSON so we can copy any node on Drupal and add it as a Proposal section
+ */
+function proposal_fetch_node($nid)
+{
+    if (!$nid || $nid < 1) {
+        module_invoke_all('exit');
+        exit; 
+    }
+    $node = node_load($nid);
+    if (!node_access('view', $node)) {
+        module_invoke_all('exit');
+        exit; 
+    }
+    
+    $teaser = false;
+    
+    if ($node->type == 'eds_properties') {
+        $teaser = true;
+    }
+    
+    $contents = node_view($node, $teaser, false, false);
+
+    drupal_set_header('Content-Type: application/json; charset=utf-8');
+    print drupal_to_js(array('title' => $node->title, 'body' => $contents));
+    module_invoke_all('exit');
+    exit; 
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function proposal_menu() {
+    $items = array();
+
+    $items['proposal/autocomplete'] = array(
+        'title'              => t('Proposal autocomplete'),
+        'page callback'           => 'proposal_autocomplete',
+        'access callback'             => true,
+        'type'               => MENU_CALLBACK
+    );
+    $items['proposal/code_is_unique'] = array(
+        'title'              => t('Proposal code is unique'),
+        'page callback'           => 'proposal_ajax_code_is_unique',
+        'access callback'             => true,
+        'type'               => MENU_CALLBACK
+    );
+    $items['admin/content/proposals'] = array(
+        'title'              => t('Proposals'),
+        'page callback'           => 'proposal_admin_content_view',
+        'access callback' => 'user_access',
+        'access arguments' => array('administer proposal'),          
+        'description'        => t('List and edit proposals.')
+    );
+    $items['admin/edsuite/proposal'] = array(
+        'title'              => t('Proposal settings'),
+        'page callback'           => 'drupal_get_form',
+        'page arguments' => array('proposal_admin_settings'),
+        'access callback' => 'user_access',
+        'access arguments' => array('administer site configuration'),         
+        'description'        => t('Configure the email template and proposal header.')
+    );
+    
+    $items['proposal/code/%'] = array(
+        'title'              => t('Proposal'),
+        'page callback'           => 'proposal_verify_code',
+        'page arguments' => array(2),
+        'access callback'             => true,
+        'type'               => MENU_CALLBACK
+    );
+    
+    $items['proposal/login/%'] = array(
+        'title'              => t('Proposal login'),
+        'page callback'           => 'proposal_login_page',
+        'page arguments' => array(2),
+        'access callback'             => true,
+        'type'               => MENU_CALLBACK
+    );    
+    
+    $items['proposal/fetch/%'] = array(
+        'title'              => t('Fetch a Node'),
+        'page callback'           => 'proposal_fetch_node',
+        'page arguments' => array(2),
+        // 'access'             => node_access('view', node_load(arg(2))),
+        'access callback'             => true,
+        'type'               => MENU_CALLBACK
+    );
+    
+    $items['proposal/logs/%'] = array(
+        'page callback'           => 'proposal_get_logs',
+        'page arguments' => array(2),
+        'access callback' => 'user_access',
+        'access arguments' => array('administer'),
+        'type'               => MENU_CALLBACK
+    );    
+    
+    $items['admin/content/proposals/send/%'] = array(
+        'title'              => t('Proposal'),
+        'page callback'           => 'drupal_get_form',
+        'page arguments' => array('proposal_admin_send_proposal_form'),
+        'access callback'             => array('user_access'),
+        'access arguments' => array('administer proposal'),
+        'type'               => MENU_CALLBACK
+    );    
+
+    return $items;
+}
+
+function proposal_login_page($code)
+{   
+    drupal_add_library('system', 'ui.dialog');
+    return '';
+}
+
+/**
+ * This function will check for a code, and if it's there will display the proposal.
+ */
+function proposal_verify_code($code)
+{
+    $password = getProposalPassword($code);
+
+    if(!isset($_SESSION['proposal_password']) || md5($password) != $_SESSION['proposal_password']) {
+        drupal_goto('proposal/login/' . $code); exit;
+    } else {    
+        
+        $pdf = arg(3) == 'pdf';
+
+        $sql = "SELECT n.nid FROM {node} n
+                LEFT JOIN {field_data_field_code} pc on pc.entity_id = n.nid
+                LEFT JOIN {field_data_field_status} ps on ps.entity_id = n.nid
+                WHERE pc.field_code_value = :code AND
+                      ps.field_status_value = :status AND
+                      n.type = 'proposal'";
+
+        $proposal = db_query($sql, array(":code" => $code, ':status' => PROPOSAL_ACTIVE))->fetchAssoc();
+
+        if (!$proposal) {
+            drupal_not_found();
+        } else {
+            $nid = $proposal['nid'];
+
+            // Logging the pdf request
+            if ($pdf) {
+                //proposal_log($nid, t('converted the proposal to PDF'));
+                drupal_set_header('Content-Type: text/html; charset=utf-8');
+                print theme('proposal_pdf', url('proposal/code/' . $code, null, null, true));
+                module_invoke_all('exit');
+                    exit;
+            }
+
+//            $node = node_load($nid);
+            
+            $options = array('absolute' => TRUE);
+            $url = url('node/' . $nid, $options);
+            
+            return drupal_goto($url);
+            //return node_view($node, false, true);
+        }
+    }    
+}
+
+/**
+ * Implementation of hook_node_view().
+ */
+function proposal_node_view($node, $view_mode, $langcode) {
+    
+    //echo '<pre>'; print_r($node); exit;
+    if ($node->type == 'proposal') {
+        drupal_add_css(drupal_get_path('module', 'proposal') . '/support/css/proposal.css', array('type' => 'file'));
+        drupal_add_css(drupal_get_path('module', 'proposal') . '/support/css/proposal-print.css', array('type' => 'file', 'media' => 'print'));
+        drupal_add_css(drupal_get_path('module', 'proposal') . '/support/css/jquery.lightbox-0.5.css', array('type' => 'file'));
+        
+        drupal_add_js(drupal_get_path('module', 'proposal') . '/js/jquery.lightbox-0.5.min.js', array('type' => 'file'));
+        drupal_add_js(drupal_get_path('module', 'proposal') . '/js/proposal.js', array('type' => 'file'));
+        drupal_add_js('jQuery(function() {jQuery("li.section-navigation-item a:first").click(); });', array('type' => 'inline'));
+
+        /* Loading the sytle.css from the chosen skin, or the default skin */
+        if (is_readable(path_to_theme() . '/proposals/skins/' . $node->field_skin['und'][0]['value'] . '/style.css')) {
+            drupal_add_css(path_to_theme() . '/proposals/skins/' . $node->field_skin['und'][0]['value'] . '/style.css', 'file');
+            if (is_readable(path_to_theme() . '/proposals/skins/' . $node->field_skin['und'][0]['value'] . '/print.css')) {
+                drupal_add_css(path_to_theme() . '/proposals/skins/' . $node->field_skin['und'][0]['value'] . '/print.css', 'file', 'print');
+            }
+        } elseif (is_readable(drupal_get_path('module', 'proposal') . '/support/skins/' . $node->field_skin['und'][0]['value'] . '/style.css')) {
+            drupal_add_css(drupal_get_path('module', 'proposal') . '/support/skins/' . $node->field_skin['und'][0]['value'] . '/style.css', 'file');
+            if (is_readable(drupal_get_path('module', 'proposal') . '/support/skins/' . $node->field_skin['und'][0]['value'] . '/print.css')) {
+                drupal_add_css(drupal_get_path('module', 'proposal') . '/support/skins/' . $node->field_skin['und'][0]['value'] . '/print.css', 'file', 'print');
+            }
+        } else {
+            drupal_add_css(drupal_get_path('module', 'proposal') . '/support/skins/default/style.css', 'file');
+            drupal_add_css(drupal_get_path('module', 'proposal') . '/support/skins/default/print.css', 'file', 'print');
+        }
+    }
+}
+
+function proposal_theme($existing, $type, $theme, $path) {
+    
+    $themes = array (
+        'proposal' => array(
+            'template' => 'templates/proposal',
+            'arguments' => array('node' => NULL),
+        ),
+    );
+    return $themes;
+}
+
+/**
+* Implements hook_node_load().
+*/
+function proposal_node_load($nodes, $types) {
+
+    global $user;
+    
+    $checkingType = 'proposal';
+    
+    if(in_array($checkingType, $types) && !$user->uid) {
+
+        if(isset($_SESSION['proposal_password'])) {
+            
+            foreach($nodes as $nid => $node) {
+                if($_SESSION['proposal_password'] != md5($node->field_password['und'][0]['value'])) {
+                    drupal_goto(404);
+                    module_invoke_all('exit');
+                }
+            }
+            
+        } else {
+            drupal_goto(404);
+            module_invoke_all('exit');
+        }
+    }
+}
+
+function proposal_get_logs($nid) {
+    
+    $result = array();
+    
+    //view logs
+    $viewResult = db_query(
+            'SELECT * FROM {accesslog} WHERE (path=:path OR path=:slugPath) ORDER BY timestamp DESC', 
+            array('path' => 'node/'. $nid, 'slugPath' => 'node/'. drupal_lookup_path('alias',"node/".$nid))
+    );
+    
+    //if($viewResult && count($viewResult) > 0) {
+    
+        while($view = $viewResult->fetchAssoc()) {
+            $result['views'][] =  array(
+                'when' => date('d/m/Y H:i:s', $view['timestamp']),
+                'who' => $view['hostname'],
+                'what' => 'Viewed'
+            );
+        } 
+        
+    //}
+    
+    $nodeResult = db_query(
+            'SELECT * FROM {node_counter} WHERE nid=:nid', 
+            array(':nid' => $nid)
+    )->fetchAssoc();
+    
+    if($nodeResult) {
+        $result['other'][] =  array(
+            'when_last' => date('d/m/Y H:i:s', $nodeResult['timestamp']),
+            'count' => $nodeResult['totalcount'],
+            'what' => 'Viewed'
+        );
+    }
+    
+    //mail logs
+    $mailResult = db_query(
+            'SELECT * FROM {print_mail_page_counter} WHERE path=:path OR path=:slugPath', 
+            array(':path' => 'node/'. $nid, ':slugPath' => 'node/'. drupal_lookup_path('alias',"node/".$nid))
+    )->fetchAssoc();
+    
+    if($mailResult) {
+        $result['other'][] =  array(
+            'when_last' => date('d/m/Y H:i:s', $mailResult['timestamp']),
+            'count' => $mailResult['totalcount'],
+            'what' => 'Sent email'
+        );
+    }
+    
+    //print logs
+    $printResult = db_query(
+            'SELECT * FROM {print_page_counter} WHERE path=:path OR path=:slugPath', 
+            array(':path' => 'node/'. $nid, ':slugPath' => 'node/'. drupal_lookup_path('alias',"node/".$nid))
+    )->fetchAssoc();
+    
+    if($printResult) {
+        $result['other'][] =  array(
+            'when_last' => date('d/m/Y H:i:s', $printResult['timestamp']),
+            'count' => $printResult['totalcount'],
+            'what' => 'Print page'
+        ); 
+    }
+    
+    //pdf logs
+    $pdfResult = db_query(
+            'SELECT * FROM {print_pdf_page_counter} WHERE path=:path OR path=:slugPath', 
+            array(':path' => 'node/'. $nid, ':slugPath' => 'node/'. drupal_lookup_path('alias',"node/".$nid))
+    )->fetchAssoc();
+    
+    
+    if($pdfResult) {
+
+        $result['other'][] =  array(
+            'when_last' => date('d/m/Y H:i:s', $pdfResult['timestamp']),
+            'count' => $pdfResult['totalcount'],
+            'what' => 'Got PDF'
+        );  
+    
+    }
+    
+    //echo '<pre>'; print_r($result); exit;
+    echo json_encode($result); die;
+}
+function proposal_exit() {
+  global $user;
+
+  // When serving cached pages with the 'page_cache_without_database'
+  // configuration, system variables need to be loaded. This is a major
+  // performance decrease for non-database page caches, but with Statistics
+  // module, it is likely to also have 'statistics_enable_access_log' enabled,
+  // in which case we need to bootstrap to the session phase anyway.
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES);
+
+  if (variable_get('statistics_count_content_views', 0)) {
+    // We are counting content views.
+    if ($user->uid != 0 && arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == NULL) {
+      // A node has been viewed, so update the node's counters.
+      db_merge('node_counter')
+        ->key(array('nid' => arg(1)))
+        ->fields(array(
+          'daycount' => 1,
+          'totalcount' => 1,
+          'timestamp' => REQUEST_TIME,
+        ))
+        ->expression('daycount', 'GREATEST(daycount, 1) - 1')
+        ->expression('totalcount', 'GREATEST(totalcount, 1) - 1')
+        ->execute();
+    }
+  }
+}
+
